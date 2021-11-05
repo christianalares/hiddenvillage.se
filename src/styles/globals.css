@@ -8,6 +8,6 @@
   }
 
   h1 {
-    @apply text-6xl md:text-9xl;
+    @apply text-4xl md:text-9xl;
   }
 }
