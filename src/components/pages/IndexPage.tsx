@@ -1,6 +1,10 @@
+import s from './IndexPage.module.scss'
 const IndexPage = () => {
   return (
-    <h1 className="absolute top-1/2 w-full text-center transform -translate-y-1/2 animate-bounce">Hidden Village</h1>
+    <div className={s.indexPage}>
+      <h1>Hidden Village</h1>
+      <a href="mailto:christian@hiddenvillage.se">christian@hiddenvillage.se</a>
+    </div>
   )
 }
 
