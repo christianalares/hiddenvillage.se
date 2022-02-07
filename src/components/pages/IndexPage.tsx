@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import s from './IndexPage.module.scss'
+
 const IndexPage = () => {
   useEffect(() => {
     console.log('Ooh, hello there! 🤪')

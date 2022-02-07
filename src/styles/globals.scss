@@ -17,11 +17,12 @@ body {
 
 h1 {
   margin: 0;
-  font-size: 4rem;
+  font-size: clamp(4rem, 10vw, 15rem);
   font-weight: normal;
 }
 
 a {
   color: #9898da;
   text-decoration: none;
+  font-size: clamp(2rem, 3vw, 5rem);
 }
