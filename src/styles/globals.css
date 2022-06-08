@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: Merriweather;
+    font-display: swap;
+    src: url('/fonts/merriweather/Merriweather-Light.ttf');
+    font-weight: 300;
+  }
+  @font-face {
+    font-family: Merriweather;
+    font-display: swap;
+    src: url('/fonts/merriweather/Merriweather-Regular.ttf');
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: Merriweather;
+    font-display: swap;
+    src: url('/fonts/merriweather/Merriweather-Bold.ttf');
+    font-weight: 700;
+  }
+  @font-face {
+    font-family: Merriweather;
+    font-display: swap;
+    src: url('/fonts/merriweather/Merriweather-Black.ttf');
+    font-weight: 900;
+  }
+
+  body {
+    @apply bg-slate-900 text-white;
+    /* @apply bg-gradient-radial-to-br from-slate-800 to-slate-900 text-white; */
+  }
+
+  h1 {
+    @apply font-serif;
+  }
+
+  h2 {
+    /* @apply font-serif tracking-wider; */
+  }
+
+  .hr {
+    @apply border-t border-white/10 my-12;
+  }
+
+  .deb {
+    @apply bg-white/10
+  }
+}
