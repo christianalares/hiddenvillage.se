@@ -46,7 +46,7 @@ const Modal = ({ children, isOpen }: Props) => {
                   transition={{ duration: 0.2 }}
                   className="fixed z-10 inset-3 rounded-md bg-white/10 max-w-2xl mx-auto md:h-fit md:max-h-[85vh] md:top-[8vh] overflow-y-scroll backdrop-blur-lg"
                 >
-                  <div className="h-full overflow-y-scroll">
+                  <div className="overflow-y-scroll">
                     <Link href="/" scroll={false} shallow={true} ref={closeButtonRef}>
                       <a
                         // tabIndex={0}
