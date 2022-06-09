@@ -33,12 +33,20 @@
     /* @apply bg-gradient-radial-to-br from-slate-800 to-slate-900 text-white; */
   }
 
+  :focus {
+    @apply focus-visible:outline-none focus-visible:border-slate-500 focus-visible:ring-2 focus-visible:ring-slate-700;
+  }
+
   h1 {
     @apply font-serif;
   }
 
   h2 {
-    /* @apply font-serif tracking-wider; */
+    @apply font-serif;
+  }
+
+  h3 {
+    @apply font-serif;
   }
 
   .hr {

@@ -1,86 +1,12 @@
+import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
 import type { NextPage } from 'next'
-import type { Item } from '../components/WorkItems'
 import Head from 'next/head'
 import Image from 'next/image'
+import { useEffect } from 'react'
+import Container from '../components/Container'
+import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
 import Emoji from '../components/Emoji'
 import WorkItems from '../components/WorkItems'
-import Container from '../components/Container'
-import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
-import { useEffect } from 'react'
-
-const mockItems: Item[] = [
-  {
-    id: '1',
-    title: 'Robotkodarn',
-    from: new Date('2016'),
-    to: new Date('2017'),
-    role: 'Frontend Developer',
-    tags: [
-      'JavaScript',
-      'HTML',
-      'CSS',
-      'React',
-      'Redux',
-      'MongoDB',
-      'Mongoose',
-      'Hapi.js',
-      'Joi',
-      'Node.js',
-      'Arduino',
-      'Git',
-      'Github',
-      'Git Flow',
-      'Agile workflow',
-    ],
-  },
-  {
-    id: '2',
-    title: 'Roder Innovation',
-    from: new Date('2017-11'),
-    to: new Date('2018-04'),
-    role: 'Frontend Developer',
-    tags: ['JavaScript', 'HTML', 'CSS', 'React', 'Redux', 'WebAudio', 'IoT', 'Canvas', 'Git', 'BitBucket'],
-  },
-  {
-    id: '3',
-    title: 'H&M',
-    from: new Date('2018-03'),
-    to: new Date('2019-04'),
-    role: 'Frontend Developer',
-    tags: ['JavaScript', 'HTML', 'CSS', 'SCSS', 'React', 'Redux', 'Webpack', 'NodeJS', 'Git', 'Jira'],
-  },
-  {
-    id: '4',
-    title: 'Exodox',
-    from: new Date('2019-04'),
-    to: new Date('2020-05'),
-    role: 'Fullstack Developer',
-    tags: ['React', 'NextJS', 'Redux', 'NodeJS', 'Express', 'Webpack'],
-  },
-  {
-    id: '5',
-    title: 'SWITCHR',
-    from: new Date('2020-05'),
-    to: new Date('2020-12'),
-    role: 'Frontend Developer',
-    tags: ['React', 'Redux', 'NodeJS', 'SCSS', 'Webpack', 'GitLab', 'CI/CD', 'Flow', 'Jest', 'Contentful', 'Stripe'],
-  },
-  {
-    id: '6',
-    title: 'Doctrin',
-    from: new Date('2020-12'),
-    to: new Date('2021-05'),
-    role: 'Fullstack Developer',
-    tags: ['KoaJS', 'React', 'Redux', 'CSS', 'Webpack', 'GitHub', 'GitHub Actions', 'Storybook', 'Jest', 'Cypress'],
-  },
-  {
-    id: '7',
-    title: 'Svenskt Näringsliv',
-    from: new Date('2021-09'),
-    role: 'Fullstack Developer',
-    tags: ['NodeJS', 'Express', 'React', 'Redux', 'CSS', 'Canvas', 'Webpack', 'Bitbucket', 'Azure DevOps', 'Sentry'],
-  },
-].reverse()
 
 const Index: NextPage = () => {
   useEffect(() => {
@@ -96,6 +22,8 @@ const Index: NextPage = () => {
         <meta property="og:image" content="/me.jpg" />
         <meta property="og:description" content="Hidden Village is a personal website of Christian Alares" />
       </Head>
+
+      <CurrentWorkItemModal />
 
       <Container className="my-8 xs:my-16">
         <div className="flex flex-col xs:flex-row items-center justify-center relative gap-8">
@@ -120,7 +48,7 @@ const Index: NextPage = () => {
           Hi! <Emoji emoji="👋" label="Hi!" />
         </p>
         <p className="text-slate-300 mt-2 text-lg">
-          My name is Christian and I&apos;m a freelance web developer. I have with experience from large, agile projects
+          My name is Christian and I&apos;m a freelance web developer. I have experience from large, agile projects
           dealing with complex code bases, as well as working in small startup teams. I&apos;m experienced in most
           aspects of developing web based applications ranging from frontend to backend, though my specialty and passion
           lies within the frontend layer with JavaScript technologies such as HTML, CSS, React, animations and UI
@@ -129,15 +57,15 @@ const Index: NextPage = () => {
 
         <hr className="hr" />
 
-        <h2 className="font-serif text-slate-500 text-3xl text-center mb-8 flex justify-center gap-3">
+        <h2 className="text-slate-500 text-3xl text-center mb-8 flex justify-center gap-3">
           <Emoji emoji="👨‍💻" label="Guy behind his computer" />
           <span>Previous Work</span>
         </h2>
-        <WorkItems items={mockItems} />
+        <WorkItems />
 
         <hr className="hr" />
 
-        <h2 className="font-serif text-slate-500 text-3xl text-center mb-8 flex justify-center gap-3">
+        <h2 className="text-slate-500 text-3xl text-center mb-8 flex justify-center gap-3">
           <Emoji emoji="☎️" label="Telephone" />
           <span>Get in touch</span>
         </h2>
