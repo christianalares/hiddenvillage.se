@@ -99,7 +99,7 @@ const workItems: Item[] = [
     role: 'Fullstack Developer',
     tags: ['KoaJS', 'React', 'Redux', 'CSS', 'Webpack', 'GitHub', 'GitHub Actions', 'Storybook', 'Jest', 'Cypress'],
     description: [
-      'Doctrin is an online, chat based, Health Care Center who&apos;s largest customer is Capio. A majority of health care visits today can be solved online and Doctrin aim to relieve pressure on healthcare centers and only provide physical appointments with doctors when necessary.',
+      "Doctrin is an online, chat based, Health Care Center who's largest customer is Capio. A majority of health care visits today can be solved online and Doctrin aim to relieve pressure on healthcare centers and only provide physical appointments with doctors when necessary.",
       'The service is built using microservices. The backend is written in KoaJS and the front-end is built with React and Redux.',
       'I worked in a team consisting of two developers, two UX designers, one tester and one product owner. He developed new features for patients, caregivers and internal systems. He was also responsible for technical improvements among the whole stack such as modernizing the code, updating legacy solutions to be more modern and less error-prone.',
     ],
@@ -113,7 +113,7 @@ const workItems: Item[] = [
     tags: ['NodeJS', 'Express', 'React', 'Redux', 'CSS', 'Canvas', 'Webpack', 'Bitbucket', 'Azure DevOps', 'Sentry'],
     description: [
       'The Confederation of Swedish Enterprise produces improvement to the business climate. They represent business in discussions with unions and authorities.',
-      'The site is built with a server side rendered React application. It&apos;s hosted on Azure, and built using Azure pipelines.',
+      "The site is built with a server side rendered React application. It's hosted on Azure, and built using Azure pipelines.",
     ],
     url: 'https://www.svensktnaringsliv.se',
   },
