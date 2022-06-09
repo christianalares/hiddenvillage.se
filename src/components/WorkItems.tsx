@@ -36,7 +36,8 @@ const WorkItems = ({}: Props) => {
             scroll={false}
             shallow={true}
           >
-            <InformationCircleIcon className="w-5 text-slate-500" /> Read more
+            <InformationCircleIcon className="w-5 text-slate-500" /> Read more{' '}
+            <span className="sr-only">about {item.title}</span>
           </Button>
         </li>
       ))}
