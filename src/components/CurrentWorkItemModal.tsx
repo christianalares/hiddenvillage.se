@@ -61,7 +61,7 @@ const CurrentWorkItemModal = ({}: Props) => {
             </h3>
             <ul className="flex flex-wrap gap-2 mt-4">
               {item.tags.map(tag => (
-                <Tag as="li" key={tag} tag={tag} className="bg-slate-500 text-slate-300" />
+                <Tag as="li" key={tag} tag={tag} className="bg-slate-500 text-slate-200" />
               ))}
             </ul>
           </div>
