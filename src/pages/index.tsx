@@ -1,5 +1,5 @@
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
-import { Client, LogLevel } from '@notionhq/client'
+import { Client } from '@notionhq/client'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -8,8 +8,13 @@ import Container from '../components/Container'
 import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
 import Emoji from '../components/Emoji'
 import WorkItems from '../components/WorkItems'
+import getEntriesFromDb, { WorkItem } from '../utils/notion/getEntriesFromDb'
 
-const Index: NextPage = () => {
+type Props = {
+  workItems: WorkItem[]
+}
+
+const Index: NextPage<Props> = ({ workItems }) => {
   useEffect(() => {
     console.log('Ooh, hello there! 🤪')
   }, [])
@@ -24,7 +29,7 @@ const Index: NextPage = () => {
         <meta property="og:description" content="Hidden Village is a personal website of Christian Alares" />
       </Head>
 
-      <CurrentWorkItemModal />
+      <CurrentWorkItemModal items={workItems} />
 
       <Container className="my-8 xs:my-16">
         <div className="flex flex-col xs:flex-row items-center justify-center relative gap-8">
@@ -62,7 +67,7 @@ const Index: NextPage = () => {
           <Emoji emoji="👨‍💻" label="Guy behind his computer" />
           <span>Previous Work</span>
         </h2>
-        <WorkItems />
+        <WorkItems items={workItems} />
 
         <hr className="hr" />
 
@@ -91,25 +96,27 @@ const Index: NextPage = () => {
   )
 }
 
-// Initializing a client
-const notion = new Client({
-  auth: process.env.NOTION_API_KEY,
-  logLevel: LogLevel.DEBUG,
-})
-
 export const getStaticProps = async () => {
-  const response = await notion.databases.query({
+  const notion = new Client({
+    auth: process.env.NOTION_API_KEY,
+  })
+
+  const db = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID as string,
   })
 
-  console.log(response.results[0].id)
+  const publishedDb = {
+    ...db,
+    // @ts-ignore
+    results: db.results.filter(item => item.properties.Status.status.name === 'Published'),
+  }
 
-  // const workItems = response.properties.ma
-
-  // console.log(workItems)
+  const data = await getEntriesFromDb(publishedDb, notion)
 
   return {
-    props: {},
+    props: {
+      workItems: data,
+    },
   }
 }
 

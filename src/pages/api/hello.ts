@@ -1,53 +1,59 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import type { QueryDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import { Client } from '@notionhq/client'
-import { NotionAPI } from 'notion-client'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-// type Data = {
-//   name: string
-// }
+type Entry = {
+  id: string
+  title: string
+  skills: string[]
+  date: {
+    from: string
+    to: string
+  }
+  role: string
+  url: string
+  paragraphs: string[]
+}
+
+const getEntriesFromDb = async (db: QueryDatabaseResponse, notionClient: Client): Promise<Entry[]> => {
+  const entries: Entry[] = []
+
+  for (const entry of db.results) {
+    const entryBlock = await notionClient.blocks.children.list({ block_id: entry.id })
+
+    entries.push({
+      id: entry.id,
+      title: entry.properties.Name.title[0].plain_text,
+      skills: entry.properties.Skills.multi_select.map(skill => {
+        console.log(skill)
+        return skill.name
+      }),
+      date: {
+        from: entry.properties.Date.date.start,
+        to: entry.properties.Date.date.end,
+      },
+      role: entry.properties.Role.rich_text[0].plain_text,
+      url: entry.properties.url,
+      paragraphs: entryBlock.results.map(x => x.paragraph.rich_text[0]?.plain_text).filter(Boolean),
+    })
+  }
+
+  return entries
+}
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  /*   const notion = new Client({
+  const notion = new Client({
     auth: process.env.NOTION_API_KEY,
   })
 
   const db = await notion.databases.query({
-    database_id: 'b06de58d94f8464bbf4d3cfe3ec17c48',
+    database_id: process.env.NOTION_DATABASE_ID as string,
   })
 
-  const data = db.results.map(result => ({
-    id: result.id,
-    title: result.properties.Name.title[0].plain_text,
-    skills: result.properties.Skills.multi_select.map(skill => skill.name),
-    date: {
-      from: result.properties.Date.date.start,
-      to: result.properties.Date.date.end,
-    },
-    role: result.properties.Role.rich_text[0].plain_text,
-    url: result.properties.url,
-  }))
+  const data = await getEntriesFromDb(db, notion)
 
-  res.status(200).json({ db, data }) */
-
-  const api = new NotionAPI({
-    activeUser: process.env.NOTION_ACTIVE_USER_ID,
-    authToken: process.env.NOTION_TOKEN_V2,
-  })
-
-  const db = await api.getPage('b06de58d94f8464bbf4d3cfe3ec17c48')
-  // const collectionId = 'b06de58d-94f8-464b-bf4d-3cfe3ec17c48'
-  const collectionId = '88d6fdf1-7ec0-4a25-bd8f-c1c7ecbda94e'
-  const collectionViewId = '3d943958-5828-45f1-b0b4-55c1837a643f'
-  const table = await api.getCollectionData(collectionId, collectionViewId, db.collection_view)
-  const tableArr = table.result.reducerResults.collection_group_results.blockIds.map(
-    (id: string) => table.recordMap.block[id]
-  )
-
-  console.log(tableArr)
-
-  // const db2 = await api.getCollectionData(collectionId, collectionViewId, null)
-  res.status(200).json({ table })
+  res.status(200).json(data)
 }
 
 export default handler

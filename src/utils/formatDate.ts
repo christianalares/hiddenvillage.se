@@ -1,7 +1,7 @@
 import { addMonths, format, getMonth } from 'date-fns'
 
-const formatDate = (date: Date): string => {
-  return format(date, 'MMM y')
+const formatDate = (date: string): string => {
+  return format(new Date(date), 'MMM y')
   // const month = getMonth(date)
 
   // if (month === 0) {
