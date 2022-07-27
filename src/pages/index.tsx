@@ -117,6 +117,7 @@ export const getStaticProps = async () => {
     props: {
       workItems: data,
     },
+    revalidate: 10,
   }
 }
 
