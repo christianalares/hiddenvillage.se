@@ -2,7 +2,6 @@ import { Dialog } from '@headlessui/react'
 import { CalendarIcon, DocumentTextIcon, ExternalLinkIcon, LinkIcon, UserIcon } from '@heroicons/react/outline'
 import { CodeIcon } from '@heroicons/react/solid'
 import { useRouter } from 'next/router'
-import useWorkItems from '../hooks/useWorkItems'
 import formatDate from '../utils/formatDate'
 import { WorkItem } from '../utils/notion/getEntriesFromDb'
 import Modal from './Modal'
@@ -14,7 +13,6 @@ type Props = {
 
 const CurrentWorkItemModal = ({ items }: Props) => {
   const { query } = useRouter()
-  // const workItems = useWorkItems()
 
   const item = items.find(workItem => workItem.id === query.readMore)
 

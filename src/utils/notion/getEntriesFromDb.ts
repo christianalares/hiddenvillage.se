@@ -17,12 +17,8 @@ export type WorkItem = {
 const getEntriesFromDb = async (db: QueryDatabaseResponse, notionClient: Client): Promise<WorkItem[]> => {
   const entries: WorkItem[] = []
 
-  // console.log(db.results)
-
   for (const entry of db.results) {
     const entryBlock = await notionClient.blocks.children.list({ block_id: entry.id })
-
-    // console.log(entry.properties)
 
     entries.push({
       id: entry.id,

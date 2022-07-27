@@ -1,5 +1,4 @@
 import { BriefcaseIcon, CalendarIcon, InformationCircleIcon } from '@heroicons/react/solid'
-import useWorkItems from '../hooks/useWorkItems'
 import formatDate from '../utils/formatDate'
 import { WorkItem } from '../utils/notion/getEntriesFromDb'
 import Button from './Button'
@@ -10,10 +9,6 @@ type Props = {
 }
 
 const WorkItems = ({ items }: Props) => {
-  // console.log(111, items)
-  // return <h1>Test</h1>
-  // const items = useWorkItems()
-
   return (
     <ul data-c={WorkItems.name} className="grid gap-6 grid-cols-work-items">
       {items.map(item => (
