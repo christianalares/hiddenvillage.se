@@ -1,4 +1,5 @@
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
+import { Client, LogLevel } from '@notionhq/client'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -89,5 +90,30 @@ const Index: NextPage = () => {
     </>
   )
 }
+
+// Initializing a client
+const notion = new Client({
+  auth: process.env.NOTION_API_KEY,
+  logLevel: LogLevel.DEBUG,
+})
+
+export const getStaticProps = async () => {
+  const response = await notion.databases.query({
+    database_id: process.env.NOTION_DATABASE_ID as string,
+  })
+
+  console.log(response.results[0].id)
+
+  // const workItems = response.properties.ma
+
+  // console.log(workItems)
+
+  return {
+    props: {},
+  }
+}
+
+
+
 
 export default Index
