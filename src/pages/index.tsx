@@ -3,7 +3,7 @@ import { Client } from '@notionhq/client'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/future/image'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Container from '../components/Container'
 import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
 import Emoji from '../components/Emoji'
@@ -15,8 +15,12 @@ type Props = {
 }
 
 const Index: NextPage<Props> = ({ workItems }) => {
+  const shouldLog = useRef(true)
   useEffect(() => {
-    console.log('Ooh, hello there! 🤪')
+    if (shouldLog.current) {
+      console.log('Ooh, hello there! 🤪')
+      shouldLog.current = false
+    }
   }, [])
 
   return (
