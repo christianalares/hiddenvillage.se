@@ -38,9 +38,15 @@ const Index: NextPage<Props> = ({ workItems }) => {
       <CurrentWorkItemModal items={workItems} />
 
       <Container className="my-8 xs:my-16">
-        <div className="flex flex-col xs:flex-row items-center justify-center relative gap-8">
-          <Emoji emoji="👋" label="Hello" className="inline-block animate-wiggle text-9xl" />
-          <Image priority src="/me.jpg" alt="Me" width={160} height={160} className="rounded-full shadow-2xl" />
+        <div className="flex justify-center">
+          <div className="relative">
+            <Emoji
+              emoji="👋"
+              label="Hello"
+              className="inline-block animate-wiggle text-6xl absolute -bottom-2 -left-4"
+            />
+            <Image priority src="/me.jpg" alt="Me" width={160} height={160} className="rounded-full shadow-2xl" />
+          </div>
         </div>
 
         <h1 className="text-center mt-16">
