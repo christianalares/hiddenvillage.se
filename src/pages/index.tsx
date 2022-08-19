@@ -27,6 +27,8 @@ const Index: NextPage<Props> = ({ workItems }) => {
         <meta property="og:title" content="Hidden Village" />
         <meta property="og:image" content="/me.jpg" />
         <meta property="og:description" content="Hidden Village is a personal website of Christian Alares" />
+        <link rel="icon" type="image/jpg" sizes="32x32" href="/favicon/me-32x32.jpg" />
+        <link rel="icon" type="image/jpg" sizes="16x16" href="/favicon/me-16x16.jpg" />
       </Head>
 
       <CurrentWorkItemModal items={workItems} />
