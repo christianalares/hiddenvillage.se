@@ -2,7 +2,7 @@ import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
 import { Client } from '@notionhq/client'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
+import Image from 'next/future/image'
 import { useEffect } from 'react'
 import Container from '../components/Container'
 import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
@@ -36,15 +36,7 @@ const Index: NextPage<Props> = ({ workItems }) => {
       <Container className="my-8 xs:my-16">
         <div className="flex flex-col xs:flex-row items-center justify-center relative gap-8">
           <Emoji emoji="👋" label="Hello" className="inline-block animate-wiggle text-9xl" />
-          <Image
-            priority
-            src="/me.jpg"
-            alt="Me"
-            width={160}
-            height={160}
-            layout="raw"
-            className="rounded-full shadow-2xl"
-          />
+          <Image priority src="/me.jpg" alt="Me" width={160} height={160} className="rounded-full shadow-2xl" />
         </div>
 
         <h1 className="text-center mt-16">
