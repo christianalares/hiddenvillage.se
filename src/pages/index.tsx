@@ -1,16 +1,26 @@
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
+import { Client } from '@notionhq/client'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/image'
-import { useEffect } from 'react'
+import Image from 'next/future/image'
+import { useEffect, useRef } from 'react'
 import Container from '../components/Container'
 import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
 import Emoji from '../components/Emoji'
 import WorkItems from '../components/WorkItems'
+import getEntriesFromDb, { WorkItem } from '../utils/notion/getEntriesFromDb'
 
-const Index: NextPage = () => {
+type Props = {
+  workItems: WorkItem[]
+}
+
+const Index: NextPage<Props> = ({ workItems }) => {
+  const shouldLog = useRef(true)
   useEffect(() => {
-    console.log('Ooh, hello there! 🤪')
+    if (shouldLog.current) {
+      console.log('Ooh, hello there! 🤪')
+      shouldLog.current = false
+    }
   }, [])
 
   return (
@@ -21,22 +31,22 @@ const Index: NextPage = () => {
         <meta property="og:title" content="Hidden Village" />
         <meta property="og:image" content="/me.jpg" />
         <meta property="og:description" content="Hidden Village is a personal website of Christian Alares" />
+        <link rel="icon" type="image/jpg" sizes="32x32" href="/favicon/me-32x32.jpg" />
+        <link rel="icon" type="image/jpg" sizes="16x16" href="/favicon/me-16x16.jpg" />
       </Head>
 
-      <CurrentWorkItemModal />
+      <CurrentWorkItemModal items={workItems} />
 
       <Container className="my-8 xs:my-16">
-        <div className="flex flex-col xs:flex-row items-center justify-center relative gap-8">
-          <Emoji emoji="👋" label="Hello" className="inline-block animate-wiggle text-9xl" />
-          <Image
-            priority
-            src="/me.jpg"
-            alt="Me"
-            width={160}
-            height={160}
-            layout="raw"
-            className="rounded-full shadow-2xl"
-          />
+        <div className="flex justify-center">
+          <div className="relative">
+            <Emoji
+              emoji="👋"
+              label="Hello"
+              className="inline-block animate-wiggle text-6xl absolute -bottom-2 -left-4"
+            />
+            <Image priority src="/me.jpg" alt="Me" width={160} height={160} className="rounded-full shadow-2xl" />
+          </div>
         </div>
 
         <h1 className="text-center mt-16">
@@ -61,7 +71,7 @@ const Index: NextPage = () => {
           <Emoji emoji="👨‍💻" label="Guy behind his computer" />
           <span>Previous Work</span>
         </h2>
-        <WorkItems />
+        <WorkItems items={workItems} />
 
         <hr className="hr" />
 
@@ -89,5 +99,33 @@ const Index: NextPage = () => {
     </>
   )
 }
+
+export const getStaticProps = async () => {
+  const notion = new Client({
+    auth: process.env.NOTION_API_KEY,
+  })
+
+  const db = await notion.databases.query({
+    database_id: process.env.NOTION_DATABASE_ID as string,
+  })
+
+  const publishedDb = {
+    ...db,
+    // @ts-ignore
+    results: db.results.filter(item => item.properties.Status.status.name === 'Published'),
+  }
+
+  const data = await getEntriesFromDb(publishedDb, notion)
+
+  return {
+    props: {
+      workItems: data,
+    },
+    revalidate: 10,
+  }
+}
+
+
+
 
 export default Index
