@@ -1,14 +1,15 @@
-import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
+// import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/outline'
 import { Client } from '@notionhq/client'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import Image from 'next/future/image'
+import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import Container from '../components/Container'
 import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
 import Emoji from '../components/Emoji'
 import WorkItems from '../components/WorkItems'
 import getEntriesFromDb, { WorkItem } from '../utils/notion/getEntriesFromDb'
+import { Icon } from '../components/Icon'
 
 type Props = {
   workItems: WorkItem[]
@@ -84,14 +85,16 @@ const Index: NextPage<Props> = ({ workItems }) => {
             href="mailto:christian@hiddenvillage.se"
             className="inline-flex justify-center gap-2 text-slate-400 hover:border-slate-500 transition-colors p-2 rounded-md border border-slate-700"
           >
-            <AtSymbolIcon className="w-5 text-slate-600" />
+            {/* <AtSymbolIcon className="w-5 text-slate-600" /> */}
+            <Icon name="atSymbol" className="w-5 text-slate-600" />
             christian@hiddenvillage.se
           </a>
           <a
             href="tel:+46739194613"
             className="inline-flex justify-center gap-2 text-slate-400 hover:border-slate-500 transition-colors p-2 rounded-md border border-slate-700"
           >
-            <PhoneIcon className="w-5 text-slate-600" />
+            {/* <PhoneIcon className="w-5 text-slate-600" /> */}
+            <Icon name="phone" className="w-5 text-slate-600" />
             +46 739 19 46 13
           </a>
         </div>
@@ -124,8 +127,5 @@ export const getStaticProps = async () => {
     revalidate: 10,
   }
 }
-
-
-
 
 export default Index

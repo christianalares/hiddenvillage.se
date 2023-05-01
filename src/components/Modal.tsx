@@ -1,9 +1,10 @@
 import { Dialog } from '@headlessui/react'
-import { XIcon } from '@heroicons/react/outline'
+// import { XIcon } from '@heroicons/react/outline'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useRef } from 'react'
+import { Icon } from './Icon'
 
 type Props = {
   children: React.ReactNode
@@ -53,7 +54,8 @@ const Modal = ({ children, isOpen }: Props) => {
                         className="text-slate-200 p-1 top-2 right-2 fixed rounded-full focus:ring-slate-500"
                       >
                         <span className="sr-only">Close</span>
-                        <XIcon className="w-8" />
+                        <Icon name="close" className="w-8" />
+                        {/* <XIcon className="w-8" /> */}
                       </a>
                     </Link>
                     <div className="mx-4 mt-16 mb-10">{children}</div>
