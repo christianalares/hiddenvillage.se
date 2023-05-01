@@ -9,8 +9,7 @@ type Props = {
 const Tag = ({ tag, as: As = 'span', className = '' }: Props) => {
   return (
     <As
-      data-c={Tag.name}
-      className={clsx('bg-slate-400/20 text-slate-300 text-sm py-0.5 px-2 rounded-md', {
+      className={clsx('rounded-md bg-slate-400/20 px-2 py-0.5 text-sm text-slate-300', {
         [className]: !!className,
       })}
     >

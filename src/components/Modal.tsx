@@ -14,19 +14,14 @@ type Props = {
 
 const Modal = ({ children, isOpen }: Props) => {
   const router = useRouter()
-  console.log(router)
   const closeButtonRef = useRef<HTMLAnchorElement>(null)
 
   return (
     <Dialog
       open={isOpen}
-      onClose={() => {}}
-      // onClose={() =>
-      //   router.push('/', undefined, {
-      //     shallow: true,
-      //     scroll: false,
-      //   })
-      // }
+      onClose={() => {
+        router.replace('/')
+      }}
       static
       initialFocus={closeButtonRef}
     >
@@ -48,7 +43,7 @@ const Modal = ({ children, isOpen }: Props) => {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: '10%' }}
                   transition={{ duration: 0.2 }}
-                  className="fixed z-10 inset-3 rounded-md bg-white/10 max-w-2xl mx-auto md:h-fit md:max-h-[85vh] md:top-[8vh] overflow-y-scroll backdrop-blur-lg"
+                  className="fixed inset-3 z-10 mx-auto max-w-2xl overflow-y-scroll rounded-md bg-white/10 backdrop-blur-lg md:top-[8vh] md:h-fit md:max-h-[85vh]"
                 >
                   <div className="overflow-y-scroll">
                     <Link
@@ -56,12 +51,12 @@ const Modal = ({ children, isOpen }: Props) => {
                       scroll={false}
                       shallow={true}
                       ref={closeButtonRef}
-                      className="text-slate-200 p-1 top-2 right-2 fixed rounded-full focus:ring-slate-500"
+                      className="fixed right-2 top-2 rounded-full p-1 text-slate-200 focus:ring-slate-500"
                     >
                       <span className="sr-only">Close</span>
                       <Icon name="close" className="w-8" />
                     </Link>
-                    <div className="mx-4 mt-16 mb-10">{children}</div>
+                    <div className="mx-4 mb-10 mt-16">{children}</div>
                   </div>
                 </motion.div>
               </Dialog.Panel>

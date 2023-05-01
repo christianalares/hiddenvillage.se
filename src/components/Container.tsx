@@ -8,7 +8,7 @@ type Props = {
 
 const Container = ({ children, as: As = 'div', className = '' }: Props) => (
   <As
-    className={clsx('w-full max-w-5xl mx-auto px-4', {
+    className={clsx('mx-auto w-full max-w-5xl px-4', {
       [className]: !!className,
     })}
   >

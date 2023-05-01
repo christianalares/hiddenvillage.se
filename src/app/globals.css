@@ -49,11 +49,15 @@
     @apply font-serif;
   }
 
-  .hr {
+  /* hr {
     @apply border-t border-white/10 my-12;
+  } */
+
+  hr {
+    @apply my-8 h-px border-transparent bg-gray-600;
   }
 
   .deb {
-    @apply bg-white/10
+    @apply bg-white/10;
   }
 }

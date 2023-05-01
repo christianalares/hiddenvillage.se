@@ -1,5 +1,4 @@
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/24/outline'
-
 import { BriefcaseIcon, InformationCircleIcon, CodeBracketIcon } from '@heroicons/react/24/solid'
 import {
   CalendarIcon,
@@ -9,9 +8,6 @@ import {
   ArrowTopRightOnSquareIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
-
-// import { CalendarIcon, DocumentTextIcon, ExternalLinkIcon, LinkIcon, UserIcon } from '@heroicons/react/outline'
-// import { CodeIcon } from '@heroicons/react/solid'
 
 import clsx from 'clsx'
 
