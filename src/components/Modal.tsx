@@ -1,5 +1,3 @@
-'use client'
-
 import { Dialog } from '@headlessui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'

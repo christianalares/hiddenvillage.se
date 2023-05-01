@@ -1,5 +1,4 @@
 import { Client } from '@notionhq/client'
-import Head from 'next/head'
 import Image from 'next/image'
 import Container from '../components/Container'
 import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
@@ -7,9 +6,17 @@ import Emoji from '../components/Emoji'
 import WorkItems from '../components/WorkItems'
 import getEntriesFromDb from '../utils/notion/getEntriesFromDb'
 import { Icon } from '../components/Icon'
+import type { Metadata } from 'next'
 
-export const metadata = {
-  title: 'Hidden Village2',
+export const metadata: Metadata = {
+  title: 'Hidden Village',
+  description: 'Hidden Village is a personal website of Christian Alares',
+  openGraph: {
+    title: 'Hidden Village',
+    description: 'Hidden Village is a personal website of Christian Alares',
+    images: '/me.jpg',
+  },
+  icons: '/favicon/me-32x32.jpg',
 }
 
 export const revalidate = 10
@@ -33,16 +40,6 @@ const IndexPage = async () => {
 
   return (
     <>
-      {/* <Head>
-        <title>Hidden Village</title>
-        <meta name="description" content="Hidden Village is a personal website of Christian Alares" />
-        <meta property="og:title" content="Hidden Village" />
-        <meta property="og:image" content="/me.jpg" />
-        <meta property="og:description" content="Hidden Village is a personal website of Christian Alares" />
-        <link rel="icon" type="image/jpg" sizes="32x32" href="/favicon/me-32x32.jpg" />
-        <link rel="icon" type="image/jpg" sizes="16x16" href="/favicon/me-16x16.jpg" />
-      </Head> */}
-
       <CurrentWorkItemModal items={workItems} />
 
       <Container className="my-8 xs:my-16">
