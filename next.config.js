@@ -1,13 +1,8 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
-  reactStrictMode: true,
+const nextConfig = {
   experimental: {
-    images: {
-      allowFutureImage: true,
-    },
-  },
-  i18n: {
-    locales: ['en'],
-    defaultLocale: 'en',
+    appDir: true,
   },
 }
+
+module.exports = nextConfig
