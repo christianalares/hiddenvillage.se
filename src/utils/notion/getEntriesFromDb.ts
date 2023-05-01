@@ -14,7 +14,7 @@ export type WorkItem = {
   paragraphs: string[]
 }
 
-const getEntriesFromDb = async (db: QueryDatabaseResponse, notionClient: Client): Promise<WorkItem[]> => {
+export const getEntriesFromDb = async (db: QueryDatabaseResponse, notionClient: Client): Promise<WorkItem[]> => {
   const entries: WorkItem[] = []
 
   for (const entry of db.results) {
@@ -45,5 +45,3 @@ const getEntriesFromDb = async (db: QueryDatabaseResponse, notionClient: Client)
 
   return entries
 }
-
-export default getEntriesFromDb

@@ -7,7 +7,7 @@ type Props = {
   className?: string
 }
 
-const Emoji = ({ emoji, label, as: As = 'span', className = '' }: Props) => {
+export const Emoji = ({ emoji, label, as: As = 'span', className = '' }: Props) => {
   return (
     <As
       role="img"
@@ -20,5 +20,3 @@ const Emoji = ({ emoji, label, as: As = 'span', className = '' }: Props) => {
     </As>
   )
 }
-
-export default Emoji

@@ -2,17 +2,17 @@
 
 import { Dialog } from '@headlessui/react'
 import { useSearchParams } from 'next/navigation'
-import formatDate from '../utils/formatDate'
-import { WorkItem } from '../utils/notion/getEntriesFromDb'
-import Modal from './Modal'
-import Tag from './Tag'
-import { Icon } from './Icon'
+import { formatDate } from '@/utils/formatDate'
+import { WorkItem } from '@/utils/notion/getEntriesFromDb'
+import { Modal } from '@/components/Modal'
+import { Tag } from '@/components/Tag'
+import { Icon } from '@/components/Icon'
 
 type Props = {
   items: WorkItem[]
 }
 
-const CurrentWorkItemModal = ({ items }: Props) => {
+export const CurrentWorkItemModal = ({ items }: Props) => {
   const searchParams = useSearchParams()
   const readMore = searchParams?.get('readMore')
 
@@ -84,5 +84,3 @@ const CurrentWorkItemModal = ({ items }: Props) => {
     </Modal>
   )
 }
-
-export default CurrentWorkItemModal

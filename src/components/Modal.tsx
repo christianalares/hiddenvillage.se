@@ -3,14 +3,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useRef } from 'react'
-import { Icon } from './Icon'
+import { Icon } from '@/components/Icon'
 
 type Props = {
   children: React.ReactNode
   isOpen: boolean
 }
 
-const Modal = ({ children, isOpen }: Props) => {
+export const Modal = ({ children, isOpen }: Props) => {
   const router = useRouter()
   const closeButtonRef = useRef<HTMLAnchorElement>(null)
 
@@ -65,5 +65,3 @@ const Modal = ({ children, isOpen }: Props) => {
     </Dialog>
   )
 }
-
-export default Modal
