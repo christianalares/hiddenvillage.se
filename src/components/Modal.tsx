@@ -1,5 +1,4 @@
 import { Dialog } from '@headlessui/react'
-// import { XIcon } from '@heroicons/react/outline'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
@@ -48,15 +47,15 @@ const Modal = ({ children, isOpen }: Props) => {
                   className="fixed z-10 inset-3 rounded-md bg-white/10 max-w-2xl mx-auto md:h-fit md:max-h-[85vh] md:top-[8vh] overflow-y-scroll backdrop-blur-lg"
                 >
                   <div className="overflow-y-scroll">
-                    <Link href="/" scroll={false} shallow={true} ref={closeButtonRef}>
-                      <a
-                        // tabIndex={0}
-                        className="text-slate-200 p-1 top-2 right-2 fixed rounded-full focus:ring-slate-500"
-                      >
-                        <span className="sr-only">Close</span>
-                        <Icon name="close" className="w-8" />
-                        {/* <XIcon className="w-8" /> */}
-                      </a>
+                    <Link
+                      href="/"
+                      scroll={false}
+                      shallow={true}
+                      ref={closeButtonRef}
+                      className="text-slate-200 p-1 top-2 right-2 fixed rounded-full focus:ring-slate-500"
+                    >
+                      <span className="sr-only">Close</span>
+                      <Icon name="close" className="w-8" />
                     </Link>
                     <div className="mx-4 mt-16 mb-10">{children}</div>
                   </div>
