@@ -17,17 +17,16 @@ const Button = ({ children, type = 'button', className = '', to, ...restProps }:
 
   if (to) {
     return (
-      (<Link
+      <Link
         {...(restProps as LinkProps)}
         href={to}
         className={clsx(classNames, {
           [className]: !!className,
-        })}>
-
+        })}
+      >
         {children}
-
-      </Link>)
-    );
+      </Link>
+    )
   }
 
   return (

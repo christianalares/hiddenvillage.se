@@ -1,5 +1,7 @@
+'use client'
+
 import { Dialog } from '@headlessui/react'
-import { useRouter } from 'next/router'
+import { useSearchParams } from 'next/navigation'
 import formatDate from '../utils/formatDate'
 import { WorkItem } from '../utils/notion/getEntriesFromDb'
 import Modal from './Modal'
@@ -11,9 +13,10 @@ type Props = {
 }
 
 const CurrentWorkItemModal = ({ items }: Props) => {
-  const { query } = useRouter()
+  const searchParams = useSearchParams()
+  const readMore = searchParams?.get('readMore')
 
-  const item = items.find(workItem => workItem.id === query.readMore)
+  const item = items.find(workItem => workItem.id === readMore)
 
   return (
     <Modal isOpen={!!item}>

@@ -1,3 +1,4 @@
+// import Link from 'next/link'
 import formatDate from '../utils/formatDate'
 import { WorkItem } from '../utils/notion/getEntriesFromDb'
 import Button from './Button'
@@ -34,6 +35,10 @@ const WorkItems = ({ items }: Props) => {
             </span>
           </div>
 
+          {/* <Link href={`/?readMore=${item.id}`}>
+            <Icon name="informationCircle" className="w-4 text-slate-500" /> Read more{' '}
+            <span className="sr-only">about {item.title}</span>
+          </Link> */}
           <Button
             className="w-fit self-center mt-4 flex justify-center gap-2"
             to={`/?readMore=${item.id}`}

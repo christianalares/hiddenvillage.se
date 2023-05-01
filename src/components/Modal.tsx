@@ -1,7 +1,9 @@
+'use client'
+
 import { Dialog } from '@headlessui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import React, { useRef } from 'react'
 import { Icon } from './Icon'
 
@@ -12,17 +14,19 @@ type Props = {
 
 const Modal = ({ children, isOpen }: Props) => {
   const router = useRouter()
+  console.log(router)
   const closeButtonRef = useRef<HTMLAnchorElement>(null)
 
   return (
     <Dialog
       open={isOpen}
-      onClose={() =>
-        router.push('/', undefined, {
-          shallow: true,
-          scroll: false,
-        })
-      }
+      onClose={() => {}}
+      // onClose={() =>
+      //   router.push('/', undefined, {
+      //     shallow: true,
+      //     scroll: false,
+      //   })
+      // }
       static
       initialFocus={closeButtonRef}
     >
