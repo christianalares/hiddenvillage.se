@@ -10,35 +10,37 @@ export const getWorkItems = async () => {
   const results: TWorkItem[] = []
 
   for (const page of fullOrPartialPages.results) {
-    if (isFullPage(page)) {
-      // @ts-ignore
-      const isPublished = page.properties.Status.status.name === 'Published'
-      if (isPublished) {
-        const entryBlock = await notionClient.blocks.children.list({ block_id: page.id })
+    if (!isFullPage(page)) {
+      return
+    }
 
+    // @ts-ignore
+    const isPublished = page.properties.Status.status.name === 'Published'
+    if (isPublished) {
+      const entryBlock = await notionClient.blocks.children.list({ block_id: page.id })
+
+      // @ts-ignore
+      results.push({
+        id: page.id,
         // @ts-ignore
-        results.push({
-          id: page.id,
+        title: page.properties.Name.title[0].plain_text,
+        // @ts-ignore
+        skills: page.properties.Skills.multi_select.map(
+          (skill: { id: string; name: string; color: string }) => skill.name
+        ),
+        date: {
           // @ts-ignore
-          title: page.properties.Name.title[0].plain_text,
+          from: page.properties.Date.date.start,
           // @ts-ignore
-          skills: page.properties.Skills.multi_select.map(
-            (skill: { id: string; name: string; color: string }) => skill.name
-          ),
-          date: {
-            // @ts-ignore
-            from: page.properties.Date.date.start,
-            // @ts-ignore
-            to: page.properties.Date.date.end,
-          },
-          // @ts-ignore
-          role: page.properties.Role.rich_text[0].plain_text,
-          // @ts-ignore
-          url: page.properties.Link.url,
-          // @ts-ignore
-          paragraphs: entryBlock.results.map(result => result.paragraph.rich_text[0]?.plain_text).filter(Boolean),
-        })
-      }
+          to: page.properties.Date.date.end,
+        },
+        // @ts-ignore
+        role: page.properties.Role.rich_text[0].plain_text,
+        // @ts-ignore
+        url: page.properties.Link.url,
+        // @ts-ignore
+        paragraphs: entryBlock.results.map(result => result.paragraph.rich_text[0]?.plain_text).filter(Boolean),
+      })
     }
   }
 
