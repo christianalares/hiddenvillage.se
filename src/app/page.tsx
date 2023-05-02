@@ -57,7 +57,6 @@ const IndexPage = async () => {
             href="mailto:christian@hiddenvillage.se"
             className="inline-flex justify-center gap-2 rounded-md border border-slate-700 p-2 text-slate-400 transition-colors hover:border-slate-500"
           >
-            {/* <AtSymbolIcon className="w-5 text-slate-600" /> */}
             <Icon name="atSymbol" className="w-5 text-slate-600" />
             christian@hiddenvillage.se
           </a>
@@ -65,7 +64,6 @@ const IndexPage = async () => {
             href="tel:+46739194613"
             className="inline-flex justify-center gap-2 rounded-md border border-slate-700 p-2 text-slate-400 transition-colors hover:border-slate-500"
           >
-            {/* <PhoneIcon className="w-5 text-slate-600" /> */}
             <Icon name="phone" className="w-5 text-slate-600" />
             +46 739 19 46 13
           </a>

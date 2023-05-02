@@ -1,5 +1,4 @@
-import { Modal } from '@/components/Modal'
-import { WorkItem } from '@/components/WorkItem'
+import { WorkItemModal } from '@/components/WorkItemModal'
 import { getWorkItem } from '@/utils/notion/queries'
 
 type Props = {
@@ -8,14 +7,14 @@ type Props = {
   }
 }
 
-const WorkItemModal = async ({ params }: Props) => {
+const WorkItemInterceptionModal = async ({ params }: Props) => {
   const workItem = await getWorkItem(params.workId)
 
-  return (
-    <Modal isOpen>
-      <WorkItem workItem={workItem} />
-    </Modal>
-  )
+  if (!workItem) {
+    return null
+  }
+
+  return <WorkItemModal workItem={workItem} />
 }
 
-export default WorkItemModal
+export default WorkItemInterceptionModal

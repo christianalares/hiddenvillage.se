@@ -16,6 +16,8 @@ export const WorkItem = ({ workItem, className }: Props) => {
 
   return (
     <div className={clsx(className)}>
+      <h2 className="text-3xl text-slate-200">{workItem.title}</h2>
+
       <div className="mt-2 flex items-center gap-2 text-slate-400">
         <Icon name="calendar" className="w-4 text-slate-500" />
         <time dateTime={new Date(workItem.date.from).toISOString()} className="text-sm">

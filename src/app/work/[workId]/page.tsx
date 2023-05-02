@@ -12,8 +12,8 @@ const WorkPage = async ({ params }: { params: { workId: string } }) => {
     <Container className="my-8 xs:my-16">
       <Header />
 
-      <Link href="/" className="mt-8 flex w-max items-center gap-2 transition-colors hover:text-slate-400">
-        <Icon name="arrowLeft" className="h-6" />
+      <Link href="/" className="group mt-8 flex w-max items-center gap-2 transition-colors hover:text-slate-300">
+        <Icon name="arrowLeft" className="h-6 transition-transform group-hover:-translate-x-1" />
         Back
       </Link>
 
