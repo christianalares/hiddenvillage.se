@@ -1,13 +1,10 @@
-import { Client } from '@notionhq/client'
-import Image from 'next/image'
 import { Container } from '@/components/Container'
-import { CurrentWorkItemModal } from '@/components/CurrentWorkItemModal'
 import { Emoji } from '@/components/Emoji'
 import { WorkItems } from '@/components/WorkItems'
-import { getEntriesFromDb } from '@/utils/notion/getEntriesFromDb'
 import { Icon } from '@/components/Icon'
 import type { Metadata } from 'next'
 import { Header } from '@/components/Header'
+import { getWorkItems } from '@/utils/notion/queries'
 
 export const metadata: Metadata = {
   title: 'Hidden Village',
@@ -23,26 +20,10 @@ export const metadata: Metadata = {
 export const revalidate = 10
 
 const IndexPage = async () => {
-  const notion = new Client({
-    auth: process.env.NOTION_API_KEY,
-  })
-
-  const db = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID as string,
-  })
-
-  const publishedDb = {
-    ...db,
-    // @ts-ignore
-    results: db.results.filter(item => item.properties.Status.status.name === 'Published'),
-  }
-
-  const workItems = await getEntriesFromDb(publishedDb, notion)
+  const workItems = await getWorkItems()
 
   return (
     <>
-      <CurrentWorkItemModal items={workItems} />
-
       <Container className="my-8 xs:my-16">
         <Header />
 

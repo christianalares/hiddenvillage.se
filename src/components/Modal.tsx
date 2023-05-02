@@ -1,3 +1,5 @@
+'use client'
+
 import { Dialog } from '@headlessui/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Link from 'next/link'
@@ -12,16 +14,17 @@ type Props = {
 
 export const Modal = ({ children, isOpen }: Props) => {
   const router = useRouter()
-  const closeButtonRef = useRef<HTMLAnchorElement>(null)
+  // const closeButtonRef = useRef<HTMLAnchorElement>(null)
+  console.log({ isOpen })
 
   return (
     <Dialog
       open={isOpen}
       onClose={() => {
-        router.replace('/')
+        router.back()
       }}
       static
-      initialFocus={closeButtonRef}
+      // initialFocus={closeButtonRef}
     >
       {({ open }) => (
         <AnimatePresence>
@@ -46,9 +49,9 @@ export const Modal = ({ children, isOpen }: Props) => {
                   <div className="overflow-y-scroll">
                     <Link
                       href="/"
-                      scroll={false}
-                      shallow={true}
-                      ref={closeButtonRef}
+                      // scroll={false}
+                      // shallow={true}
+                      // ref={closeButtonRef}
                       className="fixed right-2 top-2 rounded-full p-1 text-slate-200 focus:ring-slate-500"
                     >
                       <span className="sr-only">Close</span>
