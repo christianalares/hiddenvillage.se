@@ -1,15 +1,5 @@
-import { addMonths, format, getMonth } from 'date-fns'
+import { format } from 'date-fns'
 
-const formatDate = (date: string): string => {
+export const formatDate = (date: string): string => {
   return format(new Date(date), 'MMM y')
-  // const month = getMonth(date)
-
-  // if (month === 0) {
-  //   return format(date, 'y')
-  // } else if (month === 11) {
-  //   format(addMonths(date, 1), 'MMM y')
-  // }
-  // return format(date, 'MMM y')
 }
-
-export default formatDate

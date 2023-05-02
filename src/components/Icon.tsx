@@ -1,5 +1,5 @@
 import { AtSymbolIcon, PhoneIcon } from '@heroicons/react/24/outline'
-import { BriefcaseIcon, InformationCircleIcon, CodeBracketIcon } from '@heroicons/react/24/solid'
+import { BriefcaseIcon, InformationCircleIcon, CodeBracketIcon, ArrowLeftIcon } from '@heroicons/react/24/solid'
 import {
   CalendarIcon,
   DocumentTextIcon,
@@ -23,6 +23,7 @@ const iconComponents = {
   user: UserIcon,
   externalLink: ArrowTopRightOnSquareIcon,
   close: XMarkIcon,
+  arrowLeft: ArrowLeftIcon,
 }
 
 export type IconName = keyof typeof iconComponents

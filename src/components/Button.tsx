@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react'
 
 type Props = ComponentProps<'button'>
 
-const Button = ({ className, children, type = 'button', ...restProps }: Props) => {
+export const Button = ({ className, children, type = 'button', ...restProps }: Props) => {
   return (
     <button
       type={type}
@@ -17,5 +17,3 @@ const Button = ({ className, children, type = 'button', ...restProps }: Props) =
     </button>
   )
 }
-
-export default Button

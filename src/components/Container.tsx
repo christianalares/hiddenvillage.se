@@ -6,7 +6,7 @@ type Props = {
   as?: keyof JSX.IntrinsicElements
 }
 
-const Container = ({ children, as: As = 'div', className = '' }: Props) => (
+export const Container = ({ children, as: As = 'div', className = '' }: Props) => (
   <As
     className={clsx('mx-auto w-full max-w-5xl px-4', {
       [className]: !!className,
@@ -15,5 +15,3 @@ const Container = ({ children, as: As = 'div', className = '' }: Props) => (
     {children}
   </As>
 )
-
-export default Container

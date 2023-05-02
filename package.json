@@ -5,12 +5,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check:types": "tsc --noEmit"
   },
   "dependencies": {
-    "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.17",
     "@notionhq/client": "^2.2.4",
+    "@radix-ui/react-dialog": "^1.0.3",
     "clsx": "^1.2.1",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.12.5",

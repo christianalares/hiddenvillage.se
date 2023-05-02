@@ -1,12 +1,10 @@
-import { Client } from '@notionhq/client'
-import Image from 'next/image'
-import Container from '../components/Container'
-import CurrentWorkItemModal from '../components/CurrentWorkItemModal'
-import Emoji from '../components/Emoji'
-import WorkItems from '../components/WorkItems'
-import getEntriesFromDb from '../utils/notion/getEntriesFromDb'
-import { Icon } from '../components/Icon'
+import { Container } from '@/components/Container'
+import { Emoji } from '@/components/Emoji'
+import { WorkItems } from '@/components/WorkItems'
+import { Icon } from '@/components/Icon'
 import type { Metadata } from 'next'
+import { Header } from '@/components/Header'
+import { getWorkItems } from '@/utils/notion/queries'
 
 export const metadata: Metadata = {
   title: 'Hidden Village',
@@ -22,42 +20,12 @@ export const metadata: Metadata = {
 export const revalidate = 10
 
 const IndexPage = async () => {
-  const notion = new Client({
-    auth: process.env.NOTION_API_KEY,
-  })
-
-  const db = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID as string,
-  })
-
-  const publishedDb = {
-    ...db,
-    // @ts-ignore
-    results: db.results.filter(item => item.properties.Status.status.name === 'Published'),
-  }
-
-  const workItems = await getEntriesFromDb(publishedDb, notion)
+  const workItems = await getWorkItems()
 
   return (
     <>
-      <CurrentWorkItemModal items={workItems} />
-
       <Container className="my-8 xs:my-16">
-        <div className="flex justify-center">
-          <div className="relative">
-            <Emoji
-              emoji="👋"
-              label="Hello"
-              className="absolute -bottom-2 -left-4 inline-block animate-wiggle text-6xl"
-            />
-            <Image priority src="/me.jpg" alt="Me" width={160} height={160} className="rounded-full shadow-2xl" />
-          </div>
-        </div>
-
-        <h1 className="mt-16 text-center">
-          <span className="block text-4xl xs:text-5xl sm:text-6xl">Hidden Village</span>
-          <span className="mt-4 block text-3xl text-slate-500 xs:mt-6 xs:text-4xl">Christian Alares</span>
-        </h1>
+        <Header />
 
         <p className="mt-8 text-lg text-slate-300">
           Hi! <Emoji emoji="👋" label="Hi!" />
@@ -89,7 +57,6 @@ const IndexPage = async () => {
             href="mailto:christian@hiddenvillage.se"
             className="inline-flex justify-center gap-2 rounded-md border border-slate-700 p-2 text-slate-400 transition-colors hover:border-slate-500"
           >
-            {/* <AtSymbolIcon className="w-5 text-slate-600" /> */}
             <Icon name="atSymbol" className="w-5 text-slate-600" />
             christian@hiddenvillage.se
           </a>
@@ -97,7 +64,6 @@ const IndexPage = async () => {
             href="tel:+46739194613"
             className="inline-flex justify-center gap-2 rounded-md border border-slate-700 p-2 text-slate-400 transition-colors hover:border-slate-500"
           >
-            {/* <PhoneIcon className="w-5 text-slate-600" /> */}
             <Icon name="phone" className="w-5 text-slate-600" />
             +46 739 19 46 13
           </a>

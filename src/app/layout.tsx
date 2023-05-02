@@ -3,11 +3,16 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 const inter = Inter({ subsets: ['latin'] })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+type Props = {
+  children: React.ReactNode
+  modal: React.ReactNode
+}
+export default function RootLayout(props: Props) {
   return (
     <html lang="en">
       <body className={clsx(inter.className)}>
-        <main>{children}</main>
+        <main>{props.children}</main>
+        {props.modal}
       </body>
     </html>
   )
