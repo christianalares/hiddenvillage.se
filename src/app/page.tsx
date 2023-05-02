@@ -22,6 +22,10 @@ export const revalidate = 10
 const IndexPage = async () => {
   const workItems = await getWorkItems()
 
+  if (!workItems) {
+    return null
+  }
+
   return (
     <>
       <Container className="my-8 xs:my-16">
