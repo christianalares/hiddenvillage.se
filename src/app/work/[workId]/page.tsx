@@ -5,6 +5,8 @@ import { WorkItem } from '@/components/WorkItem'
 import { getWorkItem } from '@/utils/notion/queries'
 import Link from 'next/link'
 
+export const revalidate = 10
+
 const WorkPage = async ({ params }: { params: { workId: string } }) => {
   const workItem = await getWorkItem(params.workId)
 

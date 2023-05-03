@@ -1,6 +1,8 @@
 import { WorkItemModal } from '@/components/WorkItemModal'
 import { getWorkItem } from '@/utils/notion/queries'
 
+export const revalidate = 10
+
 type Props = {
   params: {
     workId: string
