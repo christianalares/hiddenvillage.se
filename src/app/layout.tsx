@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import './globals.css'
 import { Inter } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 const inter = Inter({ subsets: ['latin'] })
 
 type Props = {
@@ -14,6 +15,7 @@ export default function RootLayout(props: Props) {
         <main>{props.children}</main>
         {props.modal}
       </body>
+      <Analytics />
     </html>
   )
 }
