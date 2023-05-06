@@ -1,20 +1,23 @@
 import { Modal } from '@/components/Modal'
 import { WorkItem } from '@/components/WorkItem'
-import { getWorkItem } from '@/utils/notion/queries'
+import { getWorkItem, getWorkItems } from '@/utils/notion/queries'
+import { notFound } from 'next/navigation'
 
 export const revalidate = 10
 
-type Props = {
-  params: {
-    slug: string
-  }
+export const generateStaticParams = async () => {
+  const workItems = await getWorkItems()
+
+  return workItems.map(workItem => ({
+    slug: workItem.slug,
+  }))
 }
 
-const WorkItemInterceptionModal = async ({ params }: Props) => {
+const WorkItemInterceptionModal = async ({ params }: { params: { slug: string } }) => {
   const workItem = await getWorkItem(params.slug)
 
   if (!workItem) {
-    return null
+    notFound()
   }
 
   return (
