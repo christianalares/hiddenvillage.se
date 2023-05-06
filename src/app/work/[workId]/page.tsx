@@ -1,5 +1,4 @@
 import { Container } from '@/components/Container'
-import { Header } from '@/components/Header'
 import { Icon } from '@/components/Icon'
 import { WorkItem } from '@/components/WorkItem'
 import { getWorkItem } from '@/utils/notion/queries'
@@ -12,8 +11,6 @@ const WorkPage = async ({ params }: { params: { workId: string } }) => {
 
   return (
     <Container className="my-8 xs:my-16">
-      <Header />
-
       <Link href="/" className="group mt-8 flex w-max items-center gap-2 transition-colors hover:text-slate-300">
         <Icon name="arrowLeft" className="h-6 transition-transform group-hover:-translate-x-1" />
         Back

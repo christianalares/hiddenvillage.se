@@ -1,12 +1,9 @@
 import { Container } from '@/components/Container'
-import { Emoji } from '@/components/Emoji'
-import { WorkItems } from '@/components/WorkItems'
-import { Icon } from '@/components/Icon'
 import type { Metadata } from 'next'
-import { Header } from '@/components/Header'
 import { getWorkItems } from '@/utils/notion/queries'
 import { Introduction } from '@/components/Introduction'
 import { Footer } from '@/components/Footer'
+import { WorkItems } from '@/components/WorkItems'
 
 export const metadata: Metadata = {
   title: 'Hidden Village',
@@ -24,15 +21,9 @@ export const revalidate = 10
 const IndexPage = async () => {
   const workItems = await getWorkItems()
 
-  if (!workItems) {
-    return null
-  }
-
   return (
     <>
-      <Container className="my-8 xs:my-16">
-        <Header />
-
+      <Container>
         <Introduction />
         <WorkItems items={workItems} />
 

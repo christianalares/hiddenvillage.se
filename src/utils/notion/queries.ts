@@ -11,7 +11,7 @@ export const getWorkItems = async () => {
 
   for (const page of fullOrPartialPages.results) {
     if (!isFullPage(page)) {
-      return
+      return results
     }
 
     // @ts-ignore
@@ -51,12 +51,12 @@ export const getWorkItem = async (id: string) => {
   const page = await notionClient.pages.retrieve({ page_id: id })
 
   if (!isFullPage(page)) {
-    return null
+    return {} as TWorkItem
   }
 
   const entryBlock = await notionClient.blocks.children.list({ block_id: page.id })
 
-  const result: TWorkItem = {
+  const result = {
     id: page.id,
     // @ts-ignore
     title: page.properties.Name.title[0].plain_text,
