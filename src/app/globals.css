@@ -54,7 +54,7 @@
   } */
 
   hr {
-    @apply my-8 h-px border-transparent bg-gray-600;
+    @apply my-8 h-px border-transparent bg-slate-700;
   }
 
   .deb {
