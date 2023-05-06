@@ -9,7 +9,7 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 
-import clsx from 'clsx'
+import { cn } from '@/utils/cn'
 
 const iconComponents = {
   atSymbol: AtSymbolIcon,
@@ -40,5 +40,5 @@ export const Icon = ({ name, className }: Props) => {
     throw new Error(`Could not find icon: ${name}`)
   }
 
-  return <IconComponent className={clsx(className)} />
+  return <IconComponent className={cn(className)} />
 }

@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { cn } from '@/utils/cn'
 
 type Props = {
   children: React.ReactNode
@@ -6,12 +6,6 @@ type Props = {
   as?: keyof JSX.IntrinsicElements
 }
 
-export const Container = ({ children, as: As = 'div', className = '' }: Props) => (
-  <As
-    className={clsx('mx-auto w-full max-w-5xl px-4', {
-      [className]: !!className,
-    })}
-  >
-    {children}
-  </As>
+export const Container = ({ children, as: As = 'div', className }: Props) => (
+  <As className={cn('mx-auto w-full max-w-5xl px-4', className)}>{children}</As>
 )

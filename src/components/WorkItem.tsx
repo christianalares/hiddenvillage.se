@@ -1,8 +1,8 @@
 import { Icon } from '@/components/Icon'
+import { cn } from '@/utils/cn'
 import { formatDate } from '@/utils/formatDate'
 import { TWorkItem } from '@/utils/notion/types'
 import { Tag } from './Tag'
-import clsx from 'clsx'
 
 type Props = {
   workItem: TWorkItem
@@ -11,7 +11,7 @@ type Props = {
 
 export const WorkItem = ({ workItem, className }: Props) => {
   return (
-    <div className={clsx(className)}>
+    <div className={cn(className)}>
       <h2 className="text-3xl text-slate-200">{workItem.title}</h2>
 
       <div className="mt-2 flex items-center gap-2 text-slate-400">

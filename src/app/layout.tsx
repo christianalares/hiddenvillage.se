@@ -1,9 +1,10 @@
-import clsx from 'clsx'
-import './globals.css'
-import { Inter } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/react'
 import { Container } from '@/components/Container'
 import { Header } from '@/components/Header'
+import { cn } from '@/utils/cn'
+import { Analytics } from '@vercel/analytics/react'
+import { Inter } from 'next/font/google'
+import './globals.css'
+
 const inter = Inter({ subsets: ['latin'] })
 
 type Props = {
@@ -13,7 +14,7 @@ type Props = {
 export default function RootLayout(props: Props) {
   return (
     <html lang="en">
-      <body className={clsx(inter.className)}>
+      <body className={cn(inter.className)}>
         <Container>
           <Header />
         </Container>

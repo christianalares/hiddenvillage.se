@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { cn } from '@/utils/cn'
 
 type Props = {
   tag: string
@@ -7,13 +7,5 @@ type Props = {
 }
 
 export const Tag = ({ tag, as: As = 'span', className = '' }: Props) => {
-  return (
-    <As
-      className={clsx('rounded-md bg-slate-400/20 px-2 py-0.5 text-sm text-slate-300', {
-        [className]: !!className,
-      })}
-    >
-      {tag}
-    </As>
-  )
+  return <As className={cn('rounded-md bg-slate-400/20 px-2 py-0.5 text-sm text-slate-300', className)}>{tag}</As>
 }

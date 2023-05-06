@@ -1,4 +1,4 @@
-import clsx from 'clsx'
+import { cn } from '@/utils/cn'
 
 type Props = {
   emoji: string
@@ -7,15 +7,9 @@ type Props = {
   className?: string
 }
 
-export const Emoji = ({ emoji, label, as: As = 'span', className = '' }: Props) => {
+export const Emoji = ({ emoji, label, as: As = 'span', className }: Props) => {
   return (
-    <As
-      role="img"
-      aria-label={label}
-      className={clsx({
-        [className]: !!className,
-      })}
-    >
+    <As role="img" aria-label={label} className={cn(className)}>
       {emoji}
     </As>
   )
