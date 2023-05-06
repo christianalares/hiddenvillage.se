@@ -1,5 +1,6 @@
 export type TWorkItem = {
   id: string
+  slug: string
   title: string
   skills: string[]
   date: {

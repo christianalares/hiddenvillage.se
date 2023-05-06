@@ -23,6 +23,8 @@ export const getWorkItems = async () => {
       results.push({
         id: page.id,
         // @ts-ignore
+        slug: page.properties.Slug.rich_text[0].plain_text,
+        // @ts-ignore
         title: page.properties.Name.title[0].plain_text,
         // @ts-ignore
         skills: page.properties.Skills.multi_select.map(
@@ -47,9 +49,15 @@ export const getWorkItems = async () => {
   return results
 }
 
-export const getWorkItem = async (id: string) => {
+export const getWorkItem = async (slug: string) => {
   try {
-    const page = await notionClient.pages.retrieve({ page_id: id })
+    const allWorkItems = await getWorkItems()
+    const item = allWorkItems.find(item => item.slug === slug)
+    return item
+
+    /* const page = await notionClient.pages.retrieve({ page_id: id })
+
+    console.log(page)
 
     if (!isFullPage(page)) {
       throw new Error('Not a full page')
@@ -59,6 +67,8 @@ export const getWorkItem = async (id: string) => {
 
     const result = {
       id: page.id,
+      // @ts-ignore
+      slug: page.properties.Slug.rich_text[0].plain_text,
       // @ts-ignore
       title: page.properties.Name.title[0].plain_text,
       // @ts-ignore
@@ -79,7 +89,7 @@ export const getWorkItem = async (id: string) => {
       paragraphs: entryBlock.results.map(result => result.paragraph.rich_text[0]?.plain_text).filter(Boolean),
     }
 
-    return result
+    return result */
   } catch (error) {
     return undefined
   }

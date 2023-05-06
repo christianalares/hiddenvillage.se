@@ -18,7 +18,7 @@ export default function RootLayout(props: Props) {
           <Header />
         </Container>
 
-        <main>{props.children}</main>
+        <main className="pb-8 xs:pb-16">{props.children}</main>
         {props.modal}
       </body>
       <Analytics />

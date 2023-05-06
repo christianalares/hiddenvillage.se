@@ -11,7 +11,7 @@ export const generateStaticParams = async () => {
   const workItems = await getWorkItems()
 
   return workItems.map(workItem => ({
-    slug: workItem.id,
+    slug: workItem.slug,
   }))
 }
 

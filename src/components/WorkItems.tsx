@@ -37,7 +37,7 @@ export const WorkItems = ({ items }: Props) => {
           </div>
 
           <Link
-            href={`/work/${item.id}`}
+            href={`/work/${item.slug}`}
             className="mt-4 flex w-fit gap-2 self-center rounded-md border border-slate-500 px-3 py-1 text-slate-300 shadow-md shadow-slate-900/20 transition-colors hover:border-slate-400 hover:text-slate-300 focus:border-slate-400 focus:text-slate-300"
             prefetch
           >

@@ -6,12 +6,12 @@ export const revalidate = 10
 
 type Props = {
   params: {
-    workId: string
+    slug: string
   }
 }
 
 const WorkItemInterceptionModal = async ({ params }: Props) => {
-  const workItem = await getWorkItem(params.workId)
+  const workItem = await getWorkItem(params.slug)
 
   if (!workItem) {
     return null
