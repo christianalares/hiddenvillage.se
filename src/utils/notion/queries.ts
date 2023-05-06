@@ -48,33 +48,39 @@ export const getWorkItems = async () => {
 }
 
 export const getWorkItem = async (id: string) => {
-  const page = await notionClient.pages.retrieve({ page_id: id })
+  try {
+    const page = await notionClient.pages.retrieve({ page_id: id })
 
-  if (!isFullPage(page)) {
-    return {} as TWorkItem
-  }
+    if (!isFullPage(page)) {
+      throw new Error('Not a full page')
+    }
 
-  const entryBlock = await notionClient.blocks.children.list({ block_id: page.id })
+    const entryBlock = await notionClient.blocks.children.list({ block_id: page.id })
 
-  const result = {
-    id: page.id,
-    // @ts-ignore
-    title: page.properties.Name.title[0].plain_text,
-    // @ts-ignore
-    skills: page.properties.Skills.multi_select.map((skill: { id: string; name: string; color: string }) => skill.name),
-    date: {
+    const result = {
+      id: page.id,
       // @ts-ignore
-      from: page.properties.Date.date.start,
+      title: page.properties.Name.title[0].plain_text,
       // @ts-ignore
-      to: page.properties.Date.date.end,
-    },
-    // @ts-ignore
-    role: page.properties.Role.rich_text[0].plain_text,
-    // @ts-ignore
-    url: page.properties.Link.url,
-    // @ts-ignore
-    paragraphs: entryBlock.results.map(result => result.paragraph.rich_text[0]?.plain_text).filter(Boolean),
-  }
+      skills: page.properties.Skills.multi_select.map(
+        (skill: { id: string; name: string; color: string }) => skill.name
+      ),
+      date: {
+        // @ts-ignore
+        from: page.properties.Date.date.start,
+        // @ts-ignore
+        to: page.properties.Date.date.end,
+      },
+      // @ts-ignore
+      role: page.properties.Role.rich_text[0].plain_text,
+      // @ts-ignore
+      url: page.properties.Link.url,
+      // @ts-ignore
+      paragraphs: entryBlock.results.map(result => result.paragraph.rich_text[0]?.plain_text).filter(Boolean),
+    }
 
-  return result
+    return result
+  } catch (error) {
+    return undefined
+  }
 }

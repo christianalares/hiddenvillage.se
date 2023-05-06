@@ -5,15 +5,11 @@ import { Tag } from './Tag'
 import clsx from 'clsx'
 
 type Props = {
-  workItem: TWorkItem | null
+  workItem: TWorkItem
   className?: string
 }
 
 export const WorkItem = ({ workItem, className }: Props) => {
-  if (!workItem) {
-    return null
-  }
-
   return (
     <div className={clsx(className)}>
       <h2 className="text-3xl text-slate-200">{workItem.title}</h2>

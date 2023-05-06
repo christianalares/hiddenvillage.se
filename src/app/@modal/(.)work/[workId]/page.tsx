@@ -13,6 +13,10 @@ type Props = {
 const WorkItemInterceptionModal = async ({ params }: Props) => {
   const workItem = await getWorkItem(params.workId)
 
+  if (!workItem) {
+    return null
+  }
+
   return (
     <Modal isOpen>
       <WorkItem workItem={workItem} />

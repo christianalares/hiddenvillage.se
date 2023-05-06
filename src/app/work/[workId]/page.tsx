@@ -3,11 +3,16 @@ import { Icon } from '@/components/Icon'
 import { WorkItem } from '@/components/WorkItem'
 import { getWorkItem } from '@/utils/notion/queries'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
 export const revalidate = 10
 
 const WorkPage = async ({ params }: { params: { workId: string } }) => {
   const workItem = await getWorkItem(params.workId)
+
+  if (!workItem) {
+    notFound()
+  }
 
   return (
     <Container className="my-8 xs:my-16">
