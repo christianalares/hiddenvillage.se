@@ -1,14 +1,22 @@
 import { Container } from '@/components/Container'
 import { Icon } from '@/components/Icon'
 import { WorkItem } from '@/components/WorkItem'
-import { getWorkItem } from '@/utils/notion/queries'
+import { getWorkItem, getWorkItems } from '@/utils/notion/queries'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 export const revalidate = 10
 
-const WorkPage = async ({ params }: { params: { workId: string } }) => {
-  const workItem = await getWorkItem(params.workId)
+export const generateStaticParams = async () => {
+  const workItems = await getWorkItems()
+
+  return workItems.map(workItem => ({
+    slug: workItem.id,
+  }))
+}
+
+const WorkPage = async ({ params }: { params: { slug: string } }) => {
+  const workItem = await getWorkItem(params.slug)
 
   if (!workItem) {
     notFound()
