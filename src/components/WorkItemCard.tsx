@@ -32,8 +32,8 @@ export const WorkItemCard = ({ item }: Props) => {
           style={{
             background: useMotionTemplate`
             radial-gradient(
-              700px circle at ${mouseX}px ${mouseY}px,
-              rgba(14, 165, 233, 0.1),
+              600px circle at ${mouseX}px ${mouseY}px,
+              rgba(14, 165, 233, 0.06),
               transparent 60%
             )
           `,
