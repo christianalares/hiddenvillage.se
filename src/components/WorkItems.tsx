@@ -4,6 +4,7 @@ import { Icon } from '@/components/Icon'
 import { Tag } from '@/components/Tag'
 import type { TWorkItem } from '@/utils/notion/types'
 import { Emoji } from './Emoji'
+import { GradientBorderedBox } from './GradientBorderedBox'
 
 type Props = {
   skeleton?: never
@@ -14,7 +15,11 @@ export const WorkItems = ({ items }: Props) => {
   return (
     <ul className="grid grid-cols-work-items gap-6">
       {items.map(item => (
-        <li key={item.id} className="relative flex min-h-[100px] flex-col rounded-md bg-white/10 p-4 shadow-md">
+        <GradientBorderedBox
+          as="li"
+          key={item.id}
+          className="relative flex min-h-[100px] flex-col rounded-md bg-white/10 p-4 shadow-md"
+        >
           <h3 className="flex items-center justify-center gap-2 border-b border-white/10 pb-4 text-lg tracking-wider text-slate-300">
             <Icon name="briefcase" className="w-4 text-slate-500" />
             {item.title}
@@ -38,13 +43,13 @@ export const WorkItems = ({ items }: Props) => {
 
           <Link
             href={`/work/${item.slug}`}
-            className="mt-4 flex w-fit gap-2 self-center rounded-md border border-slate-500 px-3 py-1 text-slate-300 shadow-md shadow-slate-900/20 transition-colors hover:border-slate-400 hover:text-slate-300 focus:border-slate-400 focus:text-slate-300"
+            className="mt-4 flex w-fit gap-2 self-center rounded-md border border-[#232e53] px-3 py-1 text-slate-300 shadow-md shadow-slate-900/20 transition-colors hover:border-[#343f64] hover:text-slate-300 focus:border-slate-400 focus:text-slate-300"
             prefetch
           >
             <Icon name="informationCircle" className="w-4 text-slate-500" /> Read more{' '}
             <span className="sr-only">about {item.title}</span>
           </Link>
-        </li>
+        </GradientBorderedBox>
       ))}
     </ul>
   )
