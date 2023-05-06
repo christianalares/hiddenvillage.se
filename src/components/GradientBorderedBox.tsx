@@ -1,18 +1,18 @@
 import { cn } from '@/utils/cn'
+import { ComponentProps } from 'react'
 
 type Props = {
   children: React.ReactNode
-  as?: keyof JSX.IntrinsicElements
   className?: string
-}
+} & ComponentProps<'div'>
 
-export const GradientBorderedBox = ({ children, as: As = 'div', className }: Props) => {
+export const GradientBorderedBox = ({ children, className, ...restProps }: Props) => {
   return (
-    <As
+    <div
       style={
         {
           '--dark-purple': '9 18 37',
-          '--light-purple': '60 79 148',
+          '--light-purple': '64 73 112',
 
           '--bg-color': 'linear-gradient(rgb(var(--dark-purple)), rgb(var(--dark-purple)))',
           '--border-color': `linear-gradient(145deg,
@@ -27,8 +27,9 @@ export const GradientBorderedBox = ({ children, as: As = 'div', className }: Pro
         'border border-transparent [background:padding-box_var(--bg-color),border-box_var(--border-color)]',
         className
       )}
+      {...restProps}
     >
       {children}
-    </As>
+    </div>
   )
 }
