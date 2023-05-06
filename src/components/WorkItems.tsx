@@ -3,7 +3,6 @@ import { formatDate } from '@/utils/formatDate'
 import { Icon } from '@/components/Icon'
 import { Tag } from '@/components/Tag'
 import type { TWorkItem } from '@/utils/notion/types'
-import { skeleton } from '@/utils/skeleton'
 import { Emoji } from './Emoji'
 
 type Props = {
