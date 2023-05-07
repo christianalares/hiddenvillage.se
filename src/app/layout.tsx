@@ -3,6 +3,7 @@ import { Header } from '@/components/Header'
 import { cn } from '@/utils/cn'
 import { Analytics } from '@vercel/analytics/react'
 import { Inter } from 'next/font/google'
+import { Asteroids } from '@/components/Asteroids'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -15,12 +16,15 @@ export default function RootLayout(props: Props) {
   return (
     <html lang="en">
       <body className={cn(inter.className)}>
-        <Container>
-          <Header />
-        </Container>
+        <div className="relative z-[1]">
+          <Container>
+            <Header />
+          </Container>
+          <main className="pb-8 xs:pb-16">{props.children}</main>
+          {props.modal}
+        </div>
 
-        <main className="pb-8 xs:pb-16">{props.children}</main>
-        {props.modal}
+        <Asteroids />
       </body>
       <Analytics />
     </html>
