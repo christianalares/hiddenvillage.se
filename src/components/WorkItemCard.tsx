@@ -31,7 +31,7 @@ export const WorkItemCard = forwardRef<HTMLLIElement, Props>(({ item }, ref) => 
     <li
       ref={ref}
       key={item.id}
-      className="my-list-item group min-h-[100px] overflow-hidden rounded-md opacity-0 shadow-md"
+      className="work-item-card group min-h-[100px] overflow-hidden rounded-md opacity-0 shadow-md"
     >
       <GradientBorderedBox className="relative flex h-full flex-col rounded-md p-4" onMouseMove={handleMouseMove}>
         <motion.div

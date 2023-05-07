@@ -18,7 +18,7 @@ export const WorkItems = ({ items }: Props) => {
   useEffect(() => {
     if (isInView && !hasAnimated.current) {
       animate(
-        '.my-list-item',
+        '.work-item-card',
         {
           opacity: [0, 1],
         },
