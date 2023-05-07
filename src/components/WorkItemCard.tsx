@@ -8,12 +8,15 @@ import { GradientBorderedBox } from './GradientBorderedBox'
 import { Icon } from './Icon'
 import { Tag } from './Tag'
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion'
+import { forwardRef } from 'react'
 
 type Props = {
   item: TWorkItem
 }
 
-export const WorkItemCard = ({ item }: Props) => {
+export const WorkItemCard = forwardRef<HTMLLIElement, Props>(({ item }, ref) => {
+  WorkItemCard.displayName = 'WorkItemCard'
+
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -25,7 +28,11 @@ export const WorkItemCard = ({ item }: Props) => {
   }
 
   return (
-    <li key={item.id} className="group min-h-[100px] overflow-hidden rounded-md shadow-md">
+    <li
+      ref={ref}
+      key={item.id}
+      className="my-list-item group min-h-[100px] overflow-hidden rounded-md opacity-0 shadow-md"
+    >
       <GradientBorderedBox className="relative flex h-full flex-col rounded-md p-4" onMouseMove={handleMouseMove}>
         <motion.div
           className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
@@ -71,4 +78,4 @@ export const WorkItemCard = ({ item }: Props) => {
       </GradientBorderedBox>
     </li>
   )
-}
+})

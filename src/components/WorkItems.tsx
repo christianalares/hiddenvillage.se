@@ -1,10 +1,9 @@
-import Link from 'next/link'
-import { formatDate } from '@/utils/formatDate'
-import { Icon } from '@/components/Icon'
-import { Tag } from '@/components/Tag'
+'use client'
+
 import type { TWorkItem } from '@/utils/notion/types'
-import { Emoji } from './Emoji'
 import { WorkItemCard } from './WorkItemCard'
+import { stagger, useAnimate, useInView } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 
 type Props = {
   skeleton?: never
@@ -12,8 +11,29 @@ type Props = {
 }
 
 export const WorkItems = ({ items }: Props) => {
+  const [ref, animate] = useAnimate()
+  const isInView = useInView(ref)
+  const hasAnimated = useRef(false)
+
+  useEffect(() => {
+    if (isInView && !hasAnimated.current) {
+      animate(
+        '.my-list-item',
+        {
+          opacity: [0, 1],
+        },
+        {
+          duration: 2,
+          delay: stagger(0.1),
+        }
+      )
+
+      hasAnimated.current = true
+    }
+  }, [animate, isInView])
+
   return (
-    <ul className="grid grid-cols-work-items gap-6">
+    <ul ref={ref} className="grid grid-cols-work-items gap-6">
       {items.map(item => (
         <WorkItemCard key={item.id} item={item} />
       ))}
