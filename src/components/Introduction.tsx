@@ -1,4 +1,5 @@
 import { Emoji } from './Emoji'
+import { GameText } from './GameText'
 
 export const Introduction = () => {
   return (
@@ -12,6 +13,8 @@ export const Introduction = () => {
         of developing web based applications ranging from frontend to backend, though my specialty and passion lies
         within the frontend layer with JavaScript technologies such as HTML, CSS, React, animations and UI development.
       </p>
+
+      <GameText />
 
       <hr />
 
