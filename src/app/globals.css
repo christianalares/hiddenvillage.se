@@ -30,7 +30,6 @@
 
   body {
     @apply bg-slate-900 text-white;
-    /* @apply bg-gradient-radial-to-br from-slate-800 to-slate-900 text-white; */
   }
 
   :focus {
@@ -49,19 +48,34 @@
     @apply font-serif;
   }
 
-  /* hr {
-    @apply border-t border-white/10 my-12;
-  } */
-
   hr {
     @apply my-8 h-px border-transparent bg-slate-700;
   }
 
-  .deb {
-    @apply bg-white/10;
+  .game-direction-controls {
+    @apply mt-2 grid gap-1;
+    grid-template-areas:
+      '. u .'
+      'l d r';
   }
 
-  .skeleton {
-    @apply animate-pulse rounded-md bg-slate-400/20 text-transparent;
+  kbd {
+    @apply rounded-md bg-slate-800 px-2 py-1 text-center font-mono text-slate-400 shadow-md;
+  }
+
+  .game-direction-controls > kbd:nth-child(1) {
+    grid-area: u;
+  }
+
+  .game-direction-controls > kbd:nth-child(2) {
+    grid-area: l;
+  }
+
+  .game-direction-controls > kbd:nth-child(3) {
+    grid-area: d;
+  }
+
+  .game-direction-controls > kbd:nth-child(4) {
+    grid-area: r;
   }
 }

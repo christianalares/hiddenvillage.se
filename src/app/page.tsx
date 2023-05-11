@@ -4,7 +4,6 @@ import { getWorkItems } from '@/utils/notion/queries'
 import { Introduction } from '@/components/Introduction'
 import { Footer } from '@/components/Footer'
 import { WorkItems } from '@/components/WorkItems'
-import { GradientBorderedBox } from '@/components/GradientBorderedBox'
 
 export const metadata: Metadata = {
   title: 'Hidden Village',
@@ -26,10 +25,6 @@ const IndexPage = async () => {
     <>
       <Container>
         <Introduction />
-
-        {/* <GradientBorderedBox className="mb-9 rounded-md p-4">
-          <p>Hello there</p>
-        </GradientBorderedBox> */}
 
         <WorkItems items={workItems} />
 

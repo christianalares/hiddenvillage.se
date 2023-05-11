@@ -16,14 +16,20 @@
     "clsx": "^1.2.1",
     "date-fns": "^2.30.0",
     "framer-motion": "^10.12.8",
+    "lodash.debounce": "^4.0.8",
     "next": "^13.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^1.12.0"
+    "tailwind-merge": "^1.12.0",
+    "ua-parser-js": "^1.0.35",
+    "uuid": "^9.0.0",
+    "zustand": "^4.3.8"
   },
   "devDependencies": {
+    "@types/lodash.debounce": "^4.0.7",
     "@types/node": "20.1.0",
     "@types/react": "18.2.6",
+    "@types/uuid": "^9.0.1",
     "autoprefixer": "^10.4.14",
     "eslint": "8.40.0",
     "eslint-config-next": "13.4.1",

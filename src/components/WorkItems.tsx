@@ -6,7 +6,6 @@ import { stagger, useAnimate, useInView } from 'framer-motion'
 import { useEffect, useRef } from 'react'
 
 type Props = {
-  skeleton?: never
   items: TWorkItem[]
 }
 
