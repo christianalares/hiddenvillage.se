@@ -5,6 +5,8 @@ import { Analytics } from '@vercel/analytics/react'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Game } from '@/components/Game'
+import { userAgent } from 'next/server'
+import { headers } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,6 +15,13 @@ type Props = {
   modal: React.ReactNode
 }
 export default function RootLayout(props: Props) {
+  // console.log(props)
+  const ua = userAgent({
+    headers: headers(),
+  })
+
+  console.log(ua)
+
   return (
     <html lang="en">
       <body className={cn(inter.className)}>
