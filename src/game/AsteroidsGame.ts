@@ -133,10 +133,20 @@ export class AsteroidsGame {
     })
   }
 
+  pause() {
+    this.timeManager.pause()
+  }
+
+  unpause() {
+    this.timeManager.unpause()
+  }
+
   bindEvents() {
     const setDimsDebounced = debounce(this.setDims.bind(this), 100)
 
     window.addEventListener('resize', setDimsDebounced)
+    window.addEventListener('blur', this.pause.bind(this))
+    window.addEventListener('focus', this.unpause.bind(this))
   }
 
   async gameComplete() {

@@ -24,7 +24,9 @@ export class TimeManager {
       accumulatedTime += (time - lastTime) / 1000
 
       while (accumulatedTime > deltaTime) {
-        this.functionsToRun.forEach(functionToRun => functionToRun.fn(deltaTime))
+        if (this.isRunning) {
+          this.functionsToRun.forEach(functionToRun => functionToRun.fn(deltaTime))
+        }
         accumulatedTime -= deltaTime
       }
 
@@ -34,9 +36,7 @@ export class TimeManager {
   }
 
   enqueue() {
-    if (this.isRunning) {
-      this.animationFrame = window.requestAnimationFrame(this.updateProxy)
-    }
+    this.animationFrame = window.requestAnimationFrame(this.updateProxy)
   }
 
   start() {
@@ -50,6 +50,14 @@ export class TimeManager {
       this.animationFrame = null
       this.isRunning = false
     }
+  }
+
+  pause() {
+    this.isRunning = false
+  }
+
+  unpause() {
+    this.isRunning = true
   }
 
   addFunc(id: string, fn: (deltaTime: number) => void) {
