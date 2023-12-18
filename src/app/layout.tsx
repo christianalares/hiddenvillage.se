@@ -2,6 +2,7 @@ import { Container } from '@/components/Container'
 import { Header } from '@/components/Header'
 import { cn } from '@/utils/cn'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Game } from '@/components/Game'
@@ -27,6 +28,7 @@ export default function RootLayout(props: Props) {
         <Game />
       </body>
       <Analytics />
+      <SpeedInsights />
     </html>
   )
 }
