@@ -4,9 +4,17 @@ This is a throwaway design and movement study on `codex/hidden-village-walk-prot
 
 Run `npm run prototype:walk`, then open `/prototype/hidden-village/index.html`. Scroll, swipe, or use the arrow keys. The road signs can guide the camera farther along the same route.
 
+## Journey and content direction
+
+The current path starts on an upper forest ridge, descends continuously to a workshop, crosses a small village square, and ends at a lit house beside a postbox. The screen text changes at five places: ridge, forest, workshop, square, and last light. These short lines are provisional pacing copy, not finished site content. The places do not yet open project stories.
+
+The existing live page is a freelance introduction, a chronological Notion-backed list of client work with dates and skill tags, an Asteroids game, and contact details. For a new version, retain contact and a small, chosen set of work. Give personal creations and experiments their own space. Remove the game and the resume-style chronology from the main journey. Signs should provide wayfinding. Use short, accessible HTML captions for orientation and a readable panel for longer project content when a visitor deliberately opens it. Speaking characters are not part of the current direction.
+
 ## Visual direction
 
 The opening is framed from within a dark forest. A narrow dirt trail, close spruce silhouettes, moonlight, a warm lantern and distant windows reveal the village gradually. The scene uses one continuous Three.js world. The ground, buildings and signs are geometry; trees use a transparent cutout asset plus short 3D trunks and branches. Their flatness is a remaining limitation when viewed from unusual angles. No water was added because visible water would need convincing movement throughout the walk.
+
+`references/first-overlook-concept.png` is the first concept that prompted the forest approach. `references/upper-forest-opening.png` explores a start farther uphill. Both are composition references, not screenshots or runtime assets. The live prototype still reads more like a forest corridor than the valley overlook in those images. The next visual pass needs a clearer change in terrain height and a stronger village silhouette before adding small details.
 
 The tree cutout was generated with the built-in image generation tool, then resized for the site. Final prompt:
 
@@ -16,4 +24,4 @@ The small JPEG textures are from Poly Haven and are CC0: [forest floor](https://
 
 ## Check and limitations
 
-Targeted TypeScript and the bundle build pass. Desktop Chrome checks covered the opening, approach, sign click, and village arrival. The sign moves the target along the same camera curve, with a capped maximum speed. The page showed no browser errors in those checks. A phone-sized Chrome viewport also showed a composed opening and readable controls. Frame rate on physical devices still needs direct testing. The cottages and tree cutouts are more designed than the first pass but are still a prototype, not a final level of realism.
+The bundle build passes. Desktop Chrome checks covered the revised opening and all five stops. The page showed no browser errors. Earlier checks covered the sign click and a phone-sized viewport, but those should be repeated after further interaction work. The full repository type check currently fails in generated `.next/types` files for the existing layout and an absent prototype page. Frame rate on physical devices still needs direct testing. The cottages and tree cutouts are more designed than the first pass but are still a prototype, not a final level of realism.
