@@ -29,7 +29,11 @@ def house(x,z,s=1,detail=True,workshop=False,last=False):
   for li in f.loop_indices:
    v=wall.data.vertices[wall.data.loops[li].vertex_index].co;uv.data[li].uv=(v[axes[0]]*.45,v[axes[1]]*.45)
  mod=wall.modifiers.new('Soft lime corners','BEVEL');mod.width=.035*s;mod.segments=2;apply(wall,mod)
- B('Masonry foundation',(0,-.05,0),(5.0,1.2,5.2),stone,.08)
+ # A plinth extends into the actual hillside at every corner, including distant cottages.
+ corners=[(-2.5,-2.6),(2.5,-2.6),(2.5,2.6),(-2.5,2.6)]
+ fv=[(x+a*s,min(y-.65*s,gh(x+a*s,z+c*s)-.22),z+c*s) for a,c in corners]+[P(a,.55,c) for a,c in corners]
+ foundation=mesh('Masonry foundation',fv,[(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)],stone)
+ mod=foundation.modifiers.new('Weathered plinth edges','BEVEL');mod.width=.04*s;mod.segments=2;apply(foundation,mod)
  # Warped roof decks and overlapping, staggered shingle courses.
  rv=[];rf=[];ru=[]
  rows=10 if detail else 1;cols=14 if detail else 1
@@ -129,9 +133,10 @@ house(31,-53,1.25,False)
 if opts.village:
  house(-6.8,22,1.05,True,workshop=True)
  house(6.9,0,1.12)
- house(-7.8,-17.2,.95)
+ house(-4,-23,.95)
  house(8.5,-20.5,.8)
- house(0,-32,1.2,last=True)
+ house(0,-76,1.2,last=True)
+ for hx,hz,hs in [(-14,-43,1),(13,-35,.9),(-6,-51,.9),(11,-56,1),(-21,-12,.8)]:house(hx,hz,hs)
  # Stone well, with wedge-shaped masonry that reads as a circular wall rather than blocks.
  x,z=-3.9,-2;y=gh(x,z)
  for row in range(3):
@@ -162,7 +167,7 @@ if opts.village:
   box('Bench back post',(x+xx,y+.77,z-.3),(.12,.68,.12),wood,.02)
  for yy in [.89,1.13]:box('Bench back rail',(x,y+yy,z-.3),(2.6,.19,.08),wood,.03)
  # Postbox remains at the route's final stopping point.
- x,z=1.8,-27.5;y=gh(x,z)
+ x,z=1.8,-71.5;y=gh(x,z)
  box('Postbox post',(x,y+.72,z),(.16,1.6,.16),wood,.03)
  box('Postbox',(x,y+1.57,z),(.68,.53,.48),iron,.10)
  box('Postbox lid',(x,y+1.84,z),(.78,.08,.59),wood,.035)

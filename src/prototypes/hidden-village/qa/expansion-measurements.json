@@ -1,0 +1,153 @@
+{
+  "captures": [
+    {
+      "view": "desktop-moor",
+      "drawCalls": 190,
+      "triangles": 446710,
+      "renderMs": 7.0
+    },
+    {
+      "view": "desktop-hollow",
+      "drawCalls": 218,
+      "triangles": 562487,
+      "renderMs": 3.4
+    },
+    {
+      "view": "desktop-woods",
+      "drawCalls": 179,
+      "triangles": 524150,
+      "renderMs": 2.9
+    },
+    {
+      "view": "desktop-ridge",
+      "drawCalls": 176,
+      "triangles": 508242,
+      "renderMs": 3.6
+    },
+    {
+      "view": "desktop-bridge",
+      "drawCalls": 166,
+      "triangles": 487443,
+      "renderMs": 2.0
+    },
+    {
+      "view": "desktop-workshop",
+      "drawCalls": 123,
+      "triangles": 383173,
+      "renderMs": 2.3
+    },
+    {
+      "view": "desktop-square",
+      "drawCalls": 96,
+      "triangles": 334199,
+      "renderMs": 1.6
+    },
+    {
+      "view": "desktop-pond",
+      "drawCalls": 41,
+      "triangles": 160123,
+      "renderMs": 3.8
+    },
+    {
+      "view": "desktop-pond-return",
+      "drawCalls": 66,
+      "triangles": 257942,
+      "renderMs": 2.8
+    },
+    {
+      "view": "desktop-last-light",
+      "drawCalls": 33,
+      "triangles": 103734,
+      "renderMs": 2.9
+    },
+    {
+      "view": "phone-moor",
+      "drawCalls": 133,
+      "triangles": 404399,
+      "renderMs": 2.2
+    },
+    {
+      "view": "phone-hollow",
+      "drawCalls": 104,
+      "triangles": 260869,
+      "renderMs": 2.9
+    },
+    {
+      "view": "phone-woods",
+      "drawCalls": 169,
+      "triangles": 521282,
+      "renderMs": 0.7
+    },
+    {
+      "view": "phone-ridge",
+      "drawCalls": 155,
+      "triangles": 500354,
+      "renderMs": 2.0
+    },
+    {
+      "view": "phone-bridge",
+      "drawCalls": 155,
+      "triangles": 487539,
+      "renderMs": 4.9
+    },
+    {
+      "view": "phone-workshop",
+      "drawCalls": 58,
+      "triangles": 231019,
+      "renderMs": 3.8
+    },
+    {
+      "view": "phone-square",
+      "drawCalls": 59,
+      "triangles": 260795,
+      "renderMs": 1.6
+    },
+    {
+      "view": "phone-pond",
+      "drawCalls": 33,
+      "triangles": 153087,
+      "renderMs": 1.6
+    },
+    {
+      "view": "phone-pond-return",
+      "drawCalls": 57,
+      "triangles": 248151,
+      "renderMs": 2.7
+    },
+    {
+      "view": "phone-last-light",
+      "drawCalls": 28,
+      "triangles": 103025,
+      "renderMs": 1.0
+    },
+    {
+      "view": "phone-village-lanes",
+      "drawCalls": 57,
+      "triangles": 253226,
+      "renderMs": 2.2
+    }
+  ],
+  "idle": {
+    "frames": 11,
+    "milliseconds": 1201.2999999523165,
+    "visibility": "visible"
+  },
+  "reducedMotion": {
+    "frames": 0,
+    "state": "paused"
+  },
+  "pausedIdleFrames": 0,
+  "notes": "Settled-waypoint CPU submission samples read before screenshots, not GPU timing. Desktop village-lanes was visually checked after resizing from phone, retaining the smaller rock texture. Hidden-tab/context-loss handlers remain in code but were not separately stress-tested.",
+  "wildlife": {
+    "Idle": {
+      "samples": 41,
+      "minHoofHeight": 2.2e-08,
+      "maxHoofHeight": 2.2e-08
+    },
+    "Eating": {
+      "samples": 73,
+      "minHoofHeight": 2.2e-08,
+      "maxHoofHeight": 2.2e-08
+    }
+  }
+}

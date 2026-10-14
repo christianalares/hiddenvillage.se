@@ -1,7 +1,7 @@
 // Continuous camera path with a richer, single-scene environment.
 import * as THREE from 'three'
 import { buildWorld } from './world'
-import { trailHeight, trailX } from './trail'
+import { branches, BranchId, startZ, endZ, routePosition } from './trail'
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
 async function start() {
@@ -60,196 +60,208 @@ moon.position.copy(moonHalo.position)
 scene.add(moon)
 
 instruction.textContent = 'Preparing the woodland…'
-const { houseLights, lanterns, motes, signTargets, update } = await buildWorld(scene).catch(error => {
+const { houseLights, motes, signTargets, update } = await buildWorld(scene).catch(error => {
   instruction.textContent = 'The woodland could not load. Please reload to try again.'
   mount.dataset.state = 'error'
   throw error
 })
 mount.dataset.state = 'ready'
-const path = new THREE.CatmullRomCurve3(
-  [100, 96, 90, 83, 76, 68, 62, 58, 54.5, 51, 46, 41, 32, 23, 15, 7, -1, -10, -19].map(z => new THREE.Vector3(trailX(z), trailHeight(z) + 1.76, z)),
-  false,
-  'centripetal'
-)
+// Native document scrolling owns speed, momentum, keyboard travel and the scrollbar.
+const scrollRange = () => Math.max(1, document.documentElement.scrollHeight - window.innerHeight)
+const scrollProgress = () => clamp(window.scrollY / scrollRange(), 0, 1)
+const choices: Record<BranchId, boolean> = { ridge: false, pond: false }
+const fork = document.getElementById('fork')!
+const forkTitle = document.getElementById('fork-title')!
+const branchButton = document.getElementById('branch-route') as HTMLButtonElement
+const mainButton = document.getElementById('main-route') as HTMLButtonElement
+const atmosphere = document.getElementById('atmosphere') as HTMLButtonElement
+let activeFork: BranchId | null = null
 
-// Only two nearby lamps affect geometry. Distant windows and lantern halos are
-// emissive; the light count stays constant so walking never recompiles shaders.
-scene.updateMatrixWorld(true)
-const lightSources = [...houseLights, ...lanterns.flatMap(lantern => lantern.children.filter(child => child instanceof THREE.PointLight) as THREE.PointLight[])].map(light => {
-  const position = light.getWorldPosition(new THREE.Vector3())
+// Constant light count. Emissive panes and baked ground pools remain visible at any distance.
+const lightSources = houseLights.map(light => {
   light.removeFromParent()
-  return { position, intensity: light.intensity, color: light.color }
+  return { position: light.position.clone(), intensity: light.intensity, color: light.color }
 })
 const nearbyLights = [new THREE.PointLight('#edb16c', 0, 12, 1.7), new THREE.PointLight('#edb16c', 0, 12, 1.7)]
 scene.add(...nearbyLights)
 
 const chapters = [
-  { until: 88, place: 'THE WOODS', title: 'Hidden Village', description: 'Follow the lanterns. There is something beyond the trees.' },
+  { until: 178, place: 'THE HIGH MOOR', title: 'Hidden Village', description: 'Somewhere below the heather, a light is still burning.' },
+  { until: 110, place: 'THE BIRCH HOLLOW', title: 'Something stirs', description: 'Pale trunks. A rustle in the leaves. A quiet life beyond the path.' },
+  { until: 88, place: 'THE WOODS', title: 'Under the canopy', description: 'Follow the lanterns. The trees keep their own secrets.' },
   { until: 68, place: 'THE RIDGE', title: 'A little farther', description: 'Warm windows across the valley. The path winds down from here.' },
   { until: 46, place: 'THE CROSSING', title: 'One person, many ideas', description: 'I am Christian, a developer with a habit of making things.' },
   { until: 13, place: 'THE WORKSHOP', title: 'Things made here', description: 'Creations and collaborations, gathered around the workbench.' },
   { until: -8, place: 'THE SQUARE', title: 'Still growing', description: 'A place for experiments, unfinished ideas, and whatever comes next.' },
-  { until: -Infinity, place: 'THE LAST LIGHT', title: 'Say hello', description: 'The village is small. There is always room for a conversation.' },
+  { until: -54, place: 'THE VILLAGE LANES', title: 'A few more turns', description: 'Small gardens, stacked firewood, and windows still awake.' },
+  { until: -Infinity, place: 'THE LAST LIGHT', title: 'Say hello', description: 'There is always room for a conversation.' },
 ]
-let visibleChapter = -1
-
-let target = 0
-let current = 0
+let visibleChapter = ''
+let target = scrollProgress()
+let current = target
 let lastTime = performance.now()
 let frameRequest = 0
+let idleTimer = 0
 let frameCount = 0
 let contextLost = false
-const frameInterval = 1000 / 30
-let lastReported = -1
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+let weatherTime = 0
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
+let reducedMotion = motionPreference.matches
+let motion = !reducedMotion
 const nextPoint = new THREE.Vector3()
 const lookPoint = new THREE.Vector3()
 const tangent = new THREE.Vector3()
+const pondGaze = new THREE.Vector3()
 const raycaster = new THREE.Raycaster()
 const pointer = new THREE.Vector2()
 
-function steer(change: number) {
-  const desired = clamp(target + change, 0, 1)
-  target = clamp(desired, Math.max(0, current - 0.17), Math.min(1, current + 0.17))
-  wake()
-}
-
-function updateProgress(value: number) {
-  progressBar.style.width = `${value * 100}%`
-  const chapterIndex = chapters.findIndex(chapter => nextPoint.z > chapter.until)
-  if (chapterIndex !== visibleChapter) {
-    visibleChapter = chapterIndex
-    const chapter = chapters[chapterIndex]
+function updateProgress() {
+  progressBar.style.width = `${current * 100}%`
+  const z = nextPoint.z
+  const chapterIndex = chapters.findIndex(chapter => z > chapter.until)
+  const side = (Object.keys(branches) as BranchId[]).find(id => choices[id] && z < branches[id].start && z > branches[id].end)
+  const chapterKey = side ?? String(chapterIndex)
+  if (chapterKey !== visibleChapter) {
+    visibleChapter = chapterKey
+    const chapter = side === 'ridge'
+      ? { place: 'THE HEATHER RIDGE', title: 'The longer way around', description: 'Old boundary stones lead above the hollow. Both paths find the village.' }
+      : side === 'pond'
+        ? { place: 'THE REED POND', title: 'At the water’s edge', description: 'A boat waits among the reeds. The village glows through the mist.' }
+        : chapters[chapterIndex]
     place.textContent = chapter.place
     caption.textContent = chapter.title
     description.textContent = chapter.description
     contact.hidden = chapterIndex !== chapters.length - 1
   }
-  instruction.textContent = window.innerWidth >= 640 && nextPoint.z < 36 && nextPoint.z > 24
-    ? 'Click the sign or keep walking'
-    : value >= 0.98
-      ? 'Scroll up to walk back'
-      : 'Scroll, swipe, or use arrow keys to walk'
+  const nextFork = (Object.keys(branches) as BranchId[]).find(id => z >= branches[id].start && z <= branches[id].start + 20) ?? null
+  fork.hidden = !nextFork
+  if (nextFork !== activeFork) {
+    activeFork = nextFork
+    if (nextFork) {
+      forkTitle.textContent = 'A fork in the path'
+      branchButton.textContent = branches[nextFork].title
+      mainButton.textContent = branches[nextFork].alternative
+    }
+  }
+  if (activeFork) {
+    branchButton.setAttribute('aria-pressed', String(choices[activeFork]))
+    mainButton.setAttribute('aria-pressed', String(!choices[activeFork]))
+  }
+  instruction.textContent = current >= 0.995 ? 'Scroll up to wander back' : 'Scroll or swipe to wander · Move at your pace'
 }
+
+function chooseRoute(side: boolean) {
+  if (!activeFork) return
+  choices[activeFork] = side
+  updateProgress()
+  wake()
+}
+branchButton.addEventListener('click', () => chooseRoute(true))
+mainButton.addEventListener('click', () => chooseRoute(false))
+function updateAtmosphereControl() {
+  atmosphere.textContent = motion ? 'Pause atmosphere' : 'Resume atmosphere'
+  atmosphere.setAttribute('aria-pressed', String(!motion))
+}
+atmosphere.addEventListener('click', () => { motion = !motion; updateAtmosphereControl(); wake() })
+motionPreference.addEventListener('change', event => {
+  reducedMotion = event.matches
+  motion = !reducedMotion
+  updateAtmosphereControl()
+  wake()
+})
+updateAtmosphereControl()
 
 function wake() {
-  if (!frameRequest && !document.hidden && !contextLost) {
-    lastTime = performance.now() - frameInterval
-    frameRequest = requestAnimationFrame(animate)
-  }
+  clearTimeout(idleTimer)
+  idleTimer = 0
+  if (!frameRequest && !document.hidden && !contextLost) frameRequest = requestAnimationFrame(animate)
 }
-
+function stopFrames() {
+  cancelAnimationFrame(frameRequest)
+  clearTimeout(idleTimer)
+  frameRequest = idleTimer = 0
+}
 function animate(time: number) {
   frameRequest = 0
   if (document.hidden || contextLost) return
-  if (time - lastTime < frameInterval - 1) {
-    frameRequest = requestAnimationFrame(animate)
+  const moving = Math.abs(target - current) > 0.00001
+  const interval = moving ? 1000 / 30 : 100
+  if (time - lastTime < interval - 1) {
+    idleTimer = window.setTimeout(wake, interval - (time - lastTime))
     return
   }
-  const delta = clamp((time - lastTime) / 1000, 0, 0.1)
+  const delta = clamp((time - lastTime) / 1000, 0, 0.15)
   lastTime = time
-  const easedStep = (target - current) * (1 - Math.exp(-delta * (reducedMotion ? 10 : 4.1)))
-  const pacedStep = clamp(easedStep, -delta * 0.065, delta * 0.065)
-  current = clamp(current + pacedStep, 0, 1)
-  if (Math.abs(target - current) < 0.00005) current = target
-  path.getPointAt(current, nextPoint)
-  const walking = Math.min(Math.abs(target - current) * 16, 1)
+  // Brief easing softens individual wheel ticks without imposing a maximum walking speed.
+  current += (target - current) * (1 - Math.exp(-delta * (reducedMotion ? 20 : 13)))
+  if (Math.abs(target - current) < 0.00001) current = target
+  const z = startZ + (endZ - startZ) * current
+  nextPoint.copy(routePosition(z, choices))
   camera.position.copy(nextPoint)
   sky.position.copy(nextPoint)
-  camera.position.y += reducedMotion ? 0 : Math.sin(time * 0.008) * 0.018 * walking
-  path.getTangentAt(current, tangent)
+  const walking = Math.min(Math.abs(target - current) * 60, 1)
+  camera.position.y += reducedMotion ? 0 : Math.sin(time * 0.008) * 0.015 * walking
+  lookPoint.copy(routePosition(z - 5, choices))
+  tangent.subVectors(lookPoint, nextPoint).normalize()
   lookPoint.copy(camera.position).addScaledVector(tangent, 7)
-  lookPoint.y = camera.position.y + tangent.y * 3 - 0.04
-    - 0.21 * Math.exp(-Math.pow((nextPoint.z - 80) / 10, 2))
-  // Gentle glances make landmarks legible without interrupting the forward walk.
-  lookPoint.x += 0.45 * Math.exp(-Math.pow((nextPoint.z - 80) / 9, 2))
-    - (window.innerWidth < 640 ? 6.8 : 4.4) * Math.exp(-Math.pow((nextPoint.z - 31) / 7, 2))
-    - (window.innerWidth < 640 ? 5 : 2) * Math.exp(-Math.pow((nextPoint.z - 4) / 6, 2))
-    + (window.innerWidth < 640 ? 0.55 : 0) * Math.exp(-Math.pow((nextPoint.z + 19) / 6, 2))
+  lookPoint.y = camera.position.y + tangent.y * 3 - 0.05
+  lookPoint.x += (window.innerWidth < 640 ? 5 : 3.5) * Math.exp(-Math.pow((z - 162) / 11, 2))
+    + 0.45 * Math.exp(-Math.pow((z - 80) / 9, 2))
+    - (window.innerWidth < 640 ? 6.8 : 4.4) * Math.exp(-Math.pow((z - 31) / 7, 2))
+    - (window.innerWidth < 640 ? 5 : 2) * Math.exp(-Math.pow((z - 4) / 6, 2))
+    - (choices.pond ? (window.innerWidth < 640 ? 6 : 4) * Math.exp(-Math.pow((z + 23) / 11, 2)) : 0)
+    + (window.innerWidth < 640 ? 0.55 : 0) * Math.exp(-Math.pow((z + 62) / 6, 2))
+  if (choices.pond) {
+    pondGaze.set(-25, 0.85, -27).sub(camera.position).normalize()
+    tangent.subVectors(lookPoint, camera.position).normalize().lerp(pondGaze, Math.min(1, (window.innerWidth < 640 ? 1.2 : 1) * Math.exp(-Math.pow((z + 22) / 11, 2)))).normalize()
+    lookPoint.copy(camera.position).addScaledVector(tangent, 7)
+  }
   camera.lookAt(lookPoint)
-
   const closest = lightSources.slice().sort((a, b) => a.position.distanceToSquared(camera.position) - b.position.distanceToSquared(camera.position))
   nearbyLights.forEach((light, i) => {
     const source = closest[i]
+    if (!source) { light.intensity = 0; return }
     light.position.copy(source.position)
     light.color.copy(source.color)
-    light.intensity = source.intensity
+    light.intensity = source.intensity * clamp((10 - source.position.distanceTo(camera.position)) / 6, 0, 1)
   })
-  motes.rotation.y = Math.sin(time * 0.00012) * 0.018
-  update(camera)
+  if (motion) weatherTime += delta
+  motes.rotation.y = Math.sin(weatherTime * 0.12) * 0.006
+  update(camera, weatherTime, delta, motion)
   const renderStart = performance.now()
   renderer.render(scene, camera)
-  renderer.domElement.dataset.renderMs = (performance.now() - renderStart).toFixed(2)
-  // Readable diagnostic attributes for browser QA without a perpetual stats UI.
-  renderer.domElement.dataset.frames = String(++frameCount)
-  renderer.domElement.dataset.drawCalls = String(renderer.info.render.calls)
-  renderer.domElement.dataset.triangles = String(renderer.info.render.triangles)
-  renderer.domElement.dataset.cameraZ = nextPoint.z.toFixed(2)
-  renderer.domElement.dataset.progress = current.toFixed(4)
-  if (Math.abs(current - lastReported) > 0.001 || current === target) {
-    lastReported = current
-    updateProgress(current)
-  }
+  Object.assign(renderer.domElement.dataset, {
+    renderMs: (performance.now() - renderStart).toFixed(2), frames: String(++frameCount),
+    drawCalls: String(renderer.info.render.calls), triangles: String(renderer.info.render.triangles),
+    cameraZ: z.toFixed(2), cameraX: camera.position.x.toFixed(2), cameraY: camera.position.y.toFixed(2),
+    progress: current.toFixed(4), atmosphere: motion ? 'running' : 'paused',
+    ridge: String(choices.ridge), pond: String(choices.pond),
+  })
+  updateProgress()
   if (current !== target) frameRequest = requestAnimationFrame(animate)
+  else if (motion) idleTimer = window.setTimeout(wake, 100)
 }
-
-// Texture arrivals and resizing need a frame even while the camera is resting.
 THREE.DefaultLoadingManager.onLoad = wake
 wake()
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { cancelAnimationFrame(frameRequest); frameRequest = 0 }
-  else wake()
-})
+window.addEventListener('scroll', () => { target = scrollProgress(); wake() }, { passive: true })
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopFrames(); else wake() })
 renderer.domElement.addEventListener('webglcontextlost', event => {
   event.preventDefault()
   contextLost = true
-  cancelAnimationFrame(frameRequest)
-  frameRequest = 0
+  stopFrames()
   instruction.textContent = 'The forest is resting. Waiting for graphics to return…'
 })
 renderer.domElement.addEventListener('webglcontextrestored', () => { contextLost = false; wake() })
 
 function walkToZ(z: number) {
-  // Derive waypoints from distance along the curve rather than fragile percentages.
-  let low = 0, high = 1
-  for (let i = 0; i < 18; i++) {
-    const middle = (low + high) / 2
-    path.getPointAt(middle, lookPoint)
-    if (lookPoint.z > z) low = middle
-    else high = middle
-  }
-  target = (low + high) / 2
-  wake()
+  window.scrollTo({ top: clamp((startZ - z) / (startZ - endZ), 0, 1) * scrollRange(), behavior: reducedMotion ? 'auto' : 'smooth' })
 }
-
 document.querySelectorAll<HTMLButtonElement>('[data-stop]').forEach(button => {
   button.addEventListener('click', () => {
     walkToZ(Number(button.dataset.stop))
     button.blur()
     document.querySelector('details')?.removeAttribute('open')
   })
-})
-
-window.addEventListener('wheel', event => {
-  event.preventDefault()
-  if (Number.isFinite(event.deltaY)) steer(clamp(event.deltaY * 0.0004, -0.08, 0.08))
-}, { passive: false })
-
-let touchY = 0
-window.addEventListener('touchstart', event => { touchY = event.touches[0]?.clientY ?? 0 }, { passive: true })
-window.addEventListener('touchmove', event => {
-  event.preventDefault()
-  const nextY = event.touches[0]?.clientY ?? touchY
-  steer(clamp((touchY - nextY) * 0.0014, -0.04, 0.04))
-  touchY = nextY
-}, { passive: false })
-
-window.addEventListener('keydown', event => {
-  if (event.target instanceof HTMLElement && event.target.closest('button, a, summary')) return
-  if (['ArrowDown', 'PageDown', ' ', 'ArrowUp', 'PageUp'].includes(event.key)) {
-    event.preventDefault()
-    steer(['ArrowUp', 'PageUp'].includes(event.key) ? -0.075 : 0.075)
-  }
 })
 
 function updatePointer(event: PointerEvent | MouseEvent) {
@@ -268,6 +280,7 @@ renderer.domElement.addEventListener('click', event => {
 })
 
 window.addEventListener('resize', () => {
+  target = scrollProgress()
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)

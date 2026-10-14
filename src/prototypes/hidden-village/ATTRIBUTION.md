@@ -1,6 +1,6 @@
 # Asset attribution
 
-All external models and photographic textures below are free [Poly Haven CC0 assets](https://polyhaven.com/license). Local, optimized copies are served by the website; it makes no requests to Poly Haven at runtime. No paid assets were used.
+The woodland models and photographic textures below are free [Poly Haven CC0 assets](https://polyhaven.com/license). Local, optimized copies are served by the website; it makes no requests to Poly Haven at runtime. No paid assets were used.
 
 | Source | Author | Use and preparation |
 | --- | --- | --- |
@@ -19,3 +19,9 @@ Terrain, trunk meshes, curved canopy construction, architecture, bridge, fence, 
 `spruce-cutout.png` is the generated image retained from the earlier prototype. It supplies distant tree silhouettes and the curved, intersecting canopy slices of the near canopy. It is not a photographic scan or a newly generated asset. The original generation prompt is retained in the README.
 
 `blender/sources.json` pins the new downloads and their source MD5 checksums. `fetch_assets.py` verifies them before use. The GLB uses Meshopt geometry compression and WebP textures capped at 1,024 pixels on their longest side. Desktop viewports additionally load a 2K rock color map; narrow viewports retain the embedded 1K version. The editable `.blend` packs the textures it uses.
+
+## Wildlife and expanded landscape
+
+[Deer by Quaternius](https://poly.pizza/m/T6Cs7tmMHJ), from the [Ultimate Animated Animal Pack](https://quaternius.com/packs/ultimateanimatedanimals.html), is CC0. The approximately 1,940-triangle rigged model was prepared in Blender at natural scale, grounded, and reduced to the Idle, Idle_2 and Eating animation clips. Two instances use idle/grazing clips in flat, distant clearings; no moving walk cycle is presented. The source is `blender/deer.blend`; its 403 KB runtime asset is `assets/deer.glb`. The original download and checksum are pinned in `sources.json`.
+
+The high moor, branch paths, birches and bark atlas, heather, reed pond, jetty, skiff, boundary stones, garden walls and additional cottages were authored in Blender for this expansion. Wind deformation and drifting leaves are small runtime shaders; no new generated images or paid assets were used.

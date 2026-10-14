@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/prototype/hidden-village/style.css" />
   </head>
   <body>
+    <div class="scroll-runway" aria-hidden="true"></div>
     <main class="shell">
       <div id="mount" class="canvas" aria-hidden="true"></div>
       <div class="vignette" aria-hidden="true"></div>
@@ -16,19 +17,29 @@
         <details class="wayfinding">
           <summary>Waypoints</summary>
           <nav aria-label="Places along the walk">
+            <button data-stop="210">The high moor</button>
+            <button data-stop="166">The birch hollow / fork</button>
             <button data-stop="100">The woods</button>
             <button data-stop="82">The ridge</button>
             <button data-stop="60">The bridge</button>
             <button data-stop="31">The workshop</button>
             <button data-stop="3">The square</button>
-            <button data-stop="-19">The last light</button>
+            <button data-stop="6">The pond / fork</button>
+            <button data-stop="-35">Village lanes</button>
+            <button data-stop="-62">The last light</button>
           </nav>
         </details>
       </div>
+      <section id="fork" class="fork" aria-label="Choose a path" hidden>
+        <span id="fork-title">A fork in the path</span>
+        <p>Both ways lead onward.</p>
+        <div><button id="branch-route" aria-pressed="false">Heather ridge</button><button id="main-route" aria-pressed="true">Through the hollow</button></div>
+      </section>
+      <button id="atmosphere" class="atmosphere" aria-pressed="false">Pause atmosphere</button>
       <div class="caption" aria-live="polite">
-        <span id="place" class="place">THE WOODS</span>
+        <span id="place" class="place">THE HIGH MOOR</span>
         <h1 id="caption">Hidden Village</h1>
-        <p id="description">Follow the lanterns. There is something beyond the trees.</p>
+        <p id="description">Somewhere below the heather, a light is still burning.</p>
         <a id="contact" href="mailto:christian@hiddenvillage.se" hidden>Write to Christian</a>
       </div>
       <div class="controls">

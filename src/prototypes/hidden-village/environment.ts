@@ -3,6 +3,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'meshoptimizer'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
+export type AnimalAnchor = { position: THREE.Vector3; rotation: number; scale: number }
+const windMaterial = /foliage|fern|birch autumn leaves|reed leaves|heather/i
 const assetRoot = '/prototype/hidden-village/assets/'
 
 /** The .blend owns mesh construction and placement; this layer only prepares it for rendering. */
@@ -10,6 +12,8 @@ export async function addEnvironment(scene: THREE.Scene) {
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder)
   const { scene: environment } = await loader.loadAsync(`${assetRoot}woodland.glb`)
   const lights: THREE.PointLight[] = []
+  const animals: AnimalAnchor[] = []
+  const weatherTime = { value: 0 }
   const textures = new THREE.TextureLoader()
   const [forest, path, normal, pathNormal, rockColor] = await Promise.all([
     textures.loadAsync(`${assetRoot}forest-leaves.jpg`),
@@ -33,7 +37,15 @@ export async function addEnvironment(scene: THREE.Scene) {
       object.getWorldPosition(light.position)
       lights.push(light)
     }
+    if (object.userData.animal) animals.push({ position: object.getWorldPosition(new THREE.Vector3()), rotation: Number(object.userData.rotation), scale: Number(object.userData.scale) })
     if (!(object instanceof THREE.Mesh)) return
+    const list = Array.isArray(object.material) ? object.material : [object.material]
+    if (list.some(material => windMaterial.test(material.name)) && !object.geometry.getAttribute('windWeight')) {
+      const position = object.geometry.getAttribute('position'), world = new THREE.Vector3(), heights: number[] = []
+      for (let i = 0; i < position.count; i++) heights.push(world.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld).y)
+      const min = Math.min(...heights), span = Math.max(...heights) - min || 1
+      object.geometry.setAttribute('windWeight', new THREE.Float32BufferAttribute(heights.map(y => Math.pow((y - min) / span, 2)), 1))
+    }
     for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
       if (material instanceof THREE.MeshStandardMaterial) materials.add(material)
     }
@@ -47,7 +59,9 @@ export async function addEnvironment(scene: THREE.Scene) {
     if (rockColor && /rock_moss/.test(material.name)) material.map = rockColor
     material.roughness = 0.95
     material.metalness = 0
-    if (/fern|foliage/i.test(material.name)) {
+    if (/Still pond/.test(material.name)) { material.roughness = 0.27; material.metalness = 0.15 }
+    if (/Amber glass/.test(material.name)) { material.emissive.set('#ffc27c'); material.emissiveIntensity = 1.05; material.toneMapped = false }
+    if (windMaterial.test(material.name)) {
       material.alphaTest = 0.42
       material.transparent = false
       material.depthWrite = true
@@ -69,6 +83,7 @@ export async function addEnvironment(scene: THREE.Scene) {
           vec4 pathColor = texture2D(pathMap, vMapUv * 0.85);
           diffuseColor *= mix(forestColor, pathColor, vColor.r);
         `).replace('#include <color_fragment>', 'diffuseColor.rgb *= vColor.g;')
+          .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += vec3(0.12, 0.055, 0.016) * vColor.b;')
           .replace('#include <normal_fragment_maps>', THREE.ShaderChunk.normal_fragment_maps.split('texture2D( normalMap, vNormalMapUv ).xyz').join(
             'mix(texture2D(normalMap, vNormalMapUv).xyz, texture2D(pathNormal, vNormalMapUv * 0.85).xyz, vColor.r)'
           ))
@@ -80,15 +95,35 @@ export async function addEnvironment(scene: THREE.Scene) {
     const previous = material.onBeforeCompile
     material.onBeforeCompile = (shader, renderer) => {
       previous.call(material, shader, renderer)
-      shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nvarying float mistHeight;')
+      shader.uniforms.weatherTime = weatherTime
+      const wind = windMaterial.test(material.name)
+      const water = /Still pond/.test(material.name)
+      shader.vertexShader = shader.vertexShader.replace('#include <common>', `#include <common>
+uniform float weatherTime; varying float mistHeight;
+${wind ? 'attribute float windWeight;' : ''}
+${water ? 'varying vec2 waterPosition;' : ''}`)
         .replace('#include <project_vertex>', `
           #include <project_vertex>
           vec4 mistPosition = vec4(transformed, 1.0);
           #ifdef USE_INSTANCING
             mistPosition = instanceMatrix * mistPosition;
           #endif
-          mistHeight = (modelMatrix * mistPosition).y;
+          vec4 weatherWorld = modelMatrix * mistPosition;
+          ${wind ? `
+            float sway = sin(weatherTime * 0.68 + weatherWorld.x * 0.11 + weatherWorld.z * 0.075);
+            float flutter = sin(weatherTime * 1.9 + weatherWorld.z * 0.53);
+            weatherWorld.x += (sway * 0.13 + flutter * 0.025) * windWeight;
+            weatherWorld.z += cos(weatherTime * 0.52 + weatherWorld.x * 0.09) * 0.07 * windWeight;
+            mvPosition = viewMatrix * weatherWorld;
+            gl_Position = projectionMatrix * mvPosition;
+          ` : ''}
+          mistHeight = weatherWorld.y;
+          ${water ? 'waterPosition = weatherWorld.xz;' : ''}
         `)
+      if (/Still pond/.test(material.name)) {
+        shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float weatherTime; varying vec2 waterPosition;')
+          .replace('#include <normal_fragment_maps>', '#include <normal_fragment_maps>\nnormal = normalize(normal + vec3(sin(waterPosition.x * 7.0 + waterPosition.y * 2.0 + weatherTime * 0.6) * 0.075, 0.0, cos(waterPosition.y * 5.0 + weatherTime * 0.4) * 0.055)); diffuseColor.rgb *= 0.88 + 0.12 * sin(waterPosition.x * 2.0 + waterPosition.y * 3.0 + weatherTime * 0.4);')
+      }
       shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying float mistHeight;')
         .replace('#include <fog_fragment>', `
           #ifdef USE_FOG
@@ -98,7 +133,7 @@ export async function addEnvironment(scene: THREE.Scene) {
           #endif
         `)
     }
-    material.customProgramCacheKey = () => /blended trail/.test(material.name) ? 'ground-mist-v2' : 'height-mist-v2'
+    material.customProgramCacheKey = () => /blended trail/.test(material.name) ? 'ground-lamps-mist-v3' : windMaterial.test(material.name) ? 'wind-mist-v3' : /Still pond/.test(material.name) ? 'water-mist-v3' : 'height-mist-v3'
   }
   scene.add(environment, ...lights)
   batchScenery(environment)
@@ -114,7 +149,8 @@ export async function addEnvironment(scene: THREE.Scene) {
     object.userData.detailDistance = distance
     detail.push(object)
   })
-  return { lights, update: (camera: THREE.Camera) => {
+  return { lights, animals, update: (camera: THREE.Camera, time: number) => {
+    weatherTime.value = time
     for (const mesh of detail) {
       const sphere = mesh.userData.cullSphere as THREE.Sphere
       mesh.visible = sphere.center.distanceTo(camera.position) - sphere.radius < mesh.userData.detailDistance
@@ -168,7 +204,7 @@ export function batchScenery(root: THREE.Object3D) {
           original.setAttribute(name, new THREE.Float32BufferAttribute(values, attribute.itemSize))
         }
         original.applyMatrix4(mesh.matrixWorld)
-        for (const key of Object.keys(original.attributes)) if (!['position', 'normal', 'uv', 'color'].includes(key)) original.deleteAttribute(key)
+        for (const key of Object.keys(original.attributes)) if (!['position', 'normal', 'uv', 'color', 'windWeight'].includes(key)) original.deleteAttribute(key)
         const geometry = original.index ? original.toNonIndexed() : original
         if (geometry !== original) original.dispose()
         return geometry

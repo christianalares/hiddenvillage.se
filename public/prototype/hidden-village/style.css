@@ -1,4 +1,6 @@
-html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+html, body { margin: 0; width: 100%; min-height: 100%; background: #111821; }
+html { scrollbar-color: #6e776e #162027; }
+.scroll-runway { height: calc(100vh + 6800px); pointer-events: none; }
 * { box-sizing: border-box; }
 .shell {
   position: fixed;
@@ -108,7 +110,7 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 .wayfinding button { display: block; width: 100%; min-height: 44px; padding: 10px 12px; border: 0; text-align: left; background: transparent; color: #ddd8cb; font: inherit; cursor: pointer; }
 .wayfinding button:hover { background: #293832; color: #f3d9ad; }
 .wayfinding :focus-visible, .caption a:focus-visible { outline: 2px solid #e7b97c; outline-offset: 3px; }
-.canvas { touch-action: none; }
+.canvas { touch-action: pan-y; }
 @media (max-width: 640px) {
   .topline { padding: 18px 23px; gap: 10px; }
   .brand { letter-spacing: 0.15em; }
@@ -117,3 +119,22 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
   .controls { bottom: max(28px, calc(16px + env(safe-area-inset-bottom))); }
 }
 @media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+
+.wayfinding nav { max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain; width: 205px; }
+.fork { position: absolute; right: 43px; top: 112px; width: 260px; padding: 18px; border: 1px solid #68736a; border-radius: 4px; background: rgba(14, 23, 26, .94); box-shadow: 0 8px 36px #0004; }
+.fork[hidden] { display: none; }
+.fork > span { color: #f3d9ad; font: 19px Georgia, serif; }
+.fork p { font: 12px/1.4 Arial, sans-serif; color: #bcbfb5; margin: 7px 0 14px; }
+.fork div { display: grid; gap: 7px; }
+.fork button { min-height: 44px; padding: 9px 12px; border: 1px solid #56635a; border-radius: 3px; color: #ddd8cb; background: #25332d; text-align: left; font: 13px Arial, sans-serif; cursor: pointer; }
+.fork button[aria-pressed="true"] { color: #ffdda5; border-color: #c69c65; background: #554630; }
+.atmosphere { position: absolute; right: 43px; bottom: 30px; padding: 11px 12px; border: 1px solid #59625d; border-radius: 3px; background: #101a1dcc; color: #c6c8bc; font: 11px Arial, sans-serif; cursor: pointer; min-height: 44px; }
+button:focus-visible { outline: 2px solid #e7b97c; outline-offset: 3px; }
+@media (max-width: 640px) {
+  .fork { right: 23px; top: 84px; width: 230px; padding: 14px; }
+  .fork > span { font-size: 17px; }
+  .fork div { grid-template-columns: 1fr 1fr; }
+  .fork button { padding: 8px; font-size: 12px; }
+  .atmosphere { right: 23px; bottom: max(75px, calc(63px + env(safe-area-inset-bottom))); font-size: 10px; min-height: 32px; padding: 8px; }
+  .caption { bottom: max(131px, calc(113px + env(safe-area-inset-bottom))); }
+}

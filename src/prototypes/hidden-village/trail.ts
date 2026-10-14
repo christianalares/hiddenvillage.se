@@ -1,32 +1,56 @@
-const smooth = (value: number) => {
+/** Metres shared by the authored terrain, route branches and wildlife clearings. */
+export const smooth = (value: number) => {
   const t = Math.max(0, Math.min(1, value))
   return t * t * (3 - 2 * t)
 }
-
-// The same route defines the ground, bridge and camera. Keep these in world metres
-// so future junctions can connect to the route without moving the scenery.
+export const startZ = 210
+export const endZ = -62
+export const branches = {
+  ridge: { start: 156, end: 108, offset: -14, title: 'Heather ridge', alternative: 'Through the hollow' },
+  pond: { start: -4, end: -48, offset: -20, title: 'Reed pond', alternative: 'Village lane' },
+}
+export type BranchId = keyof typeof branches
+export const branchOffset = (z: number, id: BranchId) => {
+  const b = branches[id]
+  if (z >= b.start || z <= b.end) return 0
+  return b.offset * Math.sin(Math.PI * (b.start - z) / (b.start - b.end)) ** 2
+}
 export const trailX = (z: number) => Math.sin(z * 0.105) * 0.72
   - smooth((z - 43) / 44) * 8
   + Math.sin((z - 22) * 0.14) * 1.8 * smooth((z - 22) / 18)
-
-export const trailHeight = (z: number) => {
-  return smooth((z - 22) / 74) * 10.5
-}
-
+  + Math.sin((z - 110) * 0.055) * 3 * smooth((z - 110) / 18)
+  - smooth((z - 165) / 35) * 7
+  + Math.sin(Math.min(1, Math.max(0, (-z - 12) / 50)) * Math.PI) * 6
+export const trailHeight = (z: number) => smooth((z - 22) / 74) * 10.5
+  + 12 * smooth((z - 100) / 50) + 16 * smooth((z - 155) / 55)
+  - 2.8 * smooth((-z - 18) / 44) + 1.4 * Math.exp(-Math.pow((z + 28) / 10, 2))
 export const bridgeStart = 51
 export const bridgeEnd = 58
 export const onBridge = (z: number) => z > bridgeStart && z < bridgeEnd
-
-export const groundHeight = (x: number, z: number) => {
+export const wildlifeSites = [{ x: 12.5, z: 141, rotation: -0.85, scale: 1 }, { x: 16, z: 137, rotation: -0.4, scale: 0.88 }]
+const rawGround = (x: number, z: number) => {
   const offset = x - trailX(z)
   const edge = smooth((Math.abs(offset) - 2) / 8)
   const ridge = smooth((z - 33) / 30)
-  // Raised forest bank on the left; an open, lower valley on the right.
   const bank = offset < 0 ? edge * (1.4 + ridge * 4.5) : -edge * ridge * 7
   const uneven = edge * (Math.sin(x * 0.38 + z * 0.12) * 0.7 + Math.cos(z * 0.29) * 0.35)
   const road = 1 - smooth((Math.abs(offset) - 1.65) / 0.65)
   const bridgeDip = smooth((z - 50.51) / 0.7) * smooth((58.29 - z) / 0.7)
   const ravine = Math.exp(-Math.pow((z - 54.5 + Math.sin(x * 0.12) * 0.8) / 2.15, 2)) * 4.8 * (1 - road + road * bridgeDip)
-  const villageHill = Math.exp(-Math.pow((x - 32) / 17, 2) - Math.pow((z + 46) / 25, 2)) * 18 * smooth((Math.abs(offset) - 1.8) / 6)
-  return trailHeight(z) + bank + uneven - ravine + villageHill
+  const hill = Math.exp(-Math.pow((x - 32) / 17, 2) - ((z + 46) / 25) ** 2) * 18 * smooth((Math.abs(offset) - 1.8) / 6)
+  const pond = 3.2 * Math.exp(-Math.pow((x + 25) / 7, 4) - ((z + 26) / 11) ** 4)
+  return trailHeight(z) + bank + uneven - ravine + hill - pond
+}
+export const groundHeight = (x: number, z: number) => {
+  let y = rawGround(x, z)
+  for (const site of wildlifeSites) {
+    const d = Math.hypot(x - site.x, z - site.z)
+    const blend = 1 - smooth((d - 2) / 2)
+    y += (rawGround(site.x, site.z) - y) * blend
+  }
+  return y
+}
+export const routePosition = (z: number, choices: Record<BranchId, boolean>) => {
+  const x = trailX(z) + (choices.ridge ? branchOffset(z, 'ridge') : 0) + (choices.pond ? branchOffset(z, 'pond') : 0)
+  return { x, y: (z > 50.6 && z < 58.3 ? trailHeight(z) : groundHeight(x, z)) + 1.76, z }
 }

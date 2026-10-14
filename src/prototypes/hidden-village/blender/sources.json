@@ -136,5 +136,10 @@
     "runtime": "rock-moss-color.jpg",
     "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/2k/rock_moss_set_01/rock_moss_set_01_diff_2k.jpg",
     "md5": "d3e1292c9e34bd6b4a236698a1b41290"
+  },
+  {
+    "path": "deer-original.glb",
+    "url": "https://static.poly.pizza/4b6c2a41-43c7-404c-ae37-e8c4645ff93b.glb",
+    "md5": "808bde3cdca65c14db125baa8463e735"
   }
 ]

@@ -1,14 +1,14 @@
 import * as THREE from 'three'
-import { groundHeight, trailHeight } from './trail'
+import { groundHeight, trailHeight, trailX } from './trail'
 import { addEnvironment } from './environment'
+import { addWildlife } from './wildlife'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 type World = {
   houseLights: THREE.PointLight[]
-  lanterns: THREE.Group[]
   motes: THREE.Points
   signTargets: THREE.Object3D[]
-  update: (camera: THREE.Camera) => void
+  update: (camera: THREE.Camera, time: number, delta: number, motion: boolean) => void
 }
 
 let seed = 17347
@@ -96,9 +96,9 @@ function addSign(scene: THREE.Scene, glow: THREE.Texture) {
 
 function addAtmosphere(scene: THREE.Scene) {
   const positions: number[] = []
-  for (let i = 0; i < 45; i++) {
-    const z = between(-25, 89)
-    positions.push(between(-17, 17), trailHeight(z) + between(0.8, 7), z)
+  for (let i = 0; i < 80; i++) {
+    const z = between(-70, 211)
+    positions.push(trailX(z) + between(-17, 17), trailHeight(z) + between(0.8, 7), z)
   }
   const geometry = new THREE.BufferGeometry()
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
@@ -110,16 +110,40 @@ function addAtmosphere(scene: THREE.Scene) {
 export async function buildWorld(scene: THREE.Scene): Promise<World> {
   const authored = await addEnvironment(scene)
   const glow = glowTexture()
-  for (const source of authored.lights) {
-    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: glow, color: '#e9ad61', transparent: true,
-      blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.38,
-    }))
-    halo.position.copy(source.position)
-    halo.scale.set(1.1, 1.1, 1)
-    scene.add(halo)
-  }
+  const positions = authored.lights.flatMap(source => source.position.toArray())
+  const points = new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  scene.add(new THREE.Points(points, new THREE.PointsMaterial({ map: glow, color: '#ffc16c', size: 1.55, transparent: true, depthWrite: false, opacity: 0.65, blending: THREE.AdditiveBlending, toneMapped: false })))
+  const wildlife = await addWildlife(scene, authored.animals)
+  const leaves = addDriftingLeaves(scene)
   const signTargets = addSign(scene, glow)
   const motes = addAtmosphere(scene)
-  return { houseLights: authored.lights, lanterns: [], motes, signTargets, update: authored.update }
+  return { houseLights: authored.lights, motes, signTargets, update: (camera, time, delta, motion) => {
+    authored.update(camera, time)
+    wildlife(camera, delta, motion)
+    leaves.material.uniforms.time.value = time
+    leaves.visible = motion
+  } }
+}
+
+function addDriftingLeaves(scene: THREE.Scene) {
+  const positions: number[] = [], phases: number[] = []
+  for (let i = 0; i < 72; i++) {
+    const z = between(-55, 180)
+    positions.push(trailX(z) + between(-7, 7), trailHeight(z) + between(2, 7), z)
+    phases.push(random())
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('phase', new THREE.Float32BufferAttribute(phases, 1))
+  const material = new THREE.ShaderMaterial({
+    uniforms: { time: { value: 0 } }, transparent: true, depthWrite: false,
+    vertexShader: `attribute float phase; uniform float time; varying float turn;
+      void main(){ vec3 p=position; p.y-=fract(time*.035+phase)*2.0; p.x+=sin(time*.4+phase*30.)*.65;
+      turn=time*.6+phase*20.; vec4 view=modelViewMatrix*vec4(p,1.); gl_Position=projectionMatrix*view;
+      gl_PointSize=clamp(90./-view.z,1.,6.); }`,
+    fragmentShader: `varying float turn; void main(){ vec2 p=gl_PointCoord-.5;
+      p=mat2(cos(turn),-sin(turn),sin(turn),cos(turn))*p;
+      if(length(p*vec2(1.8,1.))>.44)discard; gl_FragColor=vec4(.29,.25,.12,.62); }`,
+  })
+  const leaves = new THREE.Points(geometry, material); scene.add(leaves); return leaves
 }

@@ -1,0 +1,46 @@
+{
+  "deer.glb": {
+    "bytes": 402896,
+    "sha256": "12047a046f8161c7d39bed9a4bfc9e28b733b2a7d42775891528f31cf9fde068"
+  },
+  "forest-leaves.jpg": {
+    "bytes": 314710,
+    "sha256": "65db9e9d0699a6aa2b41c0dcba09c58c4af7a3b1be49563a56deea366273c398"
+  },
+  "forest-normal.jpg": {
+    "bytes": 581919,
+    "sha256": "6b7c4086fc28b7b1f11f4d04aedcc27772ce3bb894cfc00835b4637092c1bb0c"
+  },
+  "path-normal.jpg": {
+    "bytes": 1332341,
+    "sha256": "17394d24b9b11c38c9eab5cb7537603ebfad52f7d71dd9589991c80150fd602e"
+  },
+  "pine-bark.jpg": {
+    "bytes": 162640,
+    "sha256": "ce3a06242153f54d46d028c7a11d6ad86ec74790b189f4557be95dfb130b38c0"
+  },
+  "rock-moss-color.jpg": {
+    "bytes": 649415,
+    "sha256": "bdee6da8baba67bd7e85e414e669cd46aab9afaf755114fb5163f0e68775c3d6"
+  },
+  "roof-planks.jpg": {
+    "bytes": 133150,
+    "sha256": "f14afcab19472bb6ba4096134ea05575c8e698faea422ee17339108d32805e96"
+  },
+  "spruce-cutout.png": {
+    "bytes": 428874,
+    "sha256": "e4ef6c7620aecff65b651b9c500195dbc36d98897ef20f7dbb3cf091eba8cc2f"
+  },
+  "weathered-plaster.jpg": {
+    "bytes": 187120,
+    "sha256": "bcdeeb215750860be0e4d901e20c8fa22ecdc4e9b2e2fded3c2c214a2576f942"
+  },
+  "wood-chip-path.jpg": {
+    "bytes": 238918,
+    "sha256": "cf05fd76e8268c7bad503acd97b28addf9ffc87833aeb3d28de8bee51540da51"
+  },
+  "woodland.glb": {
+    "bytes": 6380588,
+    "sha256": "f53c70d9a4085ac6df872948aa43e814c6ed81507ae6b303df283767b7728b83"
+  }
+}

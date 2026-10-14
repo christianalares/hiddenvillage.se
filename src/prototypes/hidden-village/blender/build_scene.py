@@ -37,18 +37,7 @@ def move(o):
 def xyz(v): return Vector((v[0], -v[2], v[1]))
 def smooth(t):
  t=max(0,min(1,t)); return t*t*(3-2*t)
-def tx(z): return math.sin(z*.105)*.72-smooth((z-43)/44)*8+math.sin((z-22)*.14)*1.8*smooth((z-22)/18)
-def th(z): return smooth((z-22)/74)*10.5
-def gh(x,z):
- off=x-tx(z); edge=smooth((abs(off)-2)/8); ridge=smooth((z-33)/30)
- bank=edge*(1.4+ridge*4.5) if off<0 else -edge*ridge*7
- uneven=edge*(math.sin(x*.38+z*.12)*.7+math.cos(z*.29)*.35)
- ravine=math.exp(-((z-54.5+math.sin(x*.12)*.8)/2.15)**2)*4.8
- road=1-smooth((abs(off)-1.65)/.65)
- ravine*=1-road+road*smooth((z-50.51)/.7)*smooth((58.29-z)/.7)
- hill=math.exp(-((x-32)/17)**2-((z+46)/25)**2)*18*smooth((abs(off)-1.8)/6)
- micro=(math.sin(x*2.6+z*.71)*math.sin(z*3.1-x*.4))*.055
- return th(z)+bank+uneven-ravine+hill+micro
+exec(compile((HERE/'landscape.py').read_text(),str(HERE/'landscape.py'),'exec'))
 
 def mat(name, color=(.35,.35,.35,1), file=None, normal=None, alpha=False, emission=0):
  m=bpy.data.materials.new(name);m.diffuse_color=color;m.use_nodes=True
@@ -137,8 +126,8 @@ def empty(name,pos,**extras):
 # The mesh is the rendered ground, with denser transverse vertices at the walking edge.
 # COLOR_0 stores path blend and precomputed contact shade; the runtime blends two tiling maps.
 terrain=[]
-xs=[-100,-70,-48,-34,-25,-19,-15,-12,-10,-8,-6,-5,-4,-3.3,-2.8,-2.3,-1.9,-1.5,-1,-.5,0,.5,1,1.5,1.9,2.3,2.8,3.3,4,5,6,8,10,12,15,19,25,34,48,70,100]
-for chunk,z0 in enumerate(range(-112,110,18)):
+xs=[-110,-85,-65,-48,-38]+[i*.75 for i in range(-42,43)]+[38,48,65,85,110]
+for chunk,z0 in enumerate(range(-112,230,18)):
  verts=[];uvs=[];faces=[];colors=[]
  for j in range(25):
   z=z0+j*.75
@@ -146,7 +135,7 @@ for chunk,z0 in enumerate(range(-112,110,18)):
    x=tx(z)+off;y=gh(x,z)
    verts.append((x,y,z));uvs.append((x*.32,z*.32))
    width=1.45+math.sin(z*.8)*.13+math.sin(z*2.4)*.045
-   blend=1-smooth((abs(off)-width)/.75)
+   blend=1-smooth((path_distance(x,z)-width)/.75)
    shade=.82+math.sin(x*.15+z*.09)*.08
    colors.append((blend,shade,0,1))
  for j in range(24):
@@ -207,7 +196,7 @@ stumps=import_asset('tree_stump_01',1800)
 for o in list(library.objects):library.objects.unlink(o)
 contacts=[]
 def clearing(x,z):
- return any(abs(x-bx)<3.5*scale and abs(z-bz)<(5 if bz==22 else 3.5)*scale for bx,bz,scale in [(-6.8,22,1.05),(6.9,0,1.12),(-7.8,-17.2,.95),(8.5,-20.5,.8),(0,-32,1.2)]) or ((x+3.9)**2+(z+2)**2<3)
+ return any(math.hypot(x-xx,z-zz)<6 for xx,zz,_,_ in WILDLIFE) or (x<-17 and -39<z<-15) or any(abs(x-bx)<3.5*scale and abs(z-bz)<(5 if bz==22 else 3.5)*scale for bx,bz,scale in [(-6.8,22,1.05),(6.9,0,1.12),(-4,-23,.95),(8.5,-20.5,.8),(0,-76,1.2),(-14,-43,1),(13,-35,.9),(-6,-51,.9),(11,-56,1),(-21,-12,.8)]) or ((x+3.9)**2+(z+2)**2<3)
 def place(template,name,x,z,scale=1,rotation=None,sink=.04,y=None):
  o=template.copy();o.data=template.data;COL.objects.link(o);o.name=name
  o.location=xyz((x,(gh(x,z) if y is None else y)-sink,z))
@@ -223,21 +212,21 @@ for i,(off,z,s) in enumerate([(-3.35,95,1.15),(-4.5,100,.95),(-3.6,86,1.05),(3.8
   a=k*math.tau/5;px,pz=x+math.sin(a)*radius*1.08,z+math.cos(a)*radius*1.08
   place(ferns[k%4],f'Opening fern {i}.{k}',px,pz,1.4+(k%3)*.25,sink=.04)
 
-for i in range(118):
- z=rnd(-30,109);side=-1 if i%3 else 1;off=side*rnd(2.9,11 if z>35 else 18);x=tx(z)+off
+for i in range(185):
+ z=rnd(-70,219);side=-1 if i%3 else 1;off=side*rnd(2.9,11 if z>35 else 18);x=tx(z)+off
  s=rnd(.4,1.15)
- if clearing(x,z):continue
+ if clearing(x,z) or path_distance(x,z)<2.8:continue
  o=place(rocks[i%6],f'Moss boulder {i:03}',x,z,s,sink=.18*s)
  radius=max(rocks[i%6].dimensions.x,rocks[i%6].dimensions.y)*s*.42
  o.location.z=min(gh(x+dx*radius,z+dz*radius) for dx,dz in [(0,0),(1,0),(-1,0),(0,1),(0,-1)])-.12*s
  contacts.append((x,z,radius))
-for i in range(420):
- z=rnd(-30,109);side=(-1 if i%2 else 1);off=side*rnd(2.1,9.8);x=tx(z)+off
+for i in range(620):
+ z=rnd(-70,219);side=(-1 if i%2 else 1);off=side*rnd(2.1,9.8);x=tx(z)+off
  if 50.5<z<59 and abs(off)<3.8:continue
- if (z<30 and abs(off)<6) or clearing(x,z):continue
+ if (z<30 and abs(off)<6) or clearing(x,z) or path_distance(x,z)<1.9:continue
  place(ferns[i%4],f'Fern colony {i:03}',x,z,rnd(.7,2.4),sink=.035)
-for i in range(30):
- z=rnd(35,106);x=tx(z)+(-1 if i%3 else 1)*rnd(1.6,5)
+for i in range(46):
+ z=rnd(35,205);x=tx(z)+(-1 if i%3 else 1)*rnd(1.6,5)
  if 49<z<60:continue
  o=place(roots[i%2],f'Exposed root {i:02}',x,z,rnd(.7,1.4),sink=.06)
  normal=Vector((-(gh(x+.1,z)-gh(x-.1,z))/.2,(gh(x,z+.1)-gh(x,z-.1))/.2,1)).normalized()
@@ -262,8 +251,7 @@ def trunk(name,height,radius,seed):
  o=mesh(name,verts,faces,bark,uv)
  for p in o.data.polygons:p.use_smooth=True
  return o
-# Volumetric crown made of bent, intersecting branch fans sampling the existing
-# authored spruce canopy. Full-tree cards are reserved for the far forest.
+# Curved near crowns and cheaper distant cards share the authored spruce silhouette.
 def crown(name,height,seed):
  rng=random.Random(seed);verts=[];uvs=[];faces=[]
  # Curved, intersecting canopy slices retain fine photographic branch silhouettes.
@@ -287,12 +275,14 @@ for i in range(4):
  prototypes.append((stem,top))
  for o in [stem,top]:COL.objects.unlink(o)
 positions=[(tx(z)+off,z) for off,z in [(-3.6,99),(4.8,96),(-5.1,89),(5.6,86),(-4.1,78),(-4.8,69),(-4.6,61),(-4.3,45),(5.8,40),(-9,29),(10,16),(-12,-13)]]
-for i in range(80):
- z=rnd(-40,111);side=-1 if i%2 else 1;off=side*rnd(6 if side<0 else 13,40)
+for i in range(160):
+ z=rnd(-75,213);side=-1 if i%2 else 1;off=side*rnd(6 if side<0 else 13,40)
  if side>0 and 45<z<86 and off<33:continue
  positions.append((tx(z)+off,z))
 for i,(x,z) in enumerate(positions):
- if clearing(x,z) or (z<12 and 12<x<53):continue
+ if clearing(x,z) or path_distance(x,z)<3.2 or (z<12 and 20<x<53):continue
+ if 108<z<156 and abs(x-tx(z)-branch_offset(z,BRANCHES[0]))<7:continue
+ if z>170 and i%3:continue
  s=rnd(.8,1.35);ang=rnd(0,math.tau)
  for j,p in enumerate(prototypes[i%4]):place(p,f'{"Trunk" if j==0 else "Crown"}_{i:03}',x,z,s,ang,sink=.07)
  contacts.append((x,z,.85*s))
@@ -302,11 +292,11 @@ for i,(x,z) in enumerate(positions):
    a=rnd(0,math.tau);h=rnd(2.7,5);r=rnd(.5,1.8)
    beam('Broken lower limb',(x,y+h,z),(x+math.cos(a)*r,y+h-.45,z+math.sin(a)*r),.06,bark)
 # Distant silhouette stands, kept below the ridge sight line.
-card=mesh('Spruce distance template',[(-.25,0,0),(.25,0,0),(.25,1,0),(-.25,1,0)],[(0,1,2,3)],leafmat,[(0,0),(1,0),(1,1),(0,1)])
+card=mesh('Spruce distance template',[(-.25,0,0),(.25,0,0),(.25,1,0),(-.25,1,0),(0,0,-.25),(0,0,.25),(0,1,.25),(0,1,-.25)],[(0,1,2,3),(4,5,6,7)],leafmat,[(0,0),(1,0),(1,1),(0,1)]*2)
 COL.objects.unlink(card)
-for i in range(210):
- x=rnd(-65,85);z=rnd(-100,100)
- if abs(x-tx(z))<23 or ((x-31)/26)**2+((z+37)/43)**2<1:continue
+for i in range(330):
+ x=rnd(-65,85);z=rnd(-112,220)
+ if path_distance(x,z)<23 or ((x-31)/26)**2+((z+37)/43)**2<1:continue
  h=rnd(7,15);place(card,f'Far spruce {i:03}',x,z,h,rnd(-.4,.4),sink=.05)
 # Feathered contact darkening stored on the terrain, free of runtime shadow maps.
 for o in terrain:
@@ -350,7 +340,7 @@ for a,b in zip(points,points[1:]):
 
 collection('06 · Lanterns')
 lamps=[]
-for i,(z,side) in enumerate([(94,1),(74,1),(61,-1),(38,-1),(16,1),(1,-1),(-18,1)]):
+for i,(z,side) in enumerate([(205,1),(181,-1),(160,1),(132,1),(111,-1),(94,1),(74,1),(61,-1),(38,-1),(16,1),(1,-1),(-18,1),(-35,-1),(-51,1),(-67,1)]):
  x=tx(z)+side*2.65;y=gh(x,z);arm=-side*.63;h=2.75
  beam('Lantern hewn post',(x,y-.16,z),(x+.04,y+h+.28,z),.09)
  beam('Lantern bracket',(x,y+h+.2,z),(x+arm,y+h+.2,z),.055)
@@ -386,6 +376,7 @@ for layer in range(3):
 
 # Architecture is added in the second production stage, after the opening is reviewed.
 exec(compile((HERE/'village.py').read_text(),str(HERE/'village.py'),'exec'))
+exec(compile((HERE/'expansion.py').read_text(),str(HERE/'expansion.py'),'exec'))
 
 bpy.context.view_layer.update()
 depsgraph=bpy.context.evaluated_depsgraph_get()
@@ -398,10 +389,10 @@ for o in terrain:
    col=attr.data[v.index].color;col[1]*=.67;attr.data[v.index].color=col
 collection('09 · Walking cameras and lighting')
 scene=bpy.context.scene
-for name,z in [('Opening',100),('Ridge',82),('Crossing',60),('Workshop',31),('Square',3),('Last light',-19)]:
+for name,z in [('High moor',210),('Hollow',166),('Woods',100),('Ridge',82),('Crossing',60),('Workshop',31),('Square',3),('Last light',-62)]:
  data=bpy.data.cameras.new(name);o=bpy.data.objects.new('Camera · '+name,data);COL.objects.link(o);data.lens=31
  o.location=xyz((tx(z),th(z)+1.76,z));target=xyz((tx(z-7),th(z)+1.2,z-7));o.rotation_euler=(target-o.location).to_track_quat('-Z','Y').to_euler()
- if z==100:scene.camera=o
+ if z==210:scene.camera=o
 sun=bpy.data.lights.new('Cool canopy light','SUN');sun.energy=1.25;sun.angle=.22;sun.color=(.64,.75,.85)
 o=bpy.data.objects.new('Cool canopy light',sun);COL.objects.link(o);o.rotation_euler=(.4,-.4,-.6)
 for i,pos in enumerate(lamps):
@@ -422,9 +413,21 @@ for im in bpy.data.images:
   im.pack()
 HERE.mkdir(exist_ok=True)
 bpy.ops.wm.save_as_mainfile(filepath=str(HERE/'hidden-village.blend'),compress=True)
+# Bake practical lamp pools once, so illumination never switches on at approach.
+anchors=[o for o in scene.objects if o.get('lamp')]
+for o in terrain:
+ attr=o.data.color_attributes['GroundBlend']
+ for v in o.data.vertices:
+  point=o.matrix_world@v.co
+  glow=0
+  for a in anchors:
+   d=(point-a.matrix_world.translation).length
+   glow+=max(0,1-d/6.5)**2
+  col=attr.data[v.index].color;col[2]=min(1,glow*2.8);attr.data[v.index].color=col
+bpy.ops.wm.save_as_mainfile(filepath=str(HERE/'hidden-village.blend'),compress=True)
 # Camera/light helpers stay in the source; lamp anchors and meshes go into the runtime.
 bpy.ops.object.select_all(action='DESELECT')
 for o in scene.objects:
- if o.type=='MESH' or (o.type=='EMPTY' and o.get('lamp')):o.select_set(True)
-bpy.ops.export_scene.gltf(filepath=str(CACHE/'woodland-raw.glb'),export_format='GLB',use_selection=True,export_apply=True,export_extras=True,export_yup=True,export_normals=True,export_texcoords=True,export_materials='EXPORT',export_cameras=False,export_lights=False)
+ if o.type=='MESH' or (o.type=='EMPTY' and (o.get('lamp') or o.get('animal'))):o.select_set(True)
+bpy.ops.export_scene.gltf(filepath=str(CACHE/'woodland-raw.glb'),export_format='GLB',use_selection=True,export_apply=True,export_extras=True,export_yup=True,export_normals=True,export_texcoords=True,export_vertex_color='NAME',export_vertex_color_name='GroundBlend',export_all_vertex_colors=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
 print('SOURCE_READY',len(scene.objects),'objects',sum(len(o.data.polygons) for o in scene.objects if o.type=='MESH'),'instanced faces')
