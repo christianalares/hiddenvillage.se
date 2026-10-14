@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#19222b" />
+    <title>Hidden Village | Walk prototype</title>
+    <link rel="stylesheet" href="/prototype/hidden-village/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <div id="mount" class="canvas" aria-hidden="true"></div>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="topline">
+        <span class="brand">HIDDEN VILLAGE</span>
+        <span class="prototype">WALK PROTOTYPE · ONE CONTINUOUS SCENE</span>
+      </div>
+      <div class="caption"><p id="caption">There is a place beyond the trees.</p></div>
+      <div class="controls">
+        <span id="instruction">Scroll, swipe, or use arrow keys to walk</span>
+        <div class="track"><div id="progress" class="fill"></div></div>
+      </div>
+    </main>
+    <script type="module" src="/prototype/hidden-village/scene.js"></script>
+  </body>
+</html>

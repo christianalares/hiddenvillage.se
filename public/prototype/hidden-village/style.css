@@ -1,0 +1,79 @@
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+* { box-sizing: border-box; }
+.shell {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+  background: #111821;
+  color: #ddd8cb;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+.canvas,
+.canvas canvas,
+.vignette {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.vignette {
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 37%, rgba(4, 7, 10, 0.37) 100%);
+}
+
+.topline {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 34px;
+  gap: 20px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-shadow: 0 2px 9px #000;
+}
+
+.brand { font-weight: 700; }
+.prototype { opacity: 0.6; text-align: center; }
+
+.caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 118px;
+  text-align: center;
+  pointer-events: none;
+  font-size: clamp(20px, 2.4vw, 32px);
+  letter-spacing: 0.03em;
+  text-shadow: 0 3px 14px #000;
+}
+
+.controls {
+  position: absolute;
+  left: 50%;
+  bottom: 31px;
+  transform: translateX(-50%);
+  width: min(340px, calc(100% - 48px));
+  text-align: center;
+  font: 11px Arial, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #d8d2c5;
+  text-shadow: 0 2px 8px #000;
+}
+
+.track { height: 2px; margin-top: 16px; background: rgba(255, 255, 255, 0.27); }
+.fill { height: 100%; background: #e5ae72; transition: width 80ms linear; }
+
+@media (max-width: 640px) {
+  .topline { padding: 19px; font-size: 10px; }
+  .prototype { display: none; }
+  .caption { bottom: 112px; padding: 0 28px; }
+}
