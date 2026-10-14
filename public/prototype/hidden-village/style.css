@@ -101,3 +101,19 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
   .topline { padding: 23px; font-size: 11px; }
   .caption { left: 23px; right: 23px; bottom: 110px; max-width: 300px; }
 }
+
+.wayfinding { position: relative; font: 12px Arial, sans-serif; letter-spacing: 0.06em; }
+.wayfinding summary { cursor: pointer; padding: 10px 12px; border: 1px solid #68706a; border-radius: 3px; background: rgba(15, 24, 27, 0.7); }
+.wayfinding nav { position: absolute; top: calc(100% + 8px); right: 0; width: 174px; padding: 6px; background: rgba(15, 24, 27, 0.96); border: 1px solid #495651; border-radius: 3px; }
+.wayfinding button { display: block; width: 100%; min-height: 44px; padding: 10px 12px; border: 0; text-align: left; background: transparent; color: #ddd8cb; font: inherit; cursor: pointer; }
+.wayfinding button:hover { background: #293832; color: #f3d9ad; }
+.wayfinding :focus-visible, .caption a:focus-visible { outline: 2px solid #e7b97c; outline-offset: 3px; }
+.canvas { touch-action: none; }
+@media (max-width: 640px) {
+  .topline { padding: 18px 23px; gap: 10px; }
+  .brand { letter-spacing: 0.15em; }
+  .wayfinding summary { font-size: 11px; padding: 10px; }
+  .caption { bottom: max(108px, calc(90px + env(safe-area-inset-bottom))); }
+  .controls { bottom: max(28px, calc(16px + env(safe-area-inset-bottom))); }
+}
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }

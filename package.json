@@ -3,11 +3,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run prototype:bundle && next build",
     "start": "next start",
     "lint": "next lint",
     "check:types": "tsc --noEmit",
-    "prototype:walk": "esbuild src/prototypes/hidden-village/main.ts --bundle --minify --format=esm --outfile=public/prototype/hidden-village/scene.js && next dev"
+    "prototype:bundle": "esbuild src/prototypes/hidden-village/main.ts --bundle --minify --format=esm --outfile=public/prototype/hidden-village/scene.js",
+    "prototype:walk": "npm run prototype:bundle && next dev"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.17",

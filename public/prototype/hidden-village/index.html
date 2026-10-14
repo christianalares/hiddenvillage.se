@@ -11,11 +11,24 @@
     <main class="shell">
       <div id="mount" class="canvas" aria-hidden="true"></div>
       <div class="vignette" aria-hidden="true"></div>
-      <div class="topline"><span class="brand">HIDDEN VILLAGE</span></div>
+      <div class="topline">
+        <span class="brand">HIDDEN VILLAGE</span>
+        <details class="wayfinding">
+          <summary>Waypoints</summary>
+          <nav aria-label="Places along the walk">
+            <button data-stop="100">The woods</button>
+            <button data-stop="82">The ridge</button>
+            <button data-stop="60">The bridge</button>
+            <button data-stop="31">The workshop</button>
+            <button data-stop="3">The square</button>
+            <button data-stop="-19">The last light</button>
+          </nav>
+        </details>
+      </div>
       <div class="caption" aria-live="polite">
-        <span id="place" class="place">THE RIDGE</span>
+        <span id="place" class="place">THE WOODS</span>
         <h1 id="caption">Hidden Village</h1>
-        <p id="description">A light in the woods. A path worth following.</p>
+        <p id="description">Follow the lanterns. There is something beyond the trees.</p>
         <a id="contact" href="mailto:christian@hiddenvillage.se" hidden>Write to Christian</a>
       </div>
       <div class="controls">

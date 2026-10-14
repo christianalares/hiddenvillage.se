@@ -12,8 +12,8 @@ const contact = document.getElementById('contact')!
 const instruction = document.getElementById('instruction')!
 const progressBar = document.getElementById('progress')!
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' })
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6))
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'low-power' })
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640 ? 1 : 1.25))
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputColorSpace = THREE.SRGBColorSpace
 renderer.toneMapping = THREE.ACESFilmicToneMapping
@@ -23,8 +23,8 @@ mount.appendChild(renderer.domElement)
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#111b22')
-scene.fog = new THREE.FogExp2('#27343a', 0.012)
-const camera = new THREE.PerspectiveCamera(61, window.innerWidth / window.innerHeight, 0.1, 170)
+scene.fog = new THREE.FogExp2('#27343a', 0.0105)
+const camera = new THREE.PerspectiveCamera(61, window.innerWidth / window.innerHeight, 0.15, 220)
 scene.add(new THREE.HemisphereLight('#a8b6c2', '#151b19', 1.85))
 const moonLight = new THREE.DirectionalLight('#b8c7d6', 2.25)
 moonLight.position.set(-17, 28, -22)
@@ -47,18 +47,30 @@ const moon = new THREE.Mesh(new THREE.SphereGeometry(2.8, 32, 24), new THREE.Mes
 moon.position.copy(moonHalo.position)
 scene.add(moon)
 
-const { houseLights, lanterns, motes, signTargets } = buildWorld(scene)
+const { houseLights, lanterns, motes, signTargets, fox } = buildWorld(scene)
 const path = new THREE.CatmullRomCurve3(
-  [83, 76, 68, 59, 50, 41, 32, 23, 15, 7, -1, -10, -19].map(z => new THREE.Vector3(trailX(z), trailHeight(z) + 1.76, z)),
+  [100, 96, 90, 83, 76, 68, 62, 58, 54.5, 51, 46, 41, 32, 23, 15, 7, -1, -10, -19].map(z => new THREE.Vector3(trailX(z), trailHeight(z) + 1.76, z)),
   false,
   'centripetal'
 )
 
+// Only two nearby lamps affect geometry. Distant windows and lantern halos are
+// emissive; the light count stays constant so walking never recompiles shaders.
+scene.updateMatrixWorld(true)
+const lightSources = [...houseLights, ...lanterns.flatMap(lantern => lantern.children.filter(child => child instanceof THREE.PointLight) as THREE.PointLight[])].map(light => {
+  const position = light.getWorldPosition(new THREE.Vector3())
+  light.removeFromParent()
+  return { position, intensity: light.intensity, color: light.color }
+})
+const nearbyLights = [new THREE.PointLight('#edb16c', 0, 12, 1.7), new THREE.PointLight('#edb16c', 0, 12, 1.7)]
+scene.add(...nearbyLights)
+
 const chapters = [
-  { until: 68, place: 'THE RIDGE', title: 'Hidden Village', description: 'A light in the woods. A path worth following.' },
-  { until: 42, place: 'THE FOREST', title: 'One person, many ideas', description: 'I am Christian, a senior developer with a habit of making things.' },
-  { until: 13, place: 'THE WORKSHOP', title: 'Things made here', description: 'A closer look at what I have built, alone and with others.' },
-  { until: -8, place: 'THE SQUARE', title: 'Still growing', description: 'Experiments, unfinished ideas, and whatever I am curious about next.' },
+  { until: 88, place: 'THE WOODS', title: 'Hidden Village', description: 'Follow the lanterns. There is something beyond the trees.' },
+  { until: 68, place: 'THE RIDGE', title: 'A little farther', description: 'Warm windows across the valley. The path winds down from here.' },
+  { until: 46, place: 'THE CROSSING', title: 'One person, many ideas', description: 'I am Christian, a developer with a habit of making things.' },
+  { until: 13, place: 'THE WORKSHOP', title: 'Things made here', description: 'Creations and collaborations, gathered around the workbench.' },
+  { until: -8, place: 'THE SQUARE', title: 'Still growing', description: 'A place for experiments, unfinished ideas, and whatever comes next.' },
   { until: -Infinity, place: 'THE LAST LIGHT', title: 'Say hello', description: 'The village is small. There is always room for a conversation.' },
 ]
 let visibleChapter = -1
@@ -66,6 +78,10 @@ let visibleChapter = -1
 let target = 0
 let current = 0
 let lastTime = performance.now()
+let frameRequest = 0
+let frameCount = 0
+let contextLost = false
+const frameInterval = 1000 / 30
 let lastReported = -1
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const nextPoint = new THREE.Vector3()
@@ -77,6 +93,7 @@ const pointer = new THREE.Vector2()
 function steer(change: number) {
   const desired = clamp(target + change, 0, 1)
   target = clamp(desired, Math.max(0, current - 0.17), Math.min(1, current + 0.17))
+  wake()
 }
 
 function updateProgress(value: number) {
@@ -90,45 +107,106 @@ function updateProgress(value: number) {
     description.textContent = chapter.description
     contact.hidden = chapterIndex !== chapters.length - 1
   }
-  instruction.textContent = nextPoint.z < 31 && nextPoint.z > 23
+  instruction.textContent = nextPoint.z < 36 && nextPoint.z > 24
     ? 'Click the sign or keep walking'
     : value >= 0.98
       ? 'Scroll up to walk back'
       : 'Scroll, swipe, or use arrow keys to walk'
 }
 
+function wake() {
+  if (!frameRequest && !document.hidden && !contextLost) {
+    lastTime = performance.now() - frameInterval
+    frameRequest = requestAnimationFrame(animate)
+  }
+}
+
 function animate(time: number) {
-  const delta = clamp((time - lastTime) / 1000, 0, 0.05)
+  frameRequest = 0
+  if (document.hidden || contextLost) return
+  if (time - lastTime < frameInterval - 1) {
+    frameRequest = requestAnimationFrame(animate)
+    return
+  }
+  const delta = clamp((time - lastTime) / 1000, 0, 0.1)
   lastTime = time
   const easedStep = (target - current) * (1 - Math.exp(-delta * (reducedMotion ? 10 : 4.1)))
-  const pacedStep = clamp(easedStep, -delta * 0.2, delta * 0.2)
+  const pacedStep = clamp(easedStep, -delta * 0.065, delta * 0.065)
   current = clamp(current + pacedStep, 0, 1)
   if (Math.abs(target - current) < 0.00005) current = target
   path.getPointAt(current, nextPoint)
   const walking = Math.min(Math.abs(target - current) * 16, 1)
   camera.position.copy(nextPoint)
-  camera.position.y += reducedMotion ? 0 : Math.sin(time * 0.009) * 0.028 * walking
+  camera.position.y += reducedMotion ? 0 : Math.sin(time * 0.008) * 0.018 * walking
   path.getTangentAt(current, tangent)
-  lookPoint.copy(camera.position).addScaledVector(tangent, 5)
-  lookPoint.y = camera.position.y + tangent.y * 5 - (current < 0.22 ? 0.78 : 0.09)
+  lookPoint.copy(camera.position).addScaledVector(tangent, 7)
+  lookPoint.y = camera.position.y + tangent.y * 3 - 0.04
+    - 0.21 * Math.exp(-Math.pow((nextPoint.z - 80) / 10, 2))
+  // Gentle glances make landmarks legible without interrupting the forward walk.
+  lookPoint.x += 4 * Math.exp(-Math.pow((nextPoint.z - 80) / 9, 2))
+    - 4.4 * Math.exp(-Math.pow((nextPoint.z - 31) / 7, 2))
+    - 2 * Math.exp(-Math.pow((nextPoint.z - 4) / 6, 2))
   camera.lookAt(lookPoint)
 
-  houseLights.forEach((light, index) => {
-    light.intensity = 3.7 + Math.sin(time * 0.0022 + index * 2) * 0.18
+  const closest = lightSources.slice().sort((a, b) => a.position.distanceToSquared(camera.position) - b.position.distanceToSquared(camera.position))
+  nearbyLights.forEach((light, i) => {
+    const source = closest[i]
+    light.position.copy(source.position)
+    light.color.copy(source.color)
+    light.intensity = source.intensity
   })
-  lanterns.forEach((lantern, index) => {
-    const light = lantern.children.find(child => child instanceof THREE.PointLight) as THREE.PointLight
-    light.intensity = 6.8 + Math.sin(time * 0.002 + index * 1.7) * 0.25
-  })
+  const animalMoving = fox.update(delta, nextPoint.z, reducedMotion)
   motes.rotation.y = Math.sin(time * 0.00012) * 0.018
   renderer.render(scene, camera)
-  if (Math.abs(current - lastReported) > 0.003) {
+  // Readable diagnostic attributes for browser QA without a perpetual stats UI.
+  renderer.domElement.dataset.frames = String(++frameCount)
+  renderer.domElement.dataset.drawCalls = String(renderer.info.render.calls)
+  renderer.domElement.dataset.triangles = String(renderer.info.render.triangles)
+  renderer.domElement.dataset.cameraZ = nextPoint.z.toFixed(2)
+  renderer.domElement.dataset.progress = current.toFixed(4)
+  if (Math.abs(current - lastReported) > 0.001 || current === target) {
     lastReported = current
     updateProgress(current)
   }
-  requestAnimationFrame(animate)
+  if (current !== target || animalMoving) frameRequest = requestAnimationFrame(animate)
 }
-requestAnimationFrame(animate)
+
+// Texture arrivals and resizing need a frame even while the camera is resting.
+THREE.DefaultLoadingManager.onLoad = wake
+wake()
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { cancelAnimationFrame(frameRequest); frameRequest = 0 }
+  else wake()
+})
+renderer.domElement.addEventListener('webglcontextlost', event => {
+  event.preventDefault()
+  contextLost = true
+  cancelAnimationFrame(frameRequest)
+  frameRequest = 0
+  instruction.textContent = 'The forest is resting. Waiting for graphics to return…'
+})
+renderer.domElement.addEventListener('webglcontextrestored', () => { contextLost = false; wake() })
+
+function walkToZ(z: number) {
+  // Derive waypoints from distance along the curve rather than fragile percentages.
+  let low = 0, high = 1
+  for (let i = 0; i < 18; i++) {
+    const middle = (low + high) / 2
+    path.getPointAt(middle, lookPoint)
+    if (lookPoint.z > z) low = middle
+    else high = middle
+  }
+  target = (low + high) / 2
+  wake()
+}
+
+document.querySelectorAll<HTMLButtonElement>('[data-stop]').forEach(button => {
+  button.addEventListener('click', () => {
+    walkToZ(Number(button.dataset.stop))
+    button.blur()
+    document.querySelector('details')?.removeAttribute('open')
+  })
+})
 
 window.addEventListener('wheel', event => {
   event.preventDefault()
@@ -145,6 +223,7 @@ window.addEventListener('touchmove', event => {
 }, { passive: false })
 
 window.addEventListener('keydown', event => {
+  if (event.target instanceof HTMLElement && event.target.closest('button, a, summary')) return
   if (['ArrowDown', 'PageDown', ' ', 'ArrowUp', 'PageUp'].includes(event.key)) {
     event.preventDefault()
     steer(['ArrowUp', 'PageUp'].includes(event.key) ? -0.075 : 0.075)
@@ -163,12 +242,13 @@ renderer.domElement.addEventListener('pointermove', event => {
 })
 renderer.domElement.addEventListener('click', event => {
   const hit = updatePointer(event)
-  if (hit?.object.userData.destination) target = hit.object.userData.destination
+  if (hit?.object.userData.destinationZ !== undefined) walkToZ(hit.object.userData.destinationZ)
 })
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640 ? 1 : 1.25))
+  wake()
 })

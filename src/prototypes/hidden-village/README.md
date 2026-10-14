@@ -2,19 +2,25 @@
 
 This is a throwaway design and movement study on `codex/hidden-village-walk-prototype`. It tests one continuous camera path from a forest into a small village. The existing homepage is untouched.
 
-Run `npm run prototype:walk`, then open `/prototype/hidden-village/index.html`. Scroll, swipe, or use the arrow keys. The road signs can guide the camera farther along the same route.
+Run `npm run prototype:walk`, then open `/prototype/hidden-village/index.html`. `npm run prototype:bundle` generates the ignored `scene.js` separately, and the production build runs it before Next.js so branch previews include the walk. Scroll, swipe, or use the arrow keys. The road signs can guide the camera farther along the same route.
 
 ## Journey and content direction
 
-The current path starts on an upper forest ridge, descends continuously to a workshop, crosses a small village square, and ends at a lit house beside a postbox. The screen text changes at five places: ridge, forest, workshop, square, and last light. These short lines are provisional pacing copy, not finished site content. The places do not yet open project stories.
+The path now starts inside the upper woods, opens onto a fenced ridge overlooking a lower valley and distant hillside settlement, crosses a wooden bridge over a dry ravine, descends to a sheltered workshop, passes a well and bench in the square, and ends at a lit house beside a postbox. A small geometric fox crosses the woods ahead during the approach; it has no dialogue, sound or interaction. Returning beyond the upper ridge rearms the encounter. Reduced-motion visitors see a still animal and no walking bob.
+
+Scroll, swipe and arrow keys all steer the same smooth camera route. Signs and the keyboard-accessible Waypoints menu change the destination along that route, with the same speed limit and easing. Small continuous camera glances frame the valley, workshop and square. Route choices, house interiors and hill excursions are future work: waypoints currently select a stop, not a different path. Route coordinates, terrain and bridge placement share `trail.ts` so future junctions have a consistent world space.
+
+The short captions are provisional pacing copy. The workshop's workbench and the square's well establish different places for selected creations/collaborations and experiments; they do not yet open populated project stories.
 
 The existing live page is a freelance introduction, a chronological Notion-backed list of client work with dates and skill tags, an Asteroids game, and contact details. For a new version, retain contact and a small, chosen set of work. Give personal creations and experiments their own space. Remove the game and the resume-style chronology from the main journey. Signs should provide wayfinding. Use short, accessible HTML captions for orientation and a readable panel for longer project content when a visitor deliberately opens it. Speaking characters are not part of the current direction.
 
 ## Visual direction
 
-The opening is framed from within a dark forest. A narrow dirt trail, close spruce silhouettes, moonlight, a warm lantern and distant windows reveal the village gradually. The scene uses one continuous Three.js world. The ground, buildings and signs are geometry; trees use a transparent cutout asset plus short 3D trunks and branches. Their flatness is a remaining limitation when viewed from unusual angles. No water was added because visible water would need convincing movement throughout the walk.
+The opening is framed from within a dark forest. Moss-covered boulders, fallen logs, pale birches, grass and fern clusters break up the spruce forest. The left bank rises while the right side falls away toward the village. Layered mountain silhouettes and warm windows give the valley depth. The bridge crosses a dry, rocky gully; no visible water needs to be simulated.
 
-`references/first-overlook-concept.png` is the first concept that prompted the forest approach. `references/upper-forest-opening.png` explores a start farther uphill. Both are composition references, not screenshots or runtime assets. The live prototype still reads more like a forest corridor than the valley overlook in those images. The next visual pass needs a clearer change in terrain height and a stronger village silhouette before adding small details.
+The scene uses one continuous Three.js world. The ground, buildings, signs and animal are geometry; spruce trees use the existing transparent cutout asset with short 3D trunks and branches. Their flatness remains a limitation at unusual angles. The fox is deliberately small and low polygon, not a realistic animated asset.
+
+`references/first-overlook-concept.png` is the first concept that prompted the forest approach. `references/upper-forest-opening.png` explores a start farther uphill. Both are composition references, not screenshots or runtime assets. The environment pass uses their raised forest bank, lower valley, silhouette layering and warm wayfinding lights as composition cues.
 
 The tree cutout was generated with the built-in image generation tool, then resized for the site. Final prompt:
 
@@ -22,6 +28,14 @@ The tree cutout was generated with the built-in image generation tool, then resi
 
 The small JPEG textures are from Poly Haven and are CC0: [forest floor](https://polyhaven.com/a/forest_leaves_04), [path](https://polyhaven.com/a/wood_chip_path), [bark](https://polyhaven.com/a/pine_tree_01), [plaster](https://polyhaven.com/a/plaster_stone_wall_02), and [roof](https://polyhaven.com/a/roof_planks). The site loads local optimized copies, not the asset API.
 
+## Performance
+
+Three.js already renders through WebGL on the GPU. This pass avoids postprocessing, shadows, physics, skeletal animation and extra runtime libraries. Static opaque scenery is merged by material in 24-metre regions so buildings and bridge details can be culled. Rocks, trees, ferns, logs and grass use instancing. Foliage uses alpha testing instead of transparent blending. There are only two real local point lights, selected from nearby lamps; distant windows and lantern halos are emissive.
+
+Rendering is capped at 30 frames per second while walking or during the short fox encounter. It stops completely when those settle and pauses in hidden tabs. Texture arrival, resize and graphics-context restoration wake it again. Device pixel ratio is capped at 1 on narrow viewports and 1.25 on desktop; the renderer requests the low-power GPU. Canvas data attributes expose frame count, draw calls, triangles, camera position and progress for browser QA without an always-running overlay. Physical device heat and frame rate still need phone testing.
+
 ## Check and limitations
 
-The bundle build passes. Desktop Chrome checks covered the revised opening and all five stops. The page showed no browser errors. Earlier checks covered the sign click and a phone-sized viewport, but those should be repeated after further interaction work. The full repository type check currently fails in generated `.next/types` files for the existing layout and an absent prototype page. Frame rate on physical devices still needs direct testing. The cottages and tree cutouts are more designed than the first pass but are still a prototype, not a final level of realism.
+The bundle build and targeted TypeScript check pass. The repository-wide type check also passes in this checkout after regenerating `.next`; the handoff's generated layout/missing-page errors did not recur. The production build compiles and passes lint/types, but local page generation fails because this checkout has no Notion credentials for the existing `/work/[slug]` pages. The homepage source is untouched.
+
+Chrome checks covered the complete route, waypoint navigation, arrow keys and emulated touch input at a 390 × 844 phone viewport. Caption/control rectangles fit without overlap. Browser console checks showed no errors or warnings. Visual screenshot QA was blocked by the locked host Mac; this limitation must be resolved before claiming visual approval. Project stories, alternate routes and realistic asset animation remain future work.

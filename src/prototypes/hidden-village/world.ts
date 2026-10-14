@@ -1,11 +1,13 @@
 import * as THREE from 'three'
-import { trailHeight, trailX } from './trail'
+import { groundHeight, onBridge, trailHeight, trailX } from './trail'
+import { addEnvironment, batchScenery } from './environment'
 
 type World = {
   houseLights: THREE.PointLight[]
   lanterns: THREE.Group[]
   motes: THREE.Points
   signTargets: THREE.Object3D[]
+  fox: ReturnType<typeof addEnvironment>
 }
 
 let seed = 17347
@@ -133,14 +135,13 @@ function cylinderBetween(a: THREE.Vector3, b: THREE.Vector3, radius: number, mat
 
 function addTerrain(scene: THREE.Scene) {
   const earthMap = imageTexture('forest-leaves.jpg', 82, 82)
-  const groundGeometry = new THREE.PlaneGeometry(240, 240, 90, 90)
+  const groundGeometry = new THREE.PlaneGeometry(200, 260, 100, 200)
   const groundPositions = groundGeometry.getAttribute('position')
   for (let i = 0; i < groundPositions.count; i++) {
     const x = groundPositions.getX(i)
     const y = groundPositions.getY(i)
     const z = -y
-    const distance = Math.abs(x - trailX(z))
-    groundPositions.setZ(i, trailHeight(z) + (distance < 3 ? 0 : -Math.min(1.1, (distance - 3) * 0.035) - Math.sin(x * 0.48) * Math.cos(y * 0.37) * 0.11))
+    groundPositions.setZ(i, groundHeight(x, z))
   }
   groundGeometry.computeVertexNormals()
   const ground = new THREE.Mesh(groundGeometry, new THREE.MeshStandardMaterial({ map: earthMap, roughness: 1, color: '#7f8b7e' }))
@@ -153,13 +154,13 @@ function addTerrain(scene: THREE.Scene) {
   const indices: number[] = []
   const segments = 240
   for (let i = 0; i <= segments; i++) {
-    const z = 90 - i * 0.49
+    const z = 104 - i * 0.55
     const center = trailX(z)
     const width = 1.58 + Math.sin(i * 0.16) * 0.16
     const edge = Math.sin(i * 1.7) * 0.13
     points.push(center - width - edge, trailHeight(z) + 0.005, z, center + width + edge, trailHeight(z) + 0.005, z)
     uvs.push(0, i * 0.16, 1, i * 0.16)
-    if (i < segments) {
+    if (i < segments && !onBridge(z - 0.275)) {
       const a = i * 2
       indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2)
     }
@@ -179,7 +180,7 @@ function addTerrain(scene: THREE.Scene) {
     const side = random() > 0.5 ? 1 : -1
     const x = trailX(z) + side * between(2.45, 21)
     const size = between(0.05, 0.28) * (random() > 0.98 ? 2 : 1)
-    dummy.position.set(x, trailHeight(z) + size * 0.14, z)
+    dummy.position.set(x, groundHeight(x, z) + size * 0.14, z)
     dummy.rotation.set(random() * 0.3, random() * 6, random() * 0.3)
     dummy.scale.set(size * between(0.8, 1.8), size * between(0.3, 0.8), size)
     dummy.updateMatrix()
@@ -191,27 +192,27 @@ function addTerrain(scene: THREE.Scene) {
 
 function addForest(scene: THREE.Scene) {
   const bark = new THREE.MeshStandardMaterial({ map: imageTexture('pine-bark.jpg', 1, 3), roughness: 1, color: '#6f7472' })
-  const foliage = new THREE.MeshStandardMaterial({ map: imageLoader.load('/prototype/hidden-village/assets/spruce-cutout.png'), transparent: true, alphaTest: 0.15, side: THREE.DoubleSide, depthWrite: true, color: '#9ca99f', roughness: 1 })
-  const fern = new THREE.MeshStandardMaterial({ map: fernTexture(), transparent: true, alphaTest: 0.12, side: THREE.DoubleSide, depthWrite: true, color: '#a2b5a1', roughness: 1 })
+  const foliage = new THREE.MeshStandardMaterial({ map: imageLoader.load('/prototype/hidden-village/assets/spruce-cutout.png'), alphaTest: 0.3, side: THREE.DoubleSide, depthWrite: true, color: '#9ca99f', roughness: 1 })
+  const fern = new THREE.MeshStandardMaterial({ map: fernTexture(), alphaTest: 0.3, side: THREE.DoubleSide, depthWrite: true, color: '#a2b5a1', roughness: 1 })
   const trunkGeometry = new THREE.CylinderGeometry(0.19, 0.32, 1, 8)
-  const trunkCount = 230
+  const trunkCount = 180
   const trunks = new THREE.InstancedMesh(trunkGeometry, bark, trunkCount)
   const cards = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), foliage, trunkCount)
   const dummy = new THREE.Object3D()
   const trees: Array<{ x: number, z: number, height: number }> = []
   for (let i = 0; i < trunkCount; i++) {
-    const z = i < 4 ? [81, 76, 69, 61][i] : between(-35, 92)
+    const z = i < 4 ? [98, 92, 83, 75][i] : between(-35, 105)
     const side = i % 2 ? 1 : -1
-    const distance = i < 2 ? 5.2 : between(z > 42 ? (side === 1 ? 16 : 7.5) : 6.5, 27) + (side === 1 && z > 17 && z < 28 ? 4.5 : 0)
+    const distance = i < 2 ? 4.3 : between(z > 78 ? 4.8 : (z > 42 && side === 1 ? 18 : 7), 34) + (side === 1 && z > 17 && z < 28 ? 4.5 : 0)
     const x = trailX(z) + side * distance
     const height = between(9, 17) * (i < 2 ? 1.3 : 1)
     trees.push({ x, z, height })
-    dummy.position.set(x, trailHeight(z) + 1.6, z)
+    dummy.position.set(x, groundHeight(x, z) + 1.6, z)
     dummy.rotation.set(0, 0, between(-0.025, 0.025))
     dummy.scale.set(between(0.8, 1.3), 3.2, between(0.8, 1.3))
     dummy.updateMatrix()
     trunks.setMatrixAt(i, dummy.matrix)
-    dummy.position.set(x, trailHeight(z) + height * 0.5, z)
+    dummy.position.set(x, groundHeight(x, z) + height * 0.5, z)
     dummy.rotation.set(0, between(-0.16, 0.16), 0)
     dummy.scale.set(height * 0.44, height, 1)
     dummy.updateMatrix()
@@ -224,20 +225,20 @@ function addForest(scene: THREE.Scene) {
   for (const tree of trees.slice(0, 22)) {
     const branches = 4 + Math.floor(random() * 4)
     for (let i = 0; i < branches; i++) {
-      const y = trailHeight(tree.z) + between(1.8, 3.1)
+      const y = groundHeight(tree.x, tree.z) + between(1.8, 3.1)
       const angle = random() * Math.PI * 2
       const reach = between(1.4, 3.2)
       scene.add(cylinderBetween(new THREE.Vector3(tree.x, y, tree.z), new THREE.Vector3(tree.x + Math.cos(angle) * reach, y - between(0.4, 1.5), tree.z + Math.sin(angle) * reach), between(0.04, 0.09), bark))
     }
   }
 
-  const undergrowth = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), fern, 850)
-  for (let i = 0; i < 850; i++) {
-    const z = between(-27, 92)
+  const undergrowth = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), fern, 560)
+  for (let i = 0; i < 560; i++) {
+    const z = between(-27, 104)
     const side = random() > 0.5 ? 1 : -1
     const x = trailX(z) + side * between(2.55, 25)
     const size = between(0.35, 1.1)
-    dummy.position.set(x, trailHeight(z) + size * 0.52, z)
+    dummy.position.set(x, groundHeight(x, z) + size * 0.52, z)
     dummy.rotation.set(0, random() * Math.PI, 0)
     dummy.scale.set(size, size, 1)
     dummy.updateMatrix()
@@ -250,7 +251,7 @@ function addForest(scene: THREE.Scene) {
 function addRidgeFence(scene: THREE.Scene) {
   const wood = new THREE.MeshStandardMaterial({ color: '#302b28', roughness: 1 })
   const posts: THREE.Vector3[] = []
-  for (let z = 82; z >= 48; z -= 5.7) {
+  for (let z = 87; z >= 64; z -= 5.7) {
     const position = new THREE.Vector3(trailX(z) + 2.6, trailHeight(z), z)
     const post = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.12, 1.3, 7), wood)
     post.position.copy(position).add(new THREE.Vector3(0, 0.65, 0))
@@ -334,8 +335,8 @@ function addLantern(scene: THREE.Scene, x: number, z: number, glow: THREE.Textur
   const post = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.11, 3.25, 8), postMaterial)
   post.position.y = 1.62
   group.add(post)
-  group.add(cylinderBetween(new THREE.Vector3(0, 3.15, 0), new THREE.Vector3(x > 0 ? -0.72 : 0.72, 3.15, 0), 0.075, postMaterial))
-  const lampX = x > 0 ? -0.72 : 0.72
+  group.add(cylinderBetween(new THREE.Vector3(0, 3.15, 0), new THREE.Vector3(x > trailX(z) ? -0.72 : 0.72, 3.15, 0), 0.075, postMaterial))
+  const lampX = x > trailX(z) ? -0.72 : 0.72
   const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.45, 0.32), new THREE.MeshBasicMaterial({ color: '#c58e56' }))
   lamp.position.set(lampX, 2.79, 0)
   group.add(lamp)
@@ -375,7 +376,7 @@ function addSign(scene: THREE.Scene, glow: THREE.Texture) {
     const board = new THREE.Mesh(new THREE.BoxGeometry(3.55, 0.83, 0.14), [wood, wood, wood, wood, new THREE.MeshBasicMaterial({ map: signTexture(label) }), wood])
     board.position.set(i ? 0.33 : -0.32, 3.25 - i * 0.94, 0.22)
     board.rotation.z = i ? -0.035 : 0.035
-    board.userData.destination = i ? 0.82 : 0.64
+    board.userData.destinationZ = i ? 3 : 31
     group.add(board)
     targets.push(board)
   }
@@ -430,9 +431,11 @@ export function buildWorld(scene: THREE.Scene): World {
     addHouse(scene, 8.5, -20.5, 0.78, '#a7aaa3', glow, window),
     addHouse(scene, 0, -32, 1.2, '#a8aba1', glow, window),
   ]
-  const lanterns = [addLantern(scene, 2.6, 74, glow), addLantern(scene, -3.2, 38, glow), addLantern(scene, 3.7, 16, glow), addLantern(scene, -3.4, 1, glow), addLantern(scene, 4.2, -18, glow)]
+  const lanterns = [addLantern(scene, trailX(94) + 2.8, 94, glow), addLantern(scene, trailX(62) - 2.5, 62, glow), addLantern(scene, 2.6, 74, glow), addLantern(scene, -3.2, 38, glow), addLantern(scene, 3.7, 16, glow), addLantern(scene, -3.4, 1, glow), addLantern(scene, 4.2, -18, glow)]
   const signTargets = addSign(scene, glow)
   addPostbox(scene)
   const motes = addAtmosphere(scene)
-  return { houseLights, lanterns, motes, signTargets }
+  const fox = addEnvironment(scene, glow, window)
+  batchScenery(scene)
+  return { houseLights, lanterns, motes, signTargets, fox }
 }
