@@ -4,6 +4,7 @@ import { buildWorld } from './world'
 import { trailHeight, trailX } from './trail'
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
+async function start() {
 const mount = document.getElementById('mount')!
 const caption = document.getElementById('caption')!
 const place = document.getElementById('place')!
@@ -17,16 +18,27 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640
 renderer.setSize(window.innerWidth, window.innerHeight)
 renderer.outputColorSpace = THREE.SRGBColorSpace
 renderer.toneMapping = THREE.ACESFilmicToneMapping
-renderer.toneMappingExposure = 1.4
+renderer.toneMappingExposure = 1.3
 renderer.setClearColor('#111b22')
 mount.appendChild(renderer.domElement)
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#111b22')
-scene.fog = new THREE.FogExp2('#27343a', 0.0105)
+scene.fog = new THREE.FogExp2('#35464f', 0.0085)
 const camera = new THREE.PerspectiveCamera(61, window.innerWidth / window.innerHeight, 0.15, 220)
-scene.add(new THREE.HemisphereLight('#a8b6c2', '#151b19', 1.85))
-const moonLight = new THREE.DirectionalLight('#b8c7d6', 2.25)
+// A static sky gradient gives the silhouettes a luminous horizon without postprocessing.
+const sky = new THREE.Mesh(new THREE.SphereGeometry(210, 32, 16), new THREE.ShaderMaterial({
+  side: THREE.BackSide, depthWrite: false, fog: false,
+  uniforms: { horizon: { value: new THREE.Color('#40525b') }, zenith: { value: new THREE.Color('#0b151e') } },
+  vertexShader: 'varying vec3 direction; void main(){ direction = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position.z = gl_Position.w; }',
+  fragmentShader: 'uniform vec3 horizon; uniform vec3 zenith; varying vec3 direction; void main(){ float h = smoothstep(-0.02, .55, direction.y); gl_FragColor = vec4(mix(horizon, zenith, h), 1.0);\n #include <tonemapping_fragment>\n #include <colorspace_fragment> }',
+}))
+sky.frustumCulled = false
+sky.renderOrder = -1
+scene.add(sky)
+
+scene.add(new THREE.HemisphereLight('#9aafc1', '#19211b', 1.6))
+const moonLight = new THREE.DirectionalLight('#a6bfd1', 1.65)
 moonLight.position.set(-17, 28, -22)
 scene.add(moonLight)
 
@@ -41,13 +53,19 @@ haloContext.fillStyle = haloGradient
 haloContext.fillRect(0, 0, 128, 128)
 const moonHalo = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(moonHaloCanvas), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }))
 moonHalo.position.set(20, 33, -105)
-moonHalo.scale.set(34, 34, 1)
+moonHalo.scale.set(15, 15, 1)
 scene.add(moonHalo)
-const moon = new THREE.Mesh(new THREE.SphereGeometry(2.8, 32, 24), new THREE.MeshBasicMaterial({ color: '#cbd3d0', fog: false }))
+const moon = new THREE.Mesh(new THREE.SphereGeometry(1.4, 24, 16), new THREE.MeshBasicMaterial({ color: '#cbd3d0', fog: false }))
 moon.position.copy(moonHalo.position)
 scene.add(moon)
 
-const { houseLights, lanterns, motes, signTargets, fox } = buildWorld(scene)
+instruction.textContent = 'Preparing the woodland…'
+const { houseLights, lanterns, motes, signTargets, update } = await buildWorld(scene).catch(error => {
+  instruction.textContent = 'The woodland could not load. Please reload to try again.'
+  mount.dataset.state = 'error'
+  throw error
+})
+mount.dataset.state = 'ready'
 const path = new THREE.CatmullRomCurve3(
   [100, 96, 90, 83, 76, 68, 62, 58, 54.5, 51, 46, 41, 32, 23, 15, 7, -1, -10, -19].map(z => new THREE.Vector3(trailX(z), trailHeight(z) + 1.76, z)),
   false,
@@ -107,7 +125,7 @@ function updateProgress(value: number) {
     description.textContent = chapter.description
     contact.hidden = chapterIndex !== chapters.length - 1
   }
-  instruction.textContent = nextPoint.z < 36 && nextPoint.z > 24
+  instruction.textContent = window.innerWidth >= 640 && nextPoint.z < 36 && nextPoint.z > 24
     ? 'Click the sign or keep walking'
     : value >= 0.98
       ? 'Scroll up to walk back'
@@ -137,15 +155,17 @@ function animate(time: number) {
   path.getPointAt(current, nextPoint)
   const walking = Math.min(Math.abs(target - current) * 16, 1)
   camera.position.copy(nextPoint)
+  sky.position.copy(nextPoint)
   camera.position.y += reducedMotion ? 0 : Math.sin(time * 0.008) * 0.018 * walking
   path.getTangentAt(current, tangent)
   lookPoint.copy(camera.position).addScaledVector(tangent, 7)
   lookPoint.y = camera.position.y + tangent.y * 3 - 0.04
     - 0.21 * Math.exp(-Math.pow((nextPoint.z - 80) / 10, 2))
   // Gentle glances make landmarks legible without interrupting the forward walk.
-  lookPoint.x += 4 * Math.exp(-Math.pow((nextPoint.z - 80) / 9, 2))
-    - 4.4 * Math.exp(-Math.pow((nextPoint.z - 31) / 7, 2))
-    - 2 * Math.exp(-Math.pow((nextPoint.z - 4) / 6, 2))
+  lookPoint.x += 0.45 * Math.exp(-Math.pow((nextPoint.z - 80) / 9, 2))
+    - (window.innerWidth < 640 ? 6.8 : 4.4) * Math.exp(-Math.pow((nextPoint.z - 31) / 7, 2))
+    - (window.innerWidth < 640 ? 5 : 2) * Math.exp(-Math.pow((nextPoint.z - 4) / 6, 2))
+    + (window.innerWidth < 640 ? 0.55 : 0) * Math.exp(-Math.pow((nextPoint.z + 19) / 6, 2))
   camera.lookAt(lookPoint)
 
   const closest = lightSources.slice().sort((a, b) => a.position.distanceToSquared(camera.position) - b.position.distanceToSquared(camera.position))
@@ -155,9 +175,11 @@ function animate(time: number) {
     light.color.copy(source.color)
     light.intensity = source.intensity
   })
-  const animalMoving = fox.update(delta, nextPoint.z, reducedMotion)
   motes.rotation.y = Math.sin(time * 0.00012) * 0.018
+  update(camera)
+  const renderStart = performance.now()
   renderer.render(scene, camera)
+  renderer.domElement.dataset.renderMs = (performance.now() - renderStart).toFixed(2)
   // Readable diagnostic attributes for browser QA without a perpetual stats UI.
   renderer.domElement.dataset.frames = String(++frameCount)
   renderer.domElement.dataset.drawCalls = String(renderer.info.render.calls)
@@ -168,7 +190,7 @@ function animate(time: number) {
     lastReported = current
     updateProgress(current)
   }
-  if (current !== target || animalMoving) frameRequest = requestAnimationFrame(animate)
+  if (current !== target) frameRequest = requestAnimationFrame(animate)
 }
 
 // Texture arrivals and resizing need a frame even while the camera is resting.
@@ -252,3 +274,6 @@ window.addEventListener('resize', () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640 ? 1 : 1.25))
   wake()
 })
+
+}
+void start()

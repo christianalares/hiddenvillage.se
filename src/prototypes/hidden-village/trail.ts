@@ -24,7 +24,9 @@ export const groundHeight = (x: number, z: number) => {
   // Raised forest bank on the left; an open, lower valley on the right.
   const bank = offset < 0 ? edge * (1.4 + ridge * 4.5) : -edge * ridge * 7
   const uneven = edge * (Math.sin(x * 0.38 + z * 0.12) * 0.7 + Math.cos(z * 0.29) * 0.35)
-  const ravine = Math.exp(-Math.pow((z - 54.5 + Math.sin(x * 0.12) * 0.8) / 2.15, 2)) * 4.8
-  const villageHill = Math.exp(-Math.pow((x - 32) / 17, 2) - Math.pow((z + 46) / 25, 2)) * 9
+  const road = 1 - smooth((Math.abs(offset) - 1.65) / 0.65)
+  const bridgeDip = smooth((z - 50.51) / 0.7) * smooth((58.29 - z) / 0.7)
+  const ravine = Math.exp(-Math.pow((z - 54.5 + Math.sin(x * 0.12) * 0.8) / 2.15, 2)) * 4.8 * (1 - road + road * bridgeDip)
+  const villageHill = Math.exp(-Math.pow((x - 32) / 17, 2) - Math.pow((z + 46) / 25, 2)) * 18 * smooth((Math.abs(offset) - 1.8) / 6)
   return trailHeight(z) + bank + uneven - ravine + villageHill
 }

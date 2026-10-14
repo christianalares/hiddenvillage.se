@@ -1,0 +1,18 @@
+{
+  "woodland.glb": {
+    "bytes": 4801760,
+    "sha256": "754e9608b66c0f39d9179e63ad0658536cb8f9202dcec9e3cb6bf88363cac14d"
+  },
+  "forest-normal.jpg": {
+    "bytes": 581919,
+    "sha256": "6b7c4086fc28b7b1f11f4d04aedcc27772ce3bb894cfc00835b4637092c1bb0c"
+  },
+  "path-normal.jpg": {
+    "bytes": 1332341,
+    "sha256": "17394d24b9b11c38c9eab5cb7537603ebfad52f7d71dd9589991c80150fd602e"
+  },
+  "rock-moss-color.jpg": {
+    "bytes": 649415,
+    "sha256": "bdee6da8baba67bd7e85e414e669cd46aab9afaf755114fb5163f0e68775c3d6"
+  }
+}

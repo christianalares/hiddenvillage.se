@@ -1,41 +1,69 @@
 # Hidden Village walk prototype
 
-This is a throwaway design and movement study on `codex/hidden-village-walk-prototype`. It tests one continuous camera path from a forest into a small village. The existing homepage is untouched.
+An editable Blender environment integrated into the existing continuous Three.js walk on `codex/hidden-village-walk-prototype`. The homepage is unchanged. The journey remains woods → ridge → dry-ravine bridge → workshop → square → final house and postbox.
 
-Run `npm run prototype:walk`, then open `/prototype/hidden-village/index.html`. `npm run prototype:bundle` generates the ignored `scene.js` separately, and the production build runs it before Next.js so branch previews include the walk. Scroll, swipe, or use the arrow keys. The road signs can guide the camera farther along the same route.
+## Run and build
 
-## Journey and content direction
+```sh
+npm install
+npm run prototype:walk
+```
 
-The path now starts inside the upper woods, opens onto a fenced ridge overlooking a lower valley and distant hillside settlement, crosses a wooden bridge over a dry ravine, descends to a sheltered workshop, passes a well and bench in the square, and ends at a lit house beside a postbox. A small geometric fox crosses the woods ahead during the approach; it has no dialogue, sound or interaction. Returning beyond the upper ridge rearms the encounter. Reduced-motion visitors see a still animal and no walking bob.
+Open `/prototype/hidden-village/index.html` on the local address printed by Next.js. Scroll, swipe and arrow keys steer the same camera; signs and the accessible Waypoints menu choose destinations along that route. There are no new branches, interiors or project pages. The crude fox has been removed pending a convincing rigged replacement. Narrow screens use slightly stronger continuous camera glances to keep the workbench, well and postbox in frame.
 
-Scroll, swipe and arrow keys all steer the same smooth camera route. Signs and the keyboard-accessible Waypoints menu change the destination along that route, with the same speed limit and easing. Small continuous camera glances frame the valley, workshop and square. Route choices, house interiors and hill excursions are future work: waypoints currently select a stop, not a different path. Route coordinates, terrain and bridge placement share `trail.ts` so future junctions have a consistent world space.
+`npm run prototype:bundle` creates the intentionally ignored `public/prototype/hidden-village/scene.js`. The production build still bundles it before running Next.js. `npm run check:types` checks the repository.
 
-The short captions are provisional pacing copy. The workshop's workbench and the square's well establish different places for selected creations/collaborations and experiments; they do not yet open populated project stories.
+## Editable source and export
 
-The existing live page is a freelance introduction, a chronological Notion-backed list of client work with dates and skill tags, an Asteroids game, and contact details. For a new version, retain contact and a small, chosen set of work. Give personal creations and experiments their own space. Remove the game and the resume-style chronology from the main journey. Signs should provide wayfinding. Use short, accessible HTML captions for orientation and a readable panel for longer project content when a visitor deliberately opens it. Speaking characters are not part of the current direction.
+Open [`blender/hidden-village.blend`](blender/hidden-village.blend) in Blender (authored and tested with Blender 5.2.2 LTS). It contains packed textures, named environment collections, six walking-camera guides, lighting guides and editable meshes. Repeated trees, rocks, roots and ferns share mesh data; make a single-user copy before changing just one instance. Houses are grouped under named parent empties. Camera/light guides remain in Blender; lamp-anchor empties carry the runtime light positions.
 
-## Visual direction
+After editing and saving the source:
 
-The opening is framed from within a dark forest. Moss-covered boulders, fallen logs, pale birches, grass and fern clusters break up the spruce forest. The left bank rises while the right side falls away toward the village. Layered mountain silhouettes and warm windows give the valley depth. The bridge crosses a dry, rocky gully; no visible water needs to be simulated.
+```sh
+npm run prototype:assets
+npm run prototype:bundle
+```
 
-The scene uses one continuous Three.js world. The ground, buildings, signs and animal are geometry; spruce trees use the existing transparent cutout asset with short 3D trunks and branches. Their flatness remains a limitation at unusual angles. The fox is deliberately small and low polygon, not a realistic animated asset.
+The exporter uses the saved scene, preserving manual edits. Set `BLENDER_BIN` if Blender is not on PATH or at `/Applications/Blender.app/Contents/MacOS/Blender`. The first export needs network access to obtain pinned `@gltf-transform/cli@4.5.1` through npx. It exports to a temporary directory, then produces the optimized `public/prototype/hidden-village/assets/woodland.glb`. Commit the `.blend` and optimized assets together. Blender is not needed on Vercel.
 
-`references/first-overlook-concept.png` is the first concept that prompted the forest approach. `references/upper-forest-opening.png` explores a start farther uphill. Both are composition references, not screenshots or runtime assets. The environment pass uses their raised forest bank, lower valley, silhouette layering and warm wayfinding lights as composition cues.
+To reconstruct the procedural starting scene, rather than export the edited source:
 
-The tree cutout was generated with the built-in image generation tool, then resized for the site. Final prompt:
+```sh
+python3 src/prototypes/hidden-village/blender/fetch_assets.py
+"/Applications/Blender.app/Contents/MacOS/Blender" --background --factory-startup --python-exit-code 1 --python src/prototypes/hidden-village/blender/build_scene.py
+npm run prototype:assets
+```
+
+**Reconstruction overwrites the saved `.blend`.** Use a copy when exploring. `build_scene.py` owns terrain, woodland and bridge construction; `village.py` supplies the architecture. The saved `.blend` is the authoritative composition. Downloads go into ignored `blender/.cache`; `--cache` selects another location. Source checksums and URLs are in `blender/sources.json`, and the fetch script verifies each file. Sources and licenses are listed in [ATTRIBUTION.md](ATTRIBUTION.md).
+
+Blender uses Z-up; helpers map Three.js coordinates `(x, y, z)` to `(x, -z, y)`. Camera height and the route are defined in `trail.ts`/`main.ts`. Terrain formulas in `build_scene.py` mirror `trail.ts`; update both when changing the landform. Avoid applying arbitrary terrain changes under the walking corridor without checking camera clearance.
+
+## Visual treatment
+
+Scanned mossy rocks, roots, stumps and ferns replace the obvious primitive scenery. Tapered, irregular trunks and curved intersecting foliage slices frame the opening. Terrain has denser sampling beside the path, small surface relief, a blended forest/path material with normal maps, and baked vertex shading for contact and canopy cover. The ridge reveals a raised settlement with a tower, layered mountain forms and height-dependent fog.
+
+The bridge has beveled planks, braces, pegs and stone abutments. Houses have overlapping closed shingles, timber framing, recessed casements and shutters, chimneys, warm curtain/glass textures and grounded foundations. A covered workbench, masonry well, bench and postbox distinguish the existing stops. UVs on wooden members select individual boards so seams do not repeat across every beam.
+
+Blender cameras and lights are authoring guides. The actual browser camera and lighting are the approval view: a cool hemisphere/directional light, warm practical lamps, emissive windows and small halos, without shadow maps or postprocessing. `references/upper-forest-opening.png` and `references/first-overlook-concept.png` remain ambition/composition references, not screenshots of the result.
+
+## Runtime and performance
+
+The compressed GLB is approximately 4.8 MB. It uses Meshopt geometry compression and WebP images up to 1K. Desktop viewports (900px and wider at load) fetch a separate 2K moss-rock map for the large foreground boulders; narrow viewports use the embedded 1K map. Ground color/normal textures are separate local assets. No external asset service is contacted during the walk.
+
+At load, shared rocks, roots and foliage become instanced batches in 48-metre cells. Architecture, small repeated timbers and unique solids merge by cell and material, avoiding a draw call for every small repeated shape. Ferns/roots and rocks also have distance culling. Foliage uses alpha testing, and only the two nearest point lights illuminate geometry. The renderer requests the low-power GPU; DPR stays capped at 1 on phones and 1.25 on desktop. Movement is capped at 30 FPS, rendering stops at rest, and hidden tabs pause. Resize and graphics-context restoration wake rendering. Reduced motion disables camera bob.
+
+Canvas data attributes expose frames, draw calls, triangles, camera position, progress and `renderMs`. The latter measures CPU render submission, **not GPU time or physical-device frame rate**. [QA captures and measurements](qa/) document this pass. Device temperature, battery use and actual phone GPU performance still require testing on physical hardware.
+
+## Verification and remaining limits
+
+Actual Chrome screenshots were inspected at desktop and 390 × 844 phone sizes throughout the full route. The review checked silhouettes, contact, intersections, repeated textures, light, framing and readable controls. The saved captures are browser renders, not Blender concept renders. The source was reopened and exported through the documented workflow; all file-based images were packed. Camera clearance against the actual terrain and bridge was checked along the route at 0.25-metre intervals (about 1.70–1.80 metres, allowing a small foot-sized sample across plank gaps).
+
+The bundle and repository-wide type checks pass. Local production compilation, lint and type checking pass; collecting the existing `/work/[slug]` pages fails because this checkout lacks the homepage's Notion credentials. That is separate from the prototype, and no homepage fix is included.
+
+The canopy remains a hybrid of geometry and alpha images; unusually close or oblique views reveal the slices. Some distant trees and repeating masonry remain stylized. Ground shadows are baked approximations, and the runtime has no dynamic cast shadows. This is a substantial environment pass, not a photorealistic replacement for the references. Alternate routes, interiors, populated project stories and animal animation remain future work.
+
+## Retained generated tree asset
+
+The existing `spruce-cutout.png` was generated in the earlier pass and reused here. Its original prompt:
 
 > Use case: photorealistic-natural. Asset type: transparent foliage sprite for a real-time 3D forest website, viewed while walking. One mature northern European spruce tree, full height from roots to top, narrow irregular silhouette with layered drooping branches and fine dense needles. Straight trunk visible through foliage, asymmetric natural growth, some gaps between branch clusters. Front orthographic camera, tree centered and fully within frame. Dark blue-green needles, muted brown-gray bark, subtle moonlit edge light, believable photographic textures. Genuinely transparent background with clean antialiased alpha around every branch and needle. No ground, no sky, no scenery, no shadows outside the tree, no text, no watermark.
-
-The small JPEG textures are from Poly Haven and are CC0: [forest floor](https://polyhaven.com/a/forest_leaves_04), [path](https://polyhaven.com/a/wood_chip_path), [bark](https://polyhaven.com/a/pine_tree_01), [plaster](https://polyhaven.com/a/plaster_stone_wall_02), and [roof](https://polyhaven.com/a/roof_planks). The site loads local optimized copies, not the asset API.
-
-## Performance
-
-Three.js already renders through WebGL on the GPU. This pass avoids postprocessing, shadows, physics, skeletal animation and extra runtime libraries. Static opaque scenery is merged by material in 24-metre regions so buildings and bridge details can be culled. Rocks, trees, ferns, logs and grass use instancing. Foliage uses alpha testing instead of transparent blending. There are only two real local point lights, selected from nearby lamps; distant windows and lantern halos are emissive.
-
-Rendering is capped at 30 frames per second while walking or during the short fox encounter. It stops completely when those settle and pauses in hidden tabs. Texture arrival, resize and graphics-context restoration wake it again. Device pixel ratio is capped at 1 on narrow viewports and 1.25 on desktop; the renderer requests the low-power GPU. Canvas data attributes expose frame count, draw calls, triangles, camera position and progress for browser QA without an always-running overlay. Physical device heat and frame rate still need phone testing.
-
-## Check and limitations
-
-The bundle build and targeted TypeScript check pass. The repository-wide type check also passes in this checkout after regenerating `.next`; the handoff's generated layout/missing-page errors did not recur. The production build compiles and passes lint/types, but local page generation fails because this checkout has no Notion credentials for the existing `/work/[slug]` pages. The homepage source is untouched.
-
-Chrome checks covered the complete route, waypoint navigation, arrow keys and emulated touch input at a 390 × 844 phone viewport. Caption/control rectangles fit without overlap. Browser console checks showed no errors or warnings. Visual screenshot QA was blocked by the locked host Mac; this limitation must be resolved before claiming visual approval. Project stories, alternate routes and realistic asset animation remain future work.

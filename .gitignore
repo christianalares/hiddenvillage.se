@@ -38,3 +38,7 @@ yarn-error.log*
 
 # generated walk prototype bundle
 /public/prototype/hidden-village/scene.js
+
+# Blender source cache and recovery files
+/src/prototypes/hidden-village/blender/.cache/
+/src/prototypes/hidden-village/blender/*.blend1

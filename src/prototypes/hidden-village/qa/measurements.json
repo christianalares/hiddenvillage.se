@@ -1,0 +1,468 @@
+{
+  "viewports": {
+    "desktop": [
+      1440,
+      900
+    ],
+    "phone": [
+      390,
+      844
+    ]
+  },
+  "samples": [
+    {
+      "viewport": "desktop",
+      "stop": "woods",
+      "cameraZ": "100.00",
+      "drawCalls": "145",
+      "engine": "three.js r186",
+      "frames": "2",
+      "progress": "0.0000",
+      "renderMs": "1.30",
+      "triangles": "333831"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "ridge",
+      "cameraZ": "82.02",
+      "drawCalls": "146",
+      "engine": "three.js r186",
+      "frames": "84",
+      "progress": "0.1540",
+      "renderMs": "4.60",
+      "triangles": "378341"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "bridge",
+      "cameraZ": "60.02",
+      "drawCalls": "133",
+      "engine": "three.js r186",
+      "frames": "184",
+      "progress": "0.3398",
+      "renderMs": "4.90",
+      "triangles": "353851"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "workshop",
+      "cameraZ": "31.02",
+      "drawCalls": "101",
+      "engine": "three.js r186",
+      "frames": "307",
+      "progress": "0.5872",
+      "renderMs": "3.30",
+      "triangles": "250219"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "square",
+      "cameraZ": "3.03",
+      "drawCalls": "67",
+      "engine": "three.js r186",
+      "frames": "423",
+      "progress": "0.8182",
+      "renderMs": "3.30",
+      "triangles": "182424"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "last-light",
+      "cameraZ": "-18.98",
+      "drawCalls": "46",
+      "engine": "three.js r186",
+      "frames": "521",
+      "progress": "0.9998",
+      "renderMs": "1.70",
+      "triangles": "127079"
+    },
+    {
+      "viewport": "phone",
+      "stop": "woods",
+      "cameraZ": "100.00",
+      "drawCalls": "140",
+      "engine": "three.js r186",
+      "frames": "2",
+      "progress": "0.0000",
+      "renderMs": "3.20",
+      "triangles": "333587"
+    },
+    {
+      "viewport": "phone",
+      "stop": "ridge",
+      "cameraZ": "82.02",
+      "drawCalls": "124",
+      "engine": "three.js r186",
+      "frames": "85",
+      "progress": "0.1540",
+      "renderMs": "3.90",
+      "triangles": "365603"
+    },
+    {
+      "viewport": "phone",
+      "stop": "bridge",
+      "cameraZ": "60.02",
+      "drawCalls": "123",
+      "engine": "three.js r186",
+      "frames": "187",
+      "progress": "0.3398",
+      "renderMs": "3.80",
+      "triangles": "354184"
+    },
+    {
+      "viewport": "phone",
+      "stop": "workshop",
+      "cameraZ": "31.02",
+      "drawCalls": "51",
+      "engine": "three.js r186",
+      "frames": "314",
+      "progress": "0.5872",
+      "renderMs": "2.60",
+      "triangles": "148954"
+    },
+    {
+      "viewport": "phone",
+      "stop": "square",
+      "cameraZ": "3.03",
+      "drawCalls": "52",
+      "engine": "three.js r186",
+      "frames": "434",
+      "progress": "0.8182",
+      "renderMs": "1.30",
+      "triangles": "183580"
+    },
+    {
+      "viewport": "phone",
+      "stop": "last-light",
+      "cameraZ": "-18.98",
+      "drawCalls": "38",
+      "engine": "three.js r186",
+      "frames": "531",
+      "progress": "0.9998",
+      "renderMs": "2.90",
+      "triangles": "125191"
+    }
+  ],
+  "preOptimizationSamples": [
+    {
+      "viewport": "desktop",
+      "stop": "woods",
+      "cameraZ": "100.00",
+      "drawCalls": "373",
+      "engine": "three.js r186",
+      "frames": "2",
+      "progress": "0.0000",
+      "renderMs": "5.30",
+      "triangles": "334663"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "bridge",
+      "cameraZ": "60.00",
+      "drawCalls": "343",
+      "engine": "three.js r186",
+      "frames": "197",
+      "progress": "0.3400",
+      "renderMs": "3.20",
+      "triangles": "351707"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "workshop",
+      "cameraZ": "31.00",
+      "drawCalls": "264",
+      "engine": "three.js r186",
+      "frames": "326",
+      "progress": "0.5874",
+      "renderMs": "3.00",
+      "triangles": "245925"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "last-light",
+      "cameraZ": "-18.95",
+      "drawCalls": "98",
+      "engine": "three.js r186",
+      "frames": "523",
+      "progress": "0.9996",
+      "renderMs": "0.90",
+      "triangles": "96971"
+    },
+    {
+      "viewport": "phone",
+      "stop": "woods",
+      "cameraZ": "100.00",
+      "drawCalls": "366",
+      "engine": "three.js r186",
+      "frames": "2",
+      "progress": "0.0000",
+      "renderMs": "2.30",
+      "triangles": "333171"
+    },
+    {
+      "viewport": "phone",
+      "stop": "ridge",
+      "cameraZ": "82.00",
+      "drawCalls": "280",
+      "engine": "three.js r186",
+      "frames": "88",
+      "progress": "0.1542",
+      "renderMs": "6.00",
+      "triangles": "333483"
+    },
+    {
+      "viewport": "phone",
+      "stop": "bridge",
+      "cameraZ": "60.00",
+      "drawCalls": "320",
+      "engine": "three.js r186",
+      "frames": "188",
+      "progress": "0.3400",
+      "renderMs": "7.10",
+      "triangles": "348380"
+    },
+    {
+      "viewport": "phone",
+      "stop": "workshop",
+      "cameraZ": "31.00",
+      "drawCalls": "88",
+      "engine": "three.js r186",
+      "frames": "285",
+      "progress": "0.5874",
+      "renderMs": "2.90",
+      "triangles": "148066"
+    },
+    {
+      "viewport": "phone",
+      "stop": "square",
+      "cameraZ": "3.00",
+      "drawCalls": "79",
+      "engine": "three.js r186",
+      "frames": "407",
+      "progress": "0.8185",
+      "renderMs": "4.70",
+      "triangles": "125728"
+    },
+    {
+      "viewport": "phone",
+      "stop": "last-light",
+      "cameraZ": "-19.00",
+      "drawCalls": "78",
+      "engine": "three.js r186",
+      "frames": "507",
+      "progress": "1.0000",
+      "renderMs": "1.50",
+      "triangles": "95007"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "ridge",
+      "cameraZ": "82.00",
+      "drawCalls": "369",
+      "engine": "three.js r186",
+      "frames": "90",
+      "progress": "0.1542",
+      "renderMs": "2.50",
+      "triangles": "377869"
+    },
+    {
+      "viewport": "desktop",
+      "stop": "square",
+      "cameraZ": "3.00",
+      "drawCalls": "112",
+      "engine": "three.js r186",
+      "frames": "406",
+      "progress": "0.8185",
+      "renderMs": "1.20",
+      "triangles": "169628"
+    }
+  ],
+  "walkingSampleBeforeBatchOptimization": {
+    "elapsed": 4502.599999904633,
+    "frames": 79,
+    "samples": [
+      {
+        "cameraZ": "50.64",
+        "drawCalls": "265",
+        "engine": "three.js r186",
+        "frames": "239",
+        "progress": "0.4200",
+        "renderMs": "5.40",
+        "triangles": "289901"
+      },
+      {
+        "cameraZ": "50.64",
+        "drawCalls": "265",
+        "engine": "three.js r186",
+        "frames": "239",
+        "progress": "0.4200",
+        "renderMs": "5.40",
+        "triangles": "289901"
+      },
+      {
+        "cameraZ": "50.64",
+        "drawCalls": "265",
+        "engine": "three.js r186",
+        "frames": "239",
+        "progress": "0.4200",
+        "renderMs": "5.40",
+        "triangles": "289901"
+      },
+      {
+        "cameraZ": "49.65",
+        "drawCalls": "253",
+        "engine": "three.js r186",
+        "frames": "241",
+        "progress": "0.4286",
+        "renderMs": "1.40",
+        "triangles": "275941"
+      },
+      {
+        "cameraZ": "47.73",
+        "drawCalls": "226",
+        "engine": "three.js r186",
+        "frames": "248",
+        "progress": "0.4454",
+        "renderMs": "2.70",
+        "triangles": "222738"
+      },
+      {
+        "cameraZ": "46.00",
+        "drawCalls": "234",
+        "engine": "three.js r186",
+        "frames": "255",
+        "progress": "0.4606",
+        "renderMs": "0.90",
+        "triangles": "211990"
+      },
+      {
+        "cameraZ": "43.90",
+        "drawCalls": "224",
+        "engine": "three.js r186",
+        "frames": "263",
+        "progress": "0.4790",
+        "renderMs": "4.00",
+        "triangles": "210754"
+      },
+      {
+        "cameraZ": "42.16",
+        "drawCalls": "256",
+        "engine": "three.js r186",
+        "frames": "270",
+        "progress": "0.4941",
+        "renderMs": "4.80",
+        "triangles": "232234"
+      },
+      {
+        "cameraZ": "40.24",
+        "drawCalls": "267",
+        "engine": "three.js r186",
+        "frames": "277",
+        "progress": "0.5104",
+        "renderMs": "2.70",
+        "triangles": "250252"
+      },
+      {
+        "cameraZ": "38.37",
+        "drawCalls": "255",
+        "engine": "three.js r186",
+        "frames": "284",
+        "progress": "0.5261",
+        "renderMs": "5.50",
+        "triangles": "252784"
+      },
+      {
+        "cameraZ": "36.23",
+        "drawCalls": "155",
+        "engine": "three.js r186",
+        "frames": "292",
+        "progress": "0.5439",
+        "renderMs": "5.00",
+        "triangles": "214134"
+      },
+      {
+        "cameraZ": "34.40",
+        "drawCalls": "120",
+        "engine": "three.js r186",
+        "frames": "299",
+        "progress": "0.5592",
+        "renderMs": "4.00",
+        "triangles": "186911"
+      },
+      {
+        "cameraZ": "32.49",
+        "drawCalls": "100",
+        "engine": "three.js r186",
+        "frames": "306",
+        "progress": "0.5750",
+        "renderMs": "3.10",
+        "triangles": "170137"
+      },
+      {
+        "cameraZ": "31.50",
+        "drawCalls": "93",
+        "engine": "three.js r186",
+        "frames": "314",
+        "progress": "0.5832",
+        "renderMs": "2.60",
+        "triangles": "167157"
+      },
+      {
+        "cameraZ": "31.28",
+        "drawCalls": "92",
+        "engine": "three.js r186",
+        "frames": "318",
+        "progress": "0.5851",
+        "renderMs": "3.70",
+        "triangles": "167155"
+      },
+      {
+        "cameraZ": "31.28",
+        "drawCalls": "92",
+        "engine": "three.js r186",
+        "frames": "318",
+        "progress": "0.5851",
+        "renderMs": "3.70",
+        "triangles": "167155"
+      },
+      {
+        "cameraZ": "31.28",
+        "drawCalls": "92",
+        "engine": "three.js r186",
+        "frames": "318",
+        "progress": "0.5851",
+        "renderMs": "3.70",
+        "triangles": "167155"
+      },
+      {
+        "cameraZ": "31.28",
+        "drawCalls": "92",
+        "engine": "three.js r186",
+        "frames": "318",
+        "progress": "0.5851",
+        "renderMs": "3.70",
+        "triangles": "167155"
+      }
+    ]
+  },
+  "idle": {
+    "before": {
+      "cameraZ": "-19.00",
+      "drawCalls": "77",
+      "engine": "three.js r186",
+      "frames": "552",
+      "progress": "1.0000",
+      "renderMs": "1.30",
+      "triangles": "95001"
+    },
+    "after": {
+      "cameraZ": "-19.00",
+      "drawCalls": "77",
+      "engine": "three.js r186",
+      "frames": "552",
+      "progress": "1.0000",
+      "renderMs": "1.30",
+      "triangles": "95001"
+    }
+  }
+}
