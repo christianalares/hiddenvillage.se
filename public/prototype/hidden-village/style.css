@@ -44,15 +44,41 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 .caption {
   position: absolute;
   left: 43px;
-  bottom: 76px;
-  max-width: 470px;
+  bottom: 82px;
+  max-width: 410px;
   text-align: left;
-  pointer-events: none;
-  font-size: clamp(22px, 2.2vw, 31px);
-  letter-spacing: 0.015em;
-  line-height: 1.2;
   text-shadow: 0 3px 14px #000;
 }
+.place {
+  display: block;
+  margin-bottom: 12px;
+  color: #e7b97c;
+  font: 11px Arial, sans-serif;
+  letter-spacing: 0.24em;
+}
+.caption h1 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+.caption p {
+  max-width: 340px;
+  margin: 12px 0 0;
+  color: #d5d3ca;
+  font: 15px/1.45 Arial, sans-serif;
+  letter-spacing: 0.01em;
+}
+.caption a {
+  display: inline-block;
+  margin-top: 18px;
+  border-bottom: 1px solid #e7b97c;
+  padding-bottom: 4px;
+  color: #f3d9ad;
+  font: 13px Arial, sans-serif;
+  text-decoration: none;
+}
+.caption a[hidden] { display: none; }
 
 .controls {
   position: absolute;
@@ -73,5 +99,5 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 
 @media (max-width: 640px) {
   .topline { padding: 23px; font-size: 11px; }
-  .caption { left: 23px; bottom: 110px; max-width: 300px; }
+  .caption { left: 23px; right: 23px; bottom: 110px; max-width: 300px; }
 }
