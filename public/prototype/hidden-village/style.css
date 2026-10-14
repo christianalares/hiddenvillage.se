@@ -21,7 +21,7 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 
 .vignette {
   pointer-events: none;
-  background: radial-gradient(ellipse at center, transparent 37%, rgba(4, 7, 10, 0.37) 100%);
+  background: radial-gradient(ellipse at 50% 45%, transparent 23%, rgba(4, 7, 10, 0.52) 100%), linear-gradient(to top, rgba(5, 8, 10, 0.62), transparent 27%);
 }
 
 .topline {
@@ -33,32 +33,31 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 26px 34px;
+  padding: 32px 43px;
   gap: 20px;
-  font-size: 12px;
-  letter-spacing: 0.18em;
+  font-size: 13px;
+  letter-spacing: 0.24em;
   text-shadow: 0 2px 9px #000;
 }
 
 .brand { font-weight: 700; }
-.prototype { opacity: 0.6; text-align: center; }
-
 .caption {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 118px;
-  text-align: center;
+  left: 43px;
+  bottom: 76px;
+  max-width: 470px;
+  text-align: left;
   pointer-events: none;
-  font-size: clamp(20px, 2.4vw, 32px);
-  letter-spacing: 0.03em;
+  font-size: clamp(22px, 2.2vw, 31px);
+  letter-spacing: 0.015em;
+  line-height: 1.2;
   text-shadow: 0 3px 14px #000;
 }
 
 .controls {
   position: absolute;
   left: 50%;
-  bottom: 31px;
+  bottom: 34px;
   transform: translateX(-50%);
   width: min(340px, calc(100% - 48px));
   text-align: center;
@@ -73,7 +72,6 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; }
 .fill { height: 100%; background: #e5ae72; transition: width 80ms linear; }
 
 @media (max-width: 640px) {
-  .topline { padding: 19px; font-size: 10px; }
-  .prototype { display: none; }
-  .caption { bottom: 112px; padding: 0 28px; }
+  .topline { padding: 23px; font-size: 11px; }
+  .caption { left: 23px; bottom: 110px; max-width: 300px; }
 }
