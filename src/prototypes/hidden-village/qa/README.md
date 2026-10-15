@@ -1,3 +1,11 @@
+# Soundscape verification — 15 October 2026
+
+[soundscape-playback.json](soundscape-playback.json) records the added assets and Chrome playback checks: no audio requests before enabling sound; four decoded loops; movement-triggered footsteps; no duplicate loops after muting; narration ducking from 0.7 to 0.2; a simulated visibility change suspending audio and pausing the voice; and the stream fading up at the bridge approach. Types, lint, bundle, seven soundscape tests and eleven journey tests pass. Subjective headphone listening and physical iOS Safari playback remain manual checks.
+
+[soundscape-preview.mp3](soundscape-preview.mp3) is a 24-second illustrative sequence assembled from the same prepared assets and runtime gain levels, not a recording of an interactive browser session. Source URLs, checksums and adaptation notes are in `../blender/soundscape-sources.json` and `../ATTRIBUTION.md`.
+
+---
+
 # Expanded journey verification — 14 October 2026
 
 The `expansion-*` files document the larger landscape and branching route pass. Earlier captures and results below are retained as history, not current-scene performance claims.

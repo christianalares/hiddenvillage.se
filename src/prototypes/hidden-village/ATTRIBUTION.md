@@ -66,3 +66,15 @@ Reference: https://www.padelfip.com/wp-content/uploads/2025/12/FIP_Rules-of-Pade
 ## Narration
 
 Six numbered MP3 recordings supplied by Christian for Hidden Village on 2026-10-15. Preserved unchanged and mapped in order to invitation, curiosity, making, rhythm, home and the final letter. These recordings are separate from the third-party asset licenses listed above.
+
+## Responsive woodland soundscape
+
+Added 2026-10-15. All new source recordings below are CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/), served from this site with no third-party requests at playback time.
+
+- howling_wind.wav by juryduty: https://freesound.org/people/juryduty/sounds/185070/ — ridge-wind.mp3; high-pass/low-pass filtering, level adjustment, 36-second crossfaded loop.
+- Water, small stream by peridactyloptrix: https://freesound.org/people/peridactyloptrix/sounds/197705/ — stream.mp3; filtering, level adjustment, 29-second crossfaded loop, spatial mix near the ravine and pond.
+- Ambient Drone-based Soundscape with Shimmering Tones on Top by bassimat: https://freesound.org/people/bassimat/sounds/852835/ — hushed-score.mp3; filtering, level adjustment, 47-second crossfaded excerpt. The creator describes producing it with iPad Moodscape SE.
+- Footsteps / Walking on foliage in a forest by Dominik_W: https://freesound.org/people/Dominik_W/sounds/398685/ — step-leaves-1 through step-leaves-4.mp3; four isolated steps, filtering, level adjustment and short edge fades.
+- Impact Sounds by Kenney: https://kenney.nl/assets/impact-sounds — step-grass-1 through 4, step-wood-1 through 4, step-stone-1 through 4.mp3; grass, wood and concrete source variations, filtered, level adjusted and encoded. Concrete supplies the village stone footfalls.
+
+Freesound adaptations use the public high-quality MP3 previews. Loop beds are stereo, footsteps mono, all 32 kHz MP3. The existing nickydunne woodland, Anthousai owl and Greg_Surr wood recordings are reused. Source download URLs and SHA-256 checksums are pinned in blender/soundscape-sources.json; blender/prepare_soundscape.py reproduces the new files. No new generated voice or paid recording is used.

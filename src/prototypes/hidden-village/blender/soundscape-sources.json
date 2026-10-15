@@ -1,0 +1,37 @@
+[
+  {
+    "name": "ridge-wind",
+    "page": "https://freesound.org/people/juryduty/sounds/185070/",
+    "download": "https://cdn.freesound.org/previews/185/185070_3279921-hq.mp3",
+    "sha256": "b7f5e055ac7e4b0caad3b956fca34fd2f1f81fa783d719008da454a6170c87b3",
+    "license": "CC0-1.0"
+  },
+  {
+    "name": "stream",
+    "page": "https://freesound.org/people/peridactyloptrix/sounds/197705/",
+    "download": "https://cdn.freesound.org/previews/197/197705_2737063-hq.mp3",
+    "sha256": "a3a555323d879e4d375685766641a3cb0ebb3d9cc22880bae2342282bba145f7",
+    "license": "CC0-1.0"
+  },
+  {
+    "name": "hushed-score",
+    "page": "https://freesound.org/people/bassimat/sounds/852835/",
+    "download": "https://cdn.freesound.org/previews/852/852835_15636277-hq.mp3",
+    "sha256": "a154527dd8c30faab4f983bdb5f3c3bbf5fe31ed21391b70fa422e14b577dd9c",
+    "license": "CC0-1.0"
+  },
+  {
+    "name": "forest-steps",
+    "page": "https://freesound.org/people/Dominik_W/sounds/398685/",
+    "download": "https://cdn.freesound.org/previews/398/398685_4162229-hq.mp3",
+    "sha256": "4501f692abb5d711bb310879819ccec1e5da519edc85f1032c2494330f7403a4",
+    "license": "CC0-1.0"
+  },
+  {
+    "name": "kenney-impact-sounds",
+    "page": "https://kenney.nl/assets/impact-sounds",
+    "download": "https://kenney.nl/media/pages/assets/impact-sounds/87b4ddecda-1677589768/kenney_impact-sounds.zip",
+    "sha256": "029d734af1582474edf3a694d1b0cebc97c1c152f2f39fa34d4c2bafc5de77f8",
+    "license": "CC0-1.0"
+  }
+]

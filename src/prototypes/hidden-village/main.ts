@@ -138,6 +138,7 @@ const nextPoint = new THREE.Vector3()
 const lookPoint = new THREE.Vector3()
 const tangent = new THREE.Vector3()
 const pondGaze = new THREE.Vector3()
+const soundDirection = new THREE.Vector3()
 const projected = new THREE.Vector3()
 let lookYaw = 0, lookPitch = 0, courtYaw = 0, courtPitch = 0, returnLook = false, dragging = false
 let pointerStart = { x: 0, y: 0 }, pointerLast = { x: 0, y: 0 }
@@ -253,6 +254,7 @@ function animate(time: number) {
   }
   const delta = clamp((time - lastTime) / 1000, 0, 0.15)
   lastTime = time
+  const previousMetres = route.metres(current)
   if (launch) {
     launch.elapsed += delta
     const t = reducedMotion ? 1 : clamp(launch.elapsed / 2.4, 0, 1)
@@ -341,7 +343,13 @@ function animate(time: number) {
   stories.update(camera, Boolean(journey.pending || journey.launching), delta, reducedMotion)
   updateInspectables(camera, Boolean(journey.pending || journey.launching || stories.reading))
   drums.update(delta, reducedMotion)
-  sound.update(camera.position.x, z)
+  camera.getWorldDirection(soundDirection)
+  const metres = route.metres(current)
+  sound.update({
+    x: camera.position.x, y: camera.position.y, z: camera.position.z,
+    forwardX: soundDirection.x, forwardZ: soundDirection.z, metres,
+    walking: !inspection.active && Math.abs(metres - previousMetres) > .001,
+  })
   const closest = lightSources.slice().sort((a, b) => a.position.distanceToSquared(camera.position) - b.position.distanceToSquared(camera.position))
   nearbyLights.forEach((light, i) => {
     const source = closest[i]

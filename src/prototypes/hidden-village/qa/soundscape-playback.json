@@ -1,0 +1,345 @@
+{
+  "date": "2026-10-15",
+  "addedAudioBytes": 1647908,
+  "assets": [
+    {
+      "file": "ridge-wind.mp3",
+      "bytes": 505052,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 2,
+          "side_data_list": [
+            {}
+          ]
+        }
+      ],
+      "format": {
+        "duration": "36.000000"
+      }
+    },
+    {
+      "file": "stream.mp3",
+      "bytes": 407276,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 2,
+          "side_data_list": [
+            {}
+          ]
+        }
+      ],
+      "format": {
+        "duration": "29.000000"
+      }
+    },
+    {
+      "file": "hushed-score.mp3",
+      "bytes": 659276,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 2,
+          "side_data_list": [
+            {}
+          ]
+        }
+      ],
+      "format": {
+        "duration": "47.000000"
+      }
+    },
+    {
+      "file": "step-grass-1.mp3",
+      "bytes": 7244,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.647125"
+      }
+    },
+    {
+      "file": "step-grass-2.mp3",
+      "bytes": 7244,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.647125"
+      }
+    },
+    {
+      "file": "step-grass-3.mp3",
+      "bytes": 7244,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.647125"
+      }
+    },
+    {
+      "file": "step-grass-4.mp3",
+      "bytes": 7244,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.647125"
+      }
+    },
+    {
+      "file": "step-leaves-1.mp3",
+      "bytes": 6524,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.550000"
+      }
+    },
+    {
+      "file": "step-leaves-2.mp3",
+      "bytes": 6524,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.550000"
+      }
+    },
+    {
+      "file": "step-leaves-3.mp3",
+      "bytes": 6524,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.550000"
+      }
+    },
+    {
+      "file": "step-leaves-4.mp3",
+      "bytes": 6524,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.550000"
+      }
+    },
+    {
+      "file": "step-stone-1.mp3",
+      "bytes": 1844,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.103031"
+      }
+    },
+    {
+      "file": "step-stone-2.mp3",
+      "bytes": 1844,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.104750"
+      }
+    },
+    {
+      "file": "step-stone-3.mp3",
+      "bytes": 2204,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.109906"
+      }
+    },
+    {
+      "file": "step-stone-4.mp3",
+      "bytes": 1844,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.107625"
+      }
+    },
+    {
+      "file": "step-wood-1.mp3",
+      "bytes": 3644,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.271406"
+      }
+    },
+    {
+      "file": "step-wood-2.mp3",
+      "bytes": 3284,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.248688"
+      }
+    },
+    {
+      "file": "step-wood-3.mp3",
+      "bytes": 3284,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.248500"
+      }
+    },
+    {
+      "file": "step-wood-4.mp3",
+      "bytes": 3284,
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "sample_rate": "32000",
+          "channels": 1
+        }
+      ],
+      "format": {
+        "duration": "0.248625"
+      }
+    }
+  ],
+  "browserChecks": {
+    "browser": "Chrome desktop",
+    "beforeSoundGesture": {
+      "contexts": 0,
+      "audioRequests": 0
+    },
+    "loopDurationsSeconds": [
+      28,
+      29,
+      36,
+      47
+    ],
+    "loopsAfterMuteAndResume": 4,
+    "muteContextState": "suspended",
+    "narrationMasterGain": 0.2,
+    "restingMasterGain": 0.7,
+    "visibilityChangeSimulation": {
+      "hiddenContext": "suspended",
+      "hiddenNarration": "paused",
+      "visibleContext": "running",
+      "visibleNarration": "paused",
+      "visibleLoopCount": 4
+    },
+    "footstepsObservedDuringTravel": true,
+    "noStepsWhileReading": true,
+    "bridgeApproach": {
+      "x": -4.13,
+      "z": 60,
+      "streamGain": 0.464372,
+      "windGain": 0.180327,
+      "loopCount": 4
+    }
+  },
+  "limitations": [
+    "Mix levels and decoding checked in-browser and with ffmpeg; subjective headphone listening and physical iOS Safari testing remain manual."
+  ],
+  "checks": {
+    "types": "passed",
+    "lint": "passed",
+    "prototypeBundle": "passed",
+    "journeyTests": 11,
+    "soundscapeTests": 7,
+    "gitDiffCheck": "passed"
+  },
+  "preview": "soundscape-preview.mp3 is a 24-second illustrative sequence mixed from the same prepared assets and runtime gain levels; it is not a recording of an interactive browser session."
+}
