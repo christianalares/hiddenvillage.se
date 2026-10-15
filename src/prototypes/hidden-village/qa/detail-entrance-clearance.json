@@ -8,12 +8,12 @@
   "exceptions": [],
   "assets": {
     "src/prototypes/hidden-village/blender/hidden-village.blend": {
-      "bytes": 37056216,
-      "sha256": "5e02f4c2ebc3d22856df34e7b7ec43d2670d03e57418c87d7b6fadd79af5b6d2"
+      "bytes": 37056293,
+      "sha256": "31fea37f82a385c6938c8d6138b862181c4a2df8ca805e4d00d70d59e92ee64f"
     },
     "public/prototype/hidden-village/assets/woodland.glb": {
-      "bytes": 10329584,
-      "sha256": "e365f907534a86f6f216dacbb97fc043dac0078faa768f89c62787f292b39eaa"
+      "bytes": 10331192,
+      "sha256": "d915124b20658f2ef6271be0e3c8a90251372453d451d8ef1954e86e4fcfa695"
     }
   }
 }
