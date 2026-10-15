@@ -24,7 +24,7 @@ report={'routes':{key:{'samples':len(values),'minClearance':min(v for v in value
 # A chest/head-radius sweep catches cottages, fences and rocks crossing a branch.
 verts=[];faces=[];names=[]
 for o in bpy.context.scene.objects:
- if o.type!='MESH' or o.name.startswith(('Landform','Far spruce','Crown','Heather','Fern','Reed','Sparse birch','Garden herbs','Mountain')):continue
+ if o.type!='MESH' or o.name.startswith(('Landform','Far spruce','Crown','Heather','Fern','Reed','Sparse birch','Garden herbs','Mountain','Western crown')):continue
  start=len(verts);verts.extend(o.matrix_world@v.co for v in o.data.vertices)
  for poly in o.data.polygons:faces.append(tuple(start+i for i in poly.vertices));names.append(o.name)
 obstacles=BVHTree.FromPolygons(verts,faces);collisions=[]

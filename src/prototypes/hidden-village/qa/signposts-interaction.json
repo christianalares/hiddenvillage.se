@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-15",
+  "status": "local; visual and touch review blocked by locked Mac; not published",
+  "stateTests": {
+    "passed": 7
+  },
+  "checks": {
+    "repositoryTypes": "passed",
+    "lint": "passed",
+    "bundle": "passed",
+    "blenderReexport": "SHA256 identical to runtime asset",
+    "cameraClearanceSamples": 404,
+    "cameraObstacleContacts": 0,
+    "browserConsoleErrors": 0
+  },
+  "browserChecks": {
+    "largeForwardJump": "stopped at ridge z=157 and then pond z=-3",
+    "ridgeChoices": "both reached z=151 and released scrolling",
+    "pondBranch": "reached z=-9 and released scrolling",
+    "returnToForkWaypoint": "reopened ridge signs at z=157",
+    "keyboard": "Enter activates signs; focus moves to choice after keyboard travel",
+    "reducedMotion": "immediate six-metre departure",
+    "pausedAtmosphere": "frame count unchanged at 163 over 1.2 seconds"
+  },
+  "phoneViewport": [
+    390,
+    844
+  ],
+  "phoneSignHitAreas": {
+    "ridge": [
+      [
+        46.02,
+        365.52,
+        297.94,
+        57.34
+      ],
+      [
+        45.35,
+        438.77,
+        299.29,
+        57.86
+      ]
+    ],
+    "pond": [
+      [
+        45.16,
+        364.49,
+        299.68,
+        57.33
+      ],
+      [
+        43.83,
+        437.78,
+        302.34,
+        58.34
+      ]
+    ]
+  },
+  "pending": [
+    "Inspect actual desktop and phone screenshots",
+    "Verify touch activation after unlocking",
+    "Check final lighting and sign framing",
+    "Commit, push and verify Vercel preview"
+  ]
+}

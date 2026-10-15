@@ -1,13 +1,18 @@
 import * as THREE from 'three'
-import { groundHeight, trailHeight, trailX } from './trail'
+import { branchOffset, groundHeight, trailHeight, trailX } from './trail'
 import { addEnvironment } from './environment'
 import { addWildlife } from './wildlife'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
+import { addForkSigns, ForkSign } from './signposts'
+import { DiscoveryAnchor } from './stories'
+import { addMist } from './weather'
 
 type World = {
   houseLights: THREE.PointLight[]
   motes: THREE.Points
   signTargets: THREE.Object3D[]
+  forkSigns: ForkSign[]
+  discoveries: DiscoveryAnchor[]
   update: (camera: THREE.Camera, time: number, delta: number, motion: boolean) => void
 }
 
@@ -116,9 +121,12 @@ export async function buildWorld(scene: THREE.Scene): Promise<World> {
   const wildlife = await addWildlife(scene, authored.animals)
   const leaves = addDriftingLeaves(scene)
   const signTargets = addSign(scene, glow)
+  const forkSigns = await addForkSigns(scene)
   const motes = addAtmosphere(scene)
-  return { houseLights: authored.lights, motes, signTargets, update: (camera, time, delta, motion) => {
+  const mist = addMist(scene)
+  return { houseLights: authored.lights, motes, signTargets, forkSigns, discoveries: authored.discoveries, update: (camera, time, delta, motion) => {
     authored.update(camera, time)
+    mist(time)
     wildlife(camera, delta, motion)
     leaves.material.uniforms.time.value = time
     leaves.visible = motion
@@ -127,9 +135,10 @@ export async function buildWorld(scene: THREE.Scene): Promise<World> {
 
 function addDriftingLeaves(scene: THREE.Scene) {
   const positions: number[] = [], phases: number[] = []
-  for (let i = 0; i < 72; i++) {
+  for (let i = 0; i < 150; i++) {
     const z = between(-55, 180)
-    positions.push(trailX(z) + between(-7, 7), trailHeight(z) + between(2, 7), z)
+    const x = trailX(z) + (i % 2 ? branchOffset(z, z > 0 ? 'ridge' : 'pond') : 0) + between(-9, 9)
+    positions.push(x, groundHeight(x, z) + between(2, 7), z)
     phases.push(random())
   }
   const geometry = new THREE.BufferGeometry()
@@ -138,9 +147,9 @@ function addDriftingLeaves(scene: THREE.Scene) {
   const material = new THREE.ShaderMaterial({
     uniforms: { time: { value: 0 } }, transparent: true, depthWrite: false,
     vertexShader: `attribute float phase; uniform float time; varying float turn;
-      void main(){ vec3 p=position; p.y-=fract(time*.035+phase)*2.0; p.x+=sin(time*.4+phase*30.)*.65;
+      void main(){ vec3 p=position; p.y-=fract(time*.075+phase)*2.0; p.x+=sin(time*.65+phase*30.)*2.5;
       turn=time*.6+phase*20.; vec4 view=modelViewMatrix*vec4(p,1.); gl_Position=projectionMatrix*view;
-      gl_PointSize=clamp(90./-view.z,1.,6.); }`,
+      gl_PointSize=clamp(90./-view.z,1.,8.); }`,
     fragmentShader: `varying float turn; void main(){ vec2 p=gl_PointCoord-.5;
       p=mat2(cos(turn),-sin(turn),sin(turn),cos(turn))*p;
       if(length(p*vec2(1.8,1.))>.44)discard; gl_FragColor=vec4(.29,.25,.12,.62); }`,

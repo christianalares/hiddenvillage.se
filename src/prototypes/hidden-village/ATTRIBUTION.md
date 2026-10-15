@@ -25,3 +25,10 @@ Terrain, trunk meshes, curved canopy construction, architecture, bridge, fence, 
 [Deer by Quaternius](https://poly.pizza/m/T6Cs7tmMHJ), from the [Ultimate Animated Animal Pack](https://quaternius.com/packs/ultimateanimatedanimals.html), is CC0. The approximately 1,940-triangle rigged model was prepared in Blender at natural scale, grounded, and reduced to the Idle, Idle_2 and Eating animation clips. Two instances use idle/grazing clips in flat, distant clearings; no moving walk cycle is presented. The source is `blender/deer.blend`; its 403 KB runtime asset is `assets/deer.glb`. The original download and checksum are pinned in `sources.json`.
 
 The high moor, branch paths, birches and bark atlas, heather, reed pond, jetty, skiff, boundary stones, garden walls and additional cottages were authored in Blender for this expansion. Wind deformation and drifting leaves are small runtime shaders; no new generated images or paid assets were used.
+
+The fork fingerpost in `blender/signpost.blend` was authored for this prototype, reusing the existing CC0 Roof Planks texture. Beveled arrow boards, post, iron fixings and lantern are editable meshes. Route lettering is painted into a small runtime canvas texture. No additional third-party assets were downloaded for the signpost pass.
+
+
+## Personal discovery expansion
+
+The observation shelter, telescope, weather vane, open music cabin, drum kit, cymbals, amp, record sleeves, notebooks, postcard, padel props and articulated bird silhouettes were authored for this prototype in Blender. They reuse the existing attributed wood and plaster textures and the existing CC0 woodland scans. The additional deer reuse Quaternius’s already attributed rig and idle/grazing animations. No game assets, paid assets or external model services were introduced. The game reference informed atmosphere only. The source and construction records live in `blender/`; the saved `.blend` remains editable.

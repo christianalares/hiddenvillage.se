@@ -1,0 +1,27 @@
+{
+  "routes": {
+    "main": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "ridge": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.7831947524737053
+    },
+    "pond": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "both": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.7831947524737053
+    }
+  },
+  "outliers": [],
+  "unpackedImages": [],
+  "obstacleContacts": []
+}

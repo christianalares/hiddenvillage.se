@@ -4,7 +4,7 @@ import { MeshoptDecoder } from 'meshoptimizer'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 export type AnimalAnchor = { position: THREE.Vector3; rotation: number; scale: number }
-const windMaterial = /foliage|fern|birch autumn leaves|reed leaves|heather/i
+const windMaterial = /foliage|fern|birch autumn leaves|reed leaves|heather|linen/i
 const assetRoot = '/prototype/hidden-village/assets/'
 
 /** The .blend owns mesh construction and placement; this layer only prepares it for rendering. */
@@ -13,6 +13,9 @@ export async function addEnvironment(scene: THREE.Scene) {
   const { scene: environment } = await loader.loadAsync(`${assetRoot}woodland.glb`)
   const lights: THREE.PointLight[] = []
   const animals: AnimalAnchor[] = []
+  const discoveries: { id: string; position: THREE.Vector3 }[] = []
+  const moving: THREE.Object3D[] = []
+  const lettering: THREE.Mesh[] = []
   const weatherTime = { value: 0 }
   const textures = new THREE.TextureLoader()
   const [forest, path, normal, pathNormal, rockColor] = await Promise.all([
@@ -32,6 +35,8 @@ export async function addEnvironment(scene: THREE.Scene) {
   const materials = new Set<THREE.MeshStandardMaterial>()
   environment.updateMatrixWorld(true)
   environment.traverse(object => {
+    if (object.userData.discovery) discoveries.push({ id: String(object.userData.discovery), position: object.getWorldPosition(new THREE.Vector3()) })
+    if (object.userData.motion) { object.userData.origin = object.position.clone(); moving.push(object) }
     if (object.userData.lamp) {
       const light = new THREE.PointLight('#ffc485', Number(object.userData.intensity), 10, 1.7)
       object.getWorldPosition(light.position)
@@ -39,12 +44,35 @@ export async function addEnvironment(scene: THREE.Scene) {
     }
     if (object.userData.animal) animals.push({ position: object.getWorldPosition(new THREE.Vector3()), rotation: Number(object.userData.rotation), scale: Number(object.userData.scale) })
     if (!(object instanceof THREE.Mesh)) return
+    if (object.userData.storyLabel || object.userData.storyPoster) {
+      const poster = Boolean(object.userData.storyPoster)
+      const canvas = document.createElement('canvas'); canvas.width = 768; canvas.height = poster ? 960 : 210
+      const context = canvas.getContext('2d')!
+      context.fillStyle = poster ? '#d1c4a4' : '#392d21'; context.fillRect(0, 0, canvas.width, canvas.height)
+      context.fillStyle = poster ? '#3d4939' : '#dac69d'; context.textAlign = 'center'; context.textBaseline = 'middle'
+      context.font = `${poster ? 48 : 46}px Georgia`
+      const title = String(object.userData.storyLabel || object.userData.storyPoster)
+      context.fillText(title, 384, poster ? 140 : 110, 700)
+      if (poster) {
+        context.strokeStyle = '#65694e'; context.lineWidth = 4
+        for (const [x,y] of [[200,350],[540,450],[300,650]]) {
+          context.beginPath();context.arc(x,y,65,0,Math.PI*2);context.stroke()
+        }
+        context.beginPath();context.moveTo(255,380);context.lineTo(480,425);context.moveTo(500,500);context.lineTo(340,600);context.stroke()
+        context.font = 'italic 34px Georgia';context.fillText('An idea. A few connections.',384,790)
+        context.fillText('Let’s see where it goes.',384,845)
+      }
+      const map = new THREE.CanvasTexture(canvas); map.colorSpace = THREE.SRGBColorSpace
+      const label = new THREE.Mesh(new THREE.PlaneGeometry(poster ? .62 : .92, poster ? .77 : .29), new THREE.MeshBasicMaterial({map, side:THREE.DoubleSide, toneMapped:false}))
+      object.getWorldPosition(label.position); label.position.z += poster ? .012 : .025
+      lettering.push(label)
+    }
     const list = Array.isArray(object.material) ? object.material : [object.material]
     if (list.some(material => windMaterial.test(material.name)) && !object.geometry.getAttribute('windWeight')) {
       const position = object.geometry.getAttribute('position'), world = new THREE.Vector3(), heights: number[] = []
       for (let i = 0; i < position.count; i++) heights.push(world.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld).y)
       const min = Math.min(...heights), span = Math.max(...heights) - min || 1
-      object.geometry.setAttribute('windWeight', new THREE.Float32BufferAttribute(heights.map(y => Math.pow((y - min) / span, 2)), 1))
+      object.geometry.setAttribute('windWeight', new THREE.Float32BufferAttribute(heights.map(y => Math.pow(list.some(material => /linen/i.test(material.name)) ? 1 - (y - min) / span : (y - min) / span, 2)), 1))
     }
     for (const material of Array.isArray(object.material) ? object.material : [object.material]) {
       if (material instanceof THREE.MeshStandardMaterial) materials.add(material)
@@ -112,8 +140,8 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
           ${wind ? `
             float sway = sin(weatherTime * 0.68 + weatherWorld.x * 0.11 + weatherWorld.z * 0.075);
             float flutter = sin(weatherTime * 1.9 + weatherWorld.z * 0.53);
-            weatherWorld.x += (sway * 0.13 + flutter * 0.025) * windWeight;
-            weatherWorld.z += cos(weatherTime * 0.52 + weatherWorld.x * 0.09) * 0.07 * windWeight;
+            weatherWorld.x += ((sway * 0.38 + flutter * 0.075) * (0.75 + 0.35 * sin(weatherTime * 0.17))) * windWeight;
+            weatherWorld.z += cos(weatherTime * 0.52 + weatherWorld.x * 0.09) * 0.18 * windWeight;
             mvPosition = viewMatrix * weatherWorld;
             gl_Position = projectionMatrix * mvPosition;
           ` : ''}
@@ -135,13 +163,13 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
     }
     material.customProgramCacheKey = () => /blended trail/.test(material.name) ? 'ground-lamps-mist-v3' : windMaterial.test(material.name) ? 'wind-mist-v3' : /Still pond/.test(material.name) ? 'water-mist-v3' : 'height-mist-v3'
   }
-  scene.add(environment, ...lights)
+  scene.add(environment, ...lights, ...lettering)
   batchScenery(environment)
   const detail: THREE.Mesh[] = []
   environment.traverse(object => {
     if (!(object instanceof THREE.Mesh)) return
     const name = (object.material as THREE.Material).name
-    const distance = /fern|pine_roots/.test(name) ? 48 : /rock_moss/.test(name) ? 85 : 0
+    const distance = /fern|pine_roots/.test(name) ? 42 : /rock_moss/.test(name) ? 75 : /foliage|bark|birch/i.test(name) ? (window.innerWidth < 640 ? 68 : 95) : 0
     if (!distance) return
     const bounds = object instanceof THREE.InstancedMesh ? object.boundingSphere : object.geometry.boundingSphere
     if (!bounds) object.geometry.computeBoundingSphere()
@@ -149,8 +177,18 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
     object.userData.detailDistance = distance
     detail.push(object)
   })
-  return { lights, animals, update: (camera: THREE.Camera, time: number) => {
+  return { lights, animals, discoveries, update: (camera: THREE.Camera, time: number) => {
     weatherTime.value = time
+    for (const object of moving) {
+      if (object.userData.motion === 'vane') object.rotation.y = time * .7
+      if (object.userData.motion === 'bird') {
+        const origin = object.userData.origin as THREE.Vector3, phase = Number(object.userData.phase), angle = time * .065 + phase
+        object.position.copy(origin).add(new THREE.Vector3(Math.sin(angle) * 13, Math.sin(time * .25 + phase) * .5, Math.cos(angle) * 9))
+        object.rotation.y = -angle + Math.PI / 2
+        object.visible = camera.position.distanceToSquared(object.position) < 120 ** 2
+        for (const wing of object.children) if (wing.userData.wing) wing.rotation.z = Number(wing.userData.wing) * Math.sin(time * 3 + phase) * .4
+      }
+    }
     for (const mesh of detail) {
       const sphere = mesh.userData.cullSphere as THREE.Sphere
       mesh.visible = sphere.center.distanceTo(camera.position) - sphere.radius < mesh.userData.detailDistance
@@ -164,7 +202,7 @@ export function batchScenery(root: THREE.Object3D) {
   const meshes: THREE.Mesh[] = []
   root.traverse(object => {
     if (object instanceof THREE.Mesh && !(object instanceof THREE.InstancedMesh)
-      && !Array.isArray(object.material) && !object.material.transparent && !object.userData.destinationZ) meshes.push(object)
+      && !hasMovingParent(object) && !Array.isArray(object.material) && !object.material.transparent && !object.userData.destinationZ) meshes.push(object)
   })
   const uses = new Map<THREE.BufferGeometry, number>()
   for (const mesh of meshes) uses.set(mesh.geometry, (uses.get(mesh.geometry) ?? 0) + 1)
@@ -174,7 +212,8 @@ export function batchScenery(root: THREE.Object3D) {
   const batches = new Map<string, THREE.Mesh[]>()
   const position = new THREE.Vector3()
   for (const mesh of meshes) {
-    mesh.getWorldPosition(position)
+    if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
+    mesh.geometry.boundingBox!.getCenter(position).applyMatrix4(mesh.matrixWorld)
     const repeated = shouldInstance(mesh.geometry)
     const key = `${Math.floor(position.x / 48)}:${Math.floor(position.z / 48)}:${(mesh.material as THREE.Material).uuid}:${repeated ? mesh.geometry.uuid : 'merge'}`
     const batch = batches.get(key) ?? []
@@ -218,4 +257,10 @@ export function batchScenery(root: THREE.Object3D) {
     }
     batch.forEach(mesh => mesh.removeFromParent())
   }
+}
+
+function hasMovingParent(object: THREE.Object3D): boolean {
+  let node: THREE.Object3D | null = object
+  while (node) { if (node.userData.motion) return true; node = node.parent }
+  return false
 }

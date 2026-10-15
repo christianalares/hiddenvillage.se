@@ -1,6 +1,6 @@
 """Terrain equations mirror trail.ts. Keep route clearance checks when changing either."""
-BRANCHES=[(156,108,-14),(-4,-48,-20)]
-WILDLIFE=[(12.5,141,-.85,1),(16,137,-.4,.88)]
+BRANCHES=[(156,90,-85),(-4,-58,-78)]
+WILDLIFE=[(12.5,141,-.85,1),(16,137,-.4,.88),(-110,118,1.1,1),(-100,-16,.6,.84)]
 def branch_offset(z,b):
  start,end,off=b
  return off*math.sin(math.pi*(start-z)/(start-end))**2 if end<z<start else 0
@@ -20,7 +20,8 @@ def raw_ground(x,z):
  ravine=math.exp(-((z-54.5+math.sin(x*.12)*.8)/2.15)**2)*4.8*(1-road+road*dip)
  hill=math.exp(-((x-32)/17)**2-((z+46)/25)**2)*18*smooth((abs(off)-1.8)/6)
  pond=3.2*math.exp(-((x+25)/7)**4-((z+26)/11)**4)
- return th(z)+bank+uneven-ravine+hill-pond
+ outer=smooth((abs(off)-27)/18)*(15*math.exp(-((x+93)/30)**2-((z-123)/33)**2)-5*math.exp(-((x+76)/27)**2-((z+30)/24)**2))
+ return th(z)+bank+uneven-ravine+hill-pond+outer
 
 def gh(x,z):
  y=raw_ground(x,z)
@@ -35,5 +36,7 @@ def gh(x,z):
 def path_distance(x,z):
  d=abs(x-tx(z))
  for b in BRANCHES:
-  if b[1]<z<b[0]:d=min(d,abs(x-tx(z)-branch_offset(z,b)))
+  if b[1]<z<b[0]:
+   slope=(tx(z+.1)+branch_offset(z+.1,b)-tx(z-.1)-branch_offset(z-.1,b))/.2
+   d=min(d,abs(x-tx(z)-branch_offset(z,b))/math.sqrt(1+slope*slope))
  return d

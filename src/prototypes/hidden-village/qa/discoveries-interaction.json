@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-15",
+  "viewports": {
+    "desktop": [
+      1440,
+      900
+    ],
+    "phone": [
+      390,
+      844
+    ]
+  },
+  "checks": {
+    "nativeTouchSwipeWalk": true,
+    "touchMomentumStopsAtFork": true,
+    "touchSignSelection": true,
+    "keyboardSignSelection": true,
+    "sixMetreGuidedDeparture": true,
+    "backtrackToForkReopensSigns": true,
+    "reducedMotionImmediateDeparture": true,
+    "allThreeMarkedPagesReadable": true,
+    "markPersistenceAcrossReload": true,
+    "threeMarksUnlockFinalLetter": true,
+    "readingPreservesPosition": true,
+    "phoneNotebooksAndEndPostcardVisible": true,
+    "pauseStopsRenderingAtRest": true
+  },
+  "pausedFrameCounter": {
+    "before": 1325,
+    "after1200ms": 1325
+  },
+  "routeMetres": {
+    "main": 285.394,
+    "ridge": 407.454,
+    "pond": 392.186,
+    "both": 514.247
+  },
+  "sampledPhoneViews": {
+    "opening": {
+      "calls": 99,
+      "triangles": 230528
+    },
+    "ridge": {
+      "calls": 52,
+      "triangles": 91082
+    },
+    "bridge": {
+      "calls": 164,
+      "triangles": 483055
+    },
+    "workshop": {
+      "calls": 93,
+      "triangles": 288121
+    },
+    "home": {
+      "calls": 33,
+      "triangles": 87457
+    }
+  },
+  "observedWarmCpuRenderSubmissionMs": [
+    1.1,
+    4.6
+  ],
+  "performanceLimit": "CPU submission and desktop emulation only. Physical phone GPU, battery and thermal performance are not measured. Initial shader compilation is excluded from the warm CPU range.",
+  "visualEvidence": "discoveries-*.jpg in this directory. Earlier signposts and expansion reports belong to earlier snapshots."
+}

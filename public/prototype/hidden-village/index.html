@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#19222b" />
-    <title>Hidden Village | Walk prototype</title>
+    <title>Hidden Village | Christian’s little corner</title>
     <link rel="stylesheet" href="/prototype/hidden-village/style.css" />
   </head>
   <body>
@@ -14,32 +14,33 @@
       <div class="vignette" aria-hidden="true"></div>
       <div class="topline">
         <span class="brand">HIDDEN VILLAGE</span>
-        <details class="wayfinding">
+        <div class="top-actions"><button id="about" class="quiet-button">About Christian</button><button id="notes" class="quiet-button">Field notes · 0/3</button><details class="wayfinding">
           <summary>Waypoints</summary>
           <nav aria-label="Places along the walk">
-            <button data-stop="210">The high moor</button>
-            <button data-stop="166">The birch hollow / fork</button>
-            <button data-stop="100">The woods</button>
+            <button data-stop="210">The high moor</button><button data-stop="202">The invitation</button>
+            <button data-stop="157">The birch hollow / fork</button>
+            <button data-stop="125" data-branch="ridge">The ridge shelter</button><button data-stop="100">The woods</button>
             <button data-stop="82">The ridge</button>
             <button data-stop="60">The bridge</button>
             <button data-stop="31">The workshop</button>
             <button data-stop="3">The square</button>
-            <button data-stop="6">The pond / fork</button>
-            <button data-stop="-35">Village lanes</button>
+            <button data-stop="-3">The pond / fork</button>
+            <button data-stop="-28" data-branch="pond">The music hollow</button><button data-stop="-48">Village lanes</button>
             <button data-stop="-62">The last light</button>
           </nav>
-        </details>
+        </details></div>
       </div>
-      <section id="fork" class="fork" aria-label="Choose a path" hidden>
-        <span id="fork-title">A fork in the path</span>
-        <p>Both ways lead onward.</p>
-        <div><button id="branch-route" aria-pressed="false">Heather ridge</button><button id="main-route" aria-pressed="true">Through the hollow</button></div>
-      </section>
+      <div id="fork-signs" role="group" aria-label="Path signs" hidden>
+        <button id="branch-route" class="sign-hit" aria-label="Take Heather ridge"></button>
+        <button id="main-route" class="sign-hit" aria-label="Take Through the hollow"></button>
+      </div>
+      <div id="discoveries"></div>
+      <p id="journey-status" class="sr-only" role="status" aria-live="polite"></p>
       <button id="atmosphere" class="atmosphere" aria-pressed="false">Pause atmosphere</button>
       <div class="caption" aria-live="polite">
         <span id="place" class="place">THE HIGH MOOR</span>
-        <h1 id="caption">Hidden Village</h1>
-        <p id="description">Somewhere below the heather, a light is still burning.</p>
+        <h1 id="caption">You found the way in.</h1>
+        <p id="description">Hi, I’m Christian. Welcome to my little corner of the internet.</p>
         <a id="contact" href="mailto:christian@hiddenvillage.se" hidden>Write to Christian</a>
       </div>
       <div class="controls">
@@ -47,6 +48,7 @@
         <div class="track"><div id="progress" class="fill"></div></div>
       </div>
     </main>
+    <dialog id="notebook" aria-labelledby="notebook-title"><button id="close-notebook" aria-label="Close notebook">Close ×</button><article id="notebook-content"></article></dialog>
     <script type="module" src="/prototype/hidden-village/scene.js"></script>
   </body>
 </html>

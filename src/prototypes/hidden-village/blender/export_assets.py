@@ -7,7 +7,7 @@ BLENDER=os.environ.get('BLENDER_BIN') or shutil.which('blender') or '/Applicatio
 worker='''import bpy,sys
 bpy.ops.object.select_all(action='DESELECT')
 for o in bpy.context.scene.objects:
- if o.type=='MESH' or (o.type=='EMPTY' and (o.get('lamp') or o.get('animal'))):o.select_set(True)
+ if o.type=='MESH' or (o.type=='EMPTY' and (o.get('lamp') or o.get('animal') or o.get('discovery') or o.get('motion'))):o.select_set(True)
 bpy.ops.export_scene.gltf(filepath=sys.argv[-1],export_format='GLB',use_selection=True,export_apply=True,export_extras=True,export_yup=True,export_normals=True,export_texcoords=True,export_vertex_color='NAME',export_vertex_color_name='GroundBlend',export_all_vertex_colors=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
 '''
 with tempfile.TemporaryDirectory(prefix='hidden-village-') as temp:
@@ -20,3 +20,8 @@ with tempfile.TemporaryDirectory(prefix='hidden-village-') as temp:
  animal_script=Path(temp)/'export-deer.py'
  animal_script.write_text("import bpy,sys\nbpy.ops.export_scene.gltf(filepath=sys.argv[-1],export_format='GLB',export_animations=True,export_animation_mode='NLA_TRACKS',export_force_sampling=True,export_frame_step=2)\n")
  subprocess.run([BLENDER,'--background',str(HERE/'deer.blend'),'--python-exit-code','1','--python',str(animal_script),'--',str(ROOT/'public/prototype/hidden-village/assets/deer.glb')],check=True)
+
+ # The separate fingerpost source can be edited without rebuilding the landscape.
+ sign_script=Path(temp)/'export-sign.py'
+ sign_script.write_text("import bpy,sys\nbpy.ops.export_scene.gltf(filepath=sys.argv[-1],export_format='GLB',export_extras=True)\n")
+ subprocess.run([BLENDER,'--background',str(HERE/'signpost.blend'),'--python-exit-code','1','--python',str(sign_script),'--',str(ROOT/'public/prototype/hidden-village/assets/signpost.glb')],check=True)

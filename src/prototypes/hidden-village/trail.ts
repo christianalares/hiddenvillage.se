@@ -6,8 +6,8 @@ export const smooth = (value: number) => {
 export const startZ = 210
 export const endZ = -62
 export const branches = {
-  ridge: { start: 156, end: 108, offset: -14, title: 'Heather ridge', alternative: 'Through the hollow' },
-  pond: { start: -4, end: -48, offset: -20, title: 'Reed pond', alternative: 'Village lane' },
+  ridge: { start: 156, end: 90, offset: -85, title: 'Heather ridge', alternative: 'Through the hollow' },
+  pond: { start: -4, end: -58, offset: -78, title: 'Reed pond', alternative: 'Village lane' },
 }
 export type BranchId = keyof typeof branches
 export const branchOffset = (z: number, id: BranchId) => {
@@ -27,7 +27,7 @@ export const trailHeight = (z: number) => smooth((z - 22) / 74) * 10.5
 export const bridgeStart = 51
 export const bridgeEnd = 58
 export const onBridge = (z: number) => z > bridgeStart && z < bridgeEnd
-export const wildlifeSites = [{ x: 12.5, z: 141, rotation: -0.85, scale: 1 }, { x: 16, z: 137, rotation: -0.4, scale: 0.88 }]
+export const wildlifeSites = [{ x: 12.5, z: 141, rotation: -0.85, scale: 1 }, { x: 16, z: 137, rotation: -0.4, scale: 0.88 }, { x: -110, z: 118, rotation: 1.1, scale: 1 }, { x: -100, z: -16, rotation: 0.6, scale: 0.84 }]
 const rawGround = (x: number, z: number) => {
   const offset = x - trailX(z)
   const edge = smooth((Math.abs(offset) - 2) / 8)
@@ -39,7 +39,8 @@ const rawGround = (x: number, z: number) => {
   const ravine = Math.exp(-Math.pow((z - 54.5 + Math.sin(x * 0.12) * 0.8) / 2.15, 2)) * 4.8 * (1 - road + road * bridgeDip)
   const hill = Math.exp(-Math.pow((x - 32) / 17, 2) - ((z + 46) / 25) ** 2) * 18 * smooth((Math.abs(offset) - 1.8) / 6)
   const pond = 3.2 * Math.exp(-Math.pow((x + 25) / 7, 4) - ((z + 26) / 11) ** 4)
-  return trailHeight(z) + bank + uneven - ravine + hill - pond
+  const outer = smooth((Math.abs(offset) - 27) / 18) * (15 * Math.exp(-Math.pow((x + 93) / 30, 2) - ((z - 123) / 33) ** 2) - 5 * Math.exp(-Math.pow((x + 76) / 27, 2) - ((z + 30) / 24) ** 2))
+  return trailHeight(z) + bank + uneven - ravine + hill - pond + outer
 }
 export const groundHeight = (x: number, z: number) => {
   let y = rawGround(x, z)
