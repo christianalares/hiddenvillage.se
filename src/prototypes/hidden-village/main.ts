@@ -49,7 +49,7 @@ const sky = new THREE.Mesh(new THREE.SphereGeometry(500, 32, 16), new THREE.Shad
   side: THREE.BackSide, depthWrite: false, fog: false,
   uniforms: { horizon: { value: new THREE.Color('#40565c') }, zenith: { value: new THREE.Color('#0b151e') }, cloudMap:{value:cloudMap},time:{value:0} },
   vertexShader: 'varying vec3 direction; varying vec2 skyUv; void main(){ direction = normalize(position); skyUv=uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position.z = gl_Position.w; }',
-  fragmentShader: 'uniform vec3 horizon; uniform vec3 zenith; uniform sampler2D cloudMap; uniform float time; varying vec3 direction; varying vec2 skyUv; void main(){ float h = smoothstep(-0.02, .55, direction.y); vec3 sky=mix(horizon, zenith, h); float cloud=texture2D(cloudMap,vec2(skyUv.x+time*.00035,skyUv.y*2.)).a*smoothstep(0.,.2,direction.y); gl_FragColor = vec4(mix(sky,vec3(.025,.045,.055),cloud*.55), 1.0);\n #include <tonemapping_fragment>\n #include <colorspace_fragment> }',
+  fragmentShader: 'uniform vec3 horizon; uniform vec3 zenith; uniform sampler2D cloudMap; uniform float time; varying vec3 direction; varying vec2 skyUv; void main(){ float h = smoothstep(-0.02, .55, direction.y); vec3 sky=mix(horizon, zenith, h); float cloud=texture2D(cloudMap,vec2(skyUv.x+time*.00035,(skyUv.y-.5)*2.)).a*smoothstep(0.,.2,direction.y); gl_FragColor = vec4(mix(sky,vec3(.025,.045,.055),cloud*.55), 1.0);\n #include <tonemapping_fragment>\n #include <colorspace_fragment> }',
 }))
 sky.frustumCulled = false
 sky.renderOrder = -1
