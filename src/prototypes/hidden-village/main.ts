@@ -5,6 +5,9 @@ import { branches, BranchId, routePosition } from './trail'
 import { Journey, branchIds, forkStop, progressAt, zAt } from './journey'
 import { RouteDistance } from './route-distance'
 import { addStories } from './stories'
+import { createInspection } from './inspection'
+import { createSound } from './sound'
+import { addInspectables } from './inspectables'
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
 async function start() {
@@ -29,12 +32,12 @@ mount.appendChild(renderer.domElement)
 
 const scene = new THREE.Scene()
 scene.background = new THREE.Color('#111b22')
-scene.fog = new THREE.FogExp2('#35464f', 0.0085)
+scene.fog = new THREE.FogExp2('#2d4047', 0.0095)
 const camera = new THREE.PerspectiveCamera(61, window.innerWidth / window.innerHeight, 0.15, 150)
 // A static sky gradient gives the silhouettes a luminous horizon without postprocessing.
-const sky = new THREE.Mesh(new THREE.SphereGeometry(210, 32, 16), new THREE.ShaderMaterial({
+const sky = new THREE.Mesh(new THREE.SphereGeometry(500, 32, 16), new THREE.ShaderMaterial({
   side: THREE.BackSide, depthWrite: false, fog: false,
-  uniforms: { horizon: { value: new THREE.Color('#40525b') }, zenith: { value: new THREE.Color('#0b151e') } },
+  uniforms: { horizon: { value: new THREE.Color('#344850') }, zenith: { value: new THREE.Color('#0b151e') } },
   vertexShader: 'varying vec3 direction; void main(){ direction = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position.z = gl_Position.w; }',
   fragmentShader: 'uniform vec3 horizon; uniform vec3 zenith; varying vec3 direction; void main(){ float h = smoothstep(-0.02, .55, direction.y); gl_FragColor = vec4(mix(horizon, zenith, h), 1.0);\n #include <tonemapping_fragment>\n #include <colorspace_fragment> }',
 }))
@@ -42,7 +45,7 @@ sky.frustumCulled = false
 sky.renderOrder = -1
 scene.add(sky)
 
-scene.add(new THREE.HemisphereLight('#9aafc1', '#19211b', 1.6))
+scene.add(new THREE.HemisphereLight('#9aafc1', '#19211b', 1.35))
 const moonLight = new THREE.DirectionalLight('#a6bfd1', 1.65)
 moonLight.position.set(-17, 28, -22)
 scene.add(moonLight)
@@ -65,7 +68,7 @@ moon.position.copy(moonHalo.position)
 scene.add(moon)
 
 instruction.textContent = 'Preparing the woodland…'
-const { houseLights, motes, signTargets, forkSigns, discoveries, update } = await buildWorld(scene).catch(error => {
+const { houseLights, motes, forkSigns, discoveries, inspectables, wildlifeNearby, update } = await buildWorld(scene).catch(error => {
   instruction.textContent = 'The woodland could not load. Please reload to try again.'
   mount.dataset.state = 'error'
   throw error
@@ -126,14 +129,24 @@ const nextPoint = new THREE.Vector3()
 const lookPoint = new THREE.Vector3()
 const tangent = new THREE.Vector3()
 const pondGaze = new THREE.Vector3()
-const raycaster = new THREE.Raycaster()
-const pointer = new THREE.Vector2()
 const projected = new THREE.Vector3()
-const stories = addStories(discoveries, reading => {
+let lookYaw = 0, lookPitch = 0, returnLook = false, dragging = false
+let pointerStart = { x: 0, y: 0 }, pointerLast = { x: 0, y: 0 }
+const lookRotation = new THREE.Quaternion(), lookEuler = new THREE.Euler(0, 0, 0, 'YXZ')
+function readingChanged(reading: boolean) {
   document.documentElement.classList.toggle('reading', reading)
-  if (reading) { target = current; syncScroll(current); stopFrames() }
-  else { lastTime = performance.now(); wake() }
-})
+  if (reading) { target = current; syncScroll(current) }
+  else { lastTime = performance.now(); returnLook = true; document.getElementById('inspection-controls')!.hidden = true }
+  wake()
+}
+const inspection = createInspection(camera, readingChanged, wake)
+const sound = createSound()
+const stories = await addStories(scene, discoveries, inspection, sound, readingChanged, wake)
+const updateInspectables = addInspectables(inspectables, inspection, sound)
+for (const [button, side] of [[branchButton, true], [mainButton, false]] as const) {
+  for (const name of ['pointerenter', 'focus']) button.addEventListener(name, () => { forkSigns.find(sign => sign.id === activeFork)?.highlight(side); wake() })
+  for (const name of ['pointerleave', 'blur']) button.addEventListener(name, () => { forkSigns.forEach(sign => sign.highlight(null)); wake() })
+}
 
 function updateProgress() {
   progressBar.style.width = `${route.metres(current) / route.length * 100}%`
@@ -164,7 +177,7 @@ function updateProgress() {
     if (nextFork) {
       branchButton.setAttribute('aria-label', `Take ${branches[nextFork].title}`)
       mainButton.setAttribute('aria-label', `Take ${branches[nextFork].alternative}`)
-      journeyStatus.textContent = `The walk pauses at a signpost. Choose ${branches[nextFork].title} or ${branches[nextFork].alternative}. Use Tab and Enter, or tap a sign. Escape steps back.`
+      journeyStatus.textContent = `The walk pauses at a signpost. Choose ${branches[nextFork].title} or ${branches[nextFork].alternative}. Use Tab and Enter, or tap a sign. Scroll back to retreat. Escape also steps back.`
       if (keyboardTravel) branchButton.focus({ preventScroll: true })
     }
   }
@@ -176,16 +189,19 @@ function updateProgress() {
       const xs = points.map(point => (point.x + 1) * window.innerWidth / 2)
       const ys = points.map(point => (1 - point.y) * window.innerHeight / 2)
       const button = label.side ? branchButton : mainButton
+      button.hidden = points.every(point => point.z > 1 || Math.abs(point.x) > 1.1)
       const top = Math.min(...ys), height = Math.max(44, Math.max(...ys) - top)
       Object.assign(button.style, { left: `${Math.min(...xs)}px`, top: `${top}px`, width: `${Math.max(...xs) - Math.min(...xs)}px`, height: `${height}px` })
     }
   }
-  instruction.textContent = activeFork ? 'Choose a sign to continue' : journey.launching ? 'Following the path…'
-    : current >= 0.995 ? 'Scroll up to wander back' : 'Scroll or swipe to wander · Move at your pace'
+  instruction.textContent = activeFork ? 'Choose a sign, or scroll back' : journey.launching ? 'Following the path…'
+    : current >= 0.995 ? 'Scroll up to wander back' : 'Scroll to wander · Drag to look around'
 }
 
 function chooseRoute(side: boolean) {
   if (!activeFork) return
+  returnLook = true
+  forkSigns.forEach(sign => sign.highlight(null))
   const name = side ? branches[activeFork].title : branches[activeFork].alternative
   const destination = journey.choose(side)
   if (destination === null) return
@@ -227,8 +243,9 @@ function stopFrames() {
 function animate(time: number) {
   frameRequest = 0
   if (document.hidden || contextLost || stories.reading) return
-  const moving = Boolean(launch) || Math.abs(target - current) > 0.00001
-  const interval = moving ? 1000 / 30 : 100
+  const moving = Boolean(launch) || Math.abs(target - current) > 0.00001 || inspection.moving || dragging || returnLook
+  const lively = motion && wildlifeNearby(camera)
+  const interval = moving || lively ? 1000 / 30 : 1000 / 20
   if (time - lastTime < interval - 1) {
     idleTimer = window.setTimeout(wake, interval - (time - lastTime))
     return
@@ -287,8 +304,29 @@ function animate(time: number) {
     lookPoint.copy(camera.position).addScaledVector(tangent, 7)
   }
   if (!journey.pending && !journey.launching) stories.focus(camera, lookPoint, z, choices)
+  if (choices.pond && z < -31 && z > -45) {
+    const court = inspectables.find(anchor => anchor.id === 'court')
+    if (court) {
+      const weight = .94 * Math.exp(-Math.pow((z + 36) / 5, 2))
+      tangent.subVectors(lookPoint, camera.position).normalize()
+      pondGaze.subVectors(court.position, camera.position).normalize()
+      lookPoint.copy(camera.position).addScaledVector(tangent.lerp(pondGaze, weight).normalize(), 7)
+    }
+  }
   camera.lookAt(lookPoint)
+  if (returnLook) {
+    const decay = reducedMotion ? 0 : Math.exp(-delta * 6)
+    lookYaw *= decay; lookPitch *= decay
+    if (Math.abs(lookYaw) + Math.abs(lookPitch) < .001) { lookYaw = lookPitch = 0; returnLook = false }
+  }
+  if (!inspection.active) camera.quaternion.multiply(lookRotation.setFromEuler(lookEuler.set(lookPitch, lookYaw, 0)))
+  inspection.apply(delta, reducedMotion)
+  const scope = inspection.key === 'telescope'
+  camera.near = scope ? 1.8 : .15; camera.far = scope ? 450 : 150; camera.updateProjectionMatrix()
+  ;(scene.fog as THREE.FogExp2).density = scope ? .0017 : .0095
+  sky.position.copy(camera.position)
   stories.update(camera, Boolean(journey.pending || journey.launching))
+  updateInspectables(camera, Boolean(journey.pending || journey.launching || stories.reading))
   const closest = lightSources.slice().sort((a, b) => a.position.distanceToSquared(camera.position) - b.position.distanceToSquared(camera.position))
   nearbyLights.forEach((light, i) => {
     const source = closest[i]
@@ -297,9 +335,10 @@ function animate(time: number) {
     light.color.copy(source.color)
     light.intensity = source.intensity * clamp((10 - source.position.distanceTo(camera.position)) / 6, 0, 1)
   })
-  if (motion) weatherTime += delta
+  const restingNote = Boolean(inspection.key?.startsWith('note:') && !inspection.moving)
+  if (motion && !restingNote) weatherTime += delta
   motes.rotation.y = Math.sin(weatherTime * 0.12) * 0.006
-  update(camera, weatherTime, delta, motion)
+  update(camera, weatherTime, delta, motion && !restingNote)
   const renderStart = performance.now()
   renderer.render(scene, camera)
   Object.assign(renderer.domElement.dataset, {
@@ -307,12 +346,13 @@ function animate(time: number) {
     drawCalls: String(renderer.info.render.calls), triangles: String(renderer.info.render.triangles),
     cameraZ: z.toFixed(2), cameraX: camera.position.x.toFixed(2), cameraY: camera.position.y.toFixed(2),
     progress: current.toFixed(4), atmosphere: motion ? 'running' : 'paused',
-    ridge: String(choices.ridge), pond: String(choices.pond),
+    ridge: String(choices.ridge), workshop: String(choices.workshop), pond: String(choices.pond),
+    lookYaw: lookYaw.toFixed(3), lookPitch: lookPitch.toFixed(3), inspection: inspection.key ?? '',
     journey: journey.pending ? `choice:${journey.pending}` : journey.launching ? `following:${journey.launching}` : 'walking',
   })
   updateProgress()
-  if (launch || current !== target) frameRequest = requestAnimationFrame(animate)
-  else if (motion) idleTimer = window.setTimeout(wake, 100)
+  if (launch || current !== target || inspection.moving || dragging || returnLook) frameRequest = requestAnimationFrame(animate)
+  else if (motion && !restingNote) idleTimer = window.setTimeout(wake, lively ? 1000 / 30 : 1000 / 20)
 }
 THREE.DefaultLoadingManager.onLoad = wake
 setScrollLock(Boolean(journey.pending))
@@ -328,29 +368,37 @@ function setScrollLock(locked: boolean) {
   if (locked) syncScroll(scrollAnchor)
 }
 window.addEventListener('scroll', () => {
-  if (stories.reading) return
-  if (scrollLocked) { if (Math.abs(scrollProgress() - scrollAnchor) > 0.0001) syncScroll(scrollAnchor); return }
-  target = journey.request(scrollProgress())
+  if (stories.reading || inspection.active) { syncScroll(current); return }
+  const progress = scrollProgress()
+  if (scrollLocked) {
+    if (journey.pending && progress < scrollAnchor - .0001) {
+      target = journey.request(progress); setScrollLock(false); activeFork = null; fork.hidden = true
+    } else { if (Math.abs(progress - scrollAnchor) > .0001) syncScroll(scrollAnchor); return }
+  } else target = journey.request(progress)
+  returnLook = true
   if (journey.pending) setScrollLock(true)
   wake()
 }, { passive: true })
-// These listeners only block input during a decision/short departure. Native scrolling
-// (including fast trackpad momentum) remains untouched throughout the rest of the route.
-for (const name of ['wheel', 'touchmove']) window.addEventListener(name, event => {
-  if (stories.reading) return
-  if (scrollLocked && !(event.target as Element).closest('.wayfinding nav')) event.preventDefault()
+// Only forward input is blocked at a choice. Backwards native scrolling remains available.
+window.addEventListener('wheel', event => {
+  if (stories.reading || (event.target as Element).closest('.wayfinding nav')) return
+  if (inspection.active || journey.launching || (journey.pending && event.deltaY > 0)) event.preventDefault()
+  if (!inspection.active) { returnLook = true; wake() }
+}, { passive: false })
+window.addEventListener('touchmove', event => {
+  if (journey.launching || inspection.active) event.preventDefault()
 }, { passive: false })
 window.addEventListener('pointerdown', () => { keyboardTravel = false }, { passive: true })
 window.addEventListener('keydown', event => {
   keyboardTravel = true
-  if (stories.reading) return
+  if (stories.reading || inspection.active) return
   if (!scrollLocked) return
   if (event.key === 'Escape' && journey.pending) {
     event.preventDefault(); walkToZ(forkStop(journey.pending) + 6); return
   }
-  if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'].includes(event.key)
+  if ((journey.launching ? ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'] : ['ArrowDown', 'PageDown', 'End']).includes(event.key)
     && !(event.target as Element).closest('.wayfinding nav')) event.preventDefault()
-  if (event.key === ' ' && !(event.target as Element).closest('button, summary')) event.preventDefault()
+  if (event.key === ' ' && !event.shiftKey && !(event.target as Element).closest('button, summary')) event.preventDefault()
 })
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopFrames(); else wake() })
 renderer.domElement.addEventListener('webglcontextlost', event => {
@@ -382,25 +430,34 @@ document.querySelectorAll<HTMLButtonElement>('[data-stop]').forEach(button => {
   })
 })
 
-function updatePointer(event: PointerEvent | MouseEvent) {
-  const rect = renderer.domElement.getBoundingClientRect()
-  pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1)
-  raycaster.setFromCamera(pointer, camera)
-  return raycaster.intersectObjects(signTargets)[0]
-}
-
+renderer.domElement.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || inspection.active || journey.launching) return
+  pointerStart = pointerLast = { x: event.clientX, y: event.clientY }
+  dragging = true; returnLook = false
+  renderer.domElement.setPointerCapture(event.pointerId)
+  renderer.domElement.classList.add('dragging'); wake()
+})
 renderer.domElement.addEventListener('pointermove', event => {
-  renderer.domElement.style.cursor = updatePointer(event) ? 'pointer' : 'default'
+  if (!dragging) return
+  const distance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y)
+  if (distance > 4) {
+    lookYaw = clamp(lookYaw + (event.clientX - pointerLast.x) * .004, -2.6, 2.6)
+    lookPitch = clamp(lookPitch + (event.clientY - pointerLast.y) * .003, -.85, .85)
+    pointerLast = { x: event.clientX, y: event.clientY }; wake()
+  }
 })
-renderer.domElement.addEventListener('click', event => {
-  const hit = updatePointer(event)
-  if (hit?.object.userData.destinationZ !== undefined) walkToZ(hit.object.userData.destinationZ)
-})
+function releaseLook() { dragging = false; renderer.domElement.classList.remove('dragging') }
+renderer.domElement.addEventListener('pointerup', releaseLook)
+renderer.domElement.addEventListener('pointercancel', releaseLook)
 
+let viewportWidth = innerWidth, viewportHeight = innerHeight
 window.addEventListener('resize', () => {
+  if (viewportWidth === innerWidth && viewportHeight === innerHeight) return
+  viewportWidth = innerWidth; viewportHeight = innerHeight
   if (scrollLocked) syncScroll(scrollAnchor)
   else { target = journey.request(scrollProgress()); if (journey.pending) setScrollLock(true) }
   camera.aspect = window.innerWidth / window.innerHeight
+  inspection.resize(camera.aspect)
   camera.updateProjectionMatrix()
   renderer.setSize(window.innerWidth, window.innerHeight)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, window.innerWidth < 640 ? 1 : 1.25))

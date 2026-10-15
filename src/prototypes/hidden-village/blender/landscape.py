@@ -1,5 +1,5 @@
 """Terrain equations mirror trail.ts. Keep route clearance checks when changing either."""
-BRANCHES=[(156,90,-85),(-4,-58,-78)]
+BRANCHES=[(156,90,-85),(39,14,-2.9),(39,14,4.5),(-4,-58,-78)]
 WILDLIFE=[(12.5,141,-.85,1),(16,137,-.4,.88),(-110,118,1.1,1),(-100,-16,.6,.84)]
 def branch_offset(z,b):
  start,end,off=b

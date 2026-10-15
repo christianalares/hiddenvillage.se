@@ -1,0 +1,74 @@
+{
+  "routes": {
+    "false-false-false": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "false-false-true": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "false-true-false": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "false-true-true": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "true-false-false": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    },
+    "true-false-true": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    },
+    "true-true-false": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    },
+    "true-true-true": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    }
+  },
+  "outliers": [],
+  "unpackedImages": [],
+  "obstacleContacts": [],
+  "date": "2026-10-15",
+  "browser": "Chromium/Vivaldi on macOS",
+  "viewports": [
+    "1800x1012 desktop",
+    "390x844 phone emulation"
+  ],
+  "checks": {
+    "three_gates_forward_block_backwards_allowed": true,
+    "phone_touch_retreat": true,
+    "phone_touch_page_turn": true,
+    "normal_motion_drag_returns_on_scroll": true,
+    "physical_note_readable_desktop_and_phone": true,
+    "telescope_actual_tower_visible": true,
+    "court_grounded_and_clear_of_old_trees": true,
+    "well_inspection": true,
+    "window_silhouette_visible_from_square": true,
+    "three_marks_unlock_final_letter": true,
+    "sound_explicit_activation_and_mute": true
+  },
+  "render_observations": {
+    "settled_letter_frames_over_1200ms": 0,
+    "visible_deer_frames_over_1500ms": 39,
+    "visible_deer_draw_calls": 87,
+    "visible_deer_triangles": 182678,
+    "notes": "Frame counts are browser observations on this Mac. CPU submission is not GPU time. Physical phone performance and thermals remain unverified."
+  },
+  "future_audio": "No narration recordings supplied. Each letter exposes a clearly unavailable Listen control; audio URLs can be attached per page."
+}

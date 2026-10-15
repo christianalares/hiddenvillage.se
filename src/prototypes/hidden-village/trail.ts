@@ -7,13 +7,14 @@ export const startZ = 210
 export const endZ = -62
 export const branches = {
   ridge: { start: 156, end: 90, offset: -85, title: 'Heather ridge', alternative: 'Through the hollow' },
+  workshop: { start: 39, end: 14, offset: -2.9, mainOffset: 4.5, title: 'Workshop', alternative: 'Village' },
   pond: { start: -4, end: -58, offset: -78, title: 'Reed pond', alternative: 'Village lane' },
 }
 export type BranchId = keyof typeof branches
-export const branchOffset = (z: number, id: BranchId) => {
+export const branchOffset = (z: number, id: BranchId, side = true) => {
   const b = branches[id]
   if (z >= b.start || z <= b.end) return 0
-  return b.offset * Math.sin(Math.PI * (b.start - z) / (b.start - b.end)) ** 2
+  return (side ? b.offset : ('mainOffset' in b ? b.mainOffset : 0)) * Math.sin(Math.PI * (b.start - z) / (b.start - b.end)) ** 2
 }
 export const trailX = (z: number) => Math.sin(z * 0.105) * 0.72
   - smooth((z - 43) / 44) * 8
@@ -52,6 +53,6 @@ export const groundHeight = (x: number, z: number) => {
   return y
 }
 export const routePosition = (z: number, choices: Record<BranchId, boolean>) => {
-  const x = trailX(z) + (choices.ridge ? branchOffset(z, 'ridge') : 0) + (choices.pond ? branchOffset(z, 'pond') : 0)
+  const x = trailX(z) + (choices.ridge ? branchOffset(z, 'ridge') : 0) + branchOffset(z, 'workshop', choices.workshop) + (choices.pond ? branchOffset(z, 'pond') : 0)
   return { x, y: (z > 50.6 && z < 58.3 ? trailHeight(z) : groundHeight(x, z)) + 1.76, z }
 }

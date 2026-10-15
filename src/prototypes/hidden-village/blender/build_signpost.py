@@ -42,9 +42,11 @@ def box(name,pos,size,mat=wood,bevel=.015):
  o.dimensions=(size[0],size[2],size[1]);bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
  return finish(o,name,mat,bevel)
 
-box('Oak post buried below ground',(0,1.55,0),(.18,3.4,.2),bevel=.035)
+bpy.ops.mesh.primitive_cylinder_add(vertices=14,radius=.13,depth=3.4,location=xyz((0,1.55,0)))
+finish(bpy.context.object,'Round oak fingerpost',wood,.02)
 box('Iron foot collar',(0,.15,0),(.205,.21,.225),iron,.01)
 for side,y in [('branch',2.62),('main',1.88)]:
+ before=set(bpy.context.scene.objects)
  direction=-1 if side=='branch' else 1
  outline=[(-1.37,-.285),(.98,-.285),(1.51,0),(.98,.285),(-1.37,.285)]
  verts=[xyz((x*direction,y+dy,z)) for z in [.08,.23] for x,dy in outline]
@@ -64,6 +66,8 @@ for side,y in [('branch',2.62),('main',1.88)]:
  for x in [-.085,.085]:
   bpy.ops.mesh.primitive_uv_sphere_add(segments=8,ring_count=4,radius=.032,location=xyz((x,y-.205,.264)))
   finish(bpy.context.object,'Hand-forged nail',iron,0)
+ arm=bpy.data.objects.new(side+' arm',None);bpy.context.collection.objects.link(arm);arm['forkArm']=side
+ for part in set(bpy.context.scene.objects)-before-{arm}:part.parent=arm
 
 # A small permanent practical light crowns the post; no extra runtime point light.
 box('Lantern base',(0,3.23,0),(.37,.075,.33),iron)
@@ -76,7 +80,7 @@ finish(bpy.context.object,'Pitched iron lantern cap',iron,.008)
 # One draw call per structural material, plus the two lettering surfaces.
 for mat in [wood,iron,glass]:
  bpy.ops.object.select_all(action='DESELECT')
- objects=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.active_material==mat]
+ objects=[o for o in bpy.context.scene.objects if o.type=='MESH' and o.active_material==mat and not o.parent]
  for o in objects:o.select_set(True)
  bpy.context.view_layer.objects.active=objects[0]
  if len(objects)>1:bpy.ops.object.join()

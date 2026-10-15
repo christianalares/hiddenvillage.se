@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#19222b" />
     <title>Hidden Village | Christian’s little corner</title>
+    <link rel="preload" href="/prototype/hidden-village/assets/fonts/Kalam-Regular.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="/prototype/hidden-village/style.css" />
   </head>
   <body>
@@ -22,10 +23,10 @@
             <button data-stop="125" data-branch="ridge">The ridge shelter</button><button data-stop="100">The woods</button>
             <button data-stop="82">The ridge</button>
             <button data-stop="60">The bridge</button>
-            <button data-stop="31">The workshop</button>
+            <button data-stop="40">Workshop / village fork</button><button data-stop="29" data-branch="workshop">The workshop</button>
             <button data-stop="3">The square</button>
             <button data-stop="-3">The pond / fork</button>
-            <button data-stop="-28" data-branch="pond">The music hollow</button><button data-stop="-48">Village lanes</button>
+            <button data-stop="-28" data-branch="pond">The music hollow</button><button data-stop="-35" data-branch="pond">The blue court</button><button data-stop="-48">Village lanes</button>
             <button data-stop="-62">The last light</button>
           </nav>
         </details></div>
@@ -35,7 +36,18 @@
         <button id="main-route" class="sign-hit" aria-label="Take Through the hollow"></button>
       </div>
       <div id="discoveries"></div>
+      <div id="telescope-mask" aria-hidden="true"></div>
+      <section id="inspection-controls" aria-label="Looking closer" hidden>
+        <p id="inspection-description" role="status"></p>
+        <div id="letter-actions" hidden>
+          <button id="turn-page">Turn page ↻</button><button id="listen">♫ Listen · coming soon</button>
+          <button id="unfold" hidden>✳ ⌁ ≋ Unfold the letter</button><a id="letter-contact" href="mailto:christian@hiddenvillage.se" hidden>Leave a word</a>
+          <p id="letter-transcript" class="sr-only" aria-live="polite"></p>
+        </div>
+        <button id="play-drum" hidden>Tap a drum ♫</button><button id="leave-inspection">Step back ×</button>
+      </section>
       <p id="journey-status" class="sr-only" role="status" aria-live="polite"></p>
+      <button id="sound" class="sound-toggle" aria-pressed="false">Sound off</button><p id="sound-status" class="sound-status" role="status"></p>
       <button id="atmosphere" class="atmosphere" aria-pressed="false">Pause atmosphere</button>
       <div class="caption" aria-live="polite">
         <span id="place" class="place">THE HIGH MOOR</span>

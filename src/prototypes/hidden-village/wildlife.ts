@@ -35,11 +35,18 @@ export async function addWildlife(scene: THREE.Scene, anchors: AnimalAnchor[]) {
     scene.add(root, shadow)
     return { root, shadow, mixer, position: anchor.position }
   })
-  return (camera: THREE.Camera, delta: number, motion: boolean) => {
+  const frustum = new THREE.Frustum(), matrix = new THREE.Matrix4(), sphere = new THREE.Sphere()
+  const update = (camera: THREE.Camera, delta: number, motion: boolean) => {
+    matrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); frustum.setFromProjectionMatrix(matrix)
     for (const animal of animals) {
-      const visible = camera.position.distanceToSquared(animal.position) < 85 ** 2
+      sphere.center.copy(animal.position).y += 1; sphere.radius = 2.5
+      const visible = camera.position.distanceToSquared(animal.position) < 85 ** 2 && frustum.intersectsSphere(sphere)
       animal.root.visible = animal.shadow.visible = visible
       if (visible && motion) animal.mixer.update(delta * 0.7)
     }
   }
+  return { update, nearby: (camera: THREE.Camera) => {
+    matrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); frustum.setFromProjectionMatrix(matrix)
+    return animals.some(animal => camera.position.distanceToSquared(animal.position) < 70 ** 2 && frustum.intersectsSphere(new THREE.Sphere(animal.position, 2)))
+  } }
 }

@@ -1,7 +1,7 @@
 html, body { margin: 0; width: 100%; min-height: 100%; background: #111821; }
 html { scrollbar-color: #6e776e #162027; }
 html { scrollbar-gutter: stable; }
-html.at-fork { overflow: hidden; }
+
 .scroll-runway { height: calc(100vh + 6800px); pointer-events: none; }
 * { box-sizing: border-box; }
 .shell {
@@ -124,11 +124,11 @@ html.at-fork { overflow: hidden; }
 
 .wayfinding nav { max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain; width: 205px; }
 .sign-hit { position: absolute; z-index: 1; border: 0; padding: 0; background: transparent; cursor: pointer; min-height: 44px; border-radius: 8px; touch-action: manipulation; }
-.sign-hit:hover { background: #ffd89412; }
-.sign-hit:focus-visible { outline: 2px solid #eed5a5; outline-offset: 4px; background: #ffd89412; }
+.sign-hit:hover { background: transparent; }
+.sign-hit:focus-visible { outline: 2px solid #eed5a5; outline-offset: 4px; background: transparent; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .choosing-path .caption { opacity: 0; pointer-events: none; }
-.at-fork .canvas { touch-action: none; }
+
 .atmosphere { position: absolute; right: 43px; bottom: 30px; padding: 11px 12px; border: 1px solid #59625d; border-radius: 3px; background: #101a1dcc; color: #c6c8bc; font: 11px Arial, sans-serif; cursor: pointer; min-height: 44px; }
 button:focus-visible { outline: 2px solid #e7b97c; outline-offset: 3px; }
 @media (max-width: 640px) {
@@ -163,4 +163,30 @@ html.reading { overflow:hidden; }
  #notebook { padding:58px 27px 32px; max-height:calc(100dvh - 28px); font-size:16px; }
  .caption p { font-size:13px; }
  .caption h1 { font-size:28px; }
+}
+
+@font-face {font-family:Kalam;src:url('/prototype/hidden-village/assets/fonts/Kalam-Regular.ttf') format('truetype');font-display:swap;}
+.canvas canvas {cursor:grab;touch-action:pan-y;}
+.canvas canvas.dragging {cursor:grabbing;}
+.sound-toggle {position:absolute;right:43px;bottom:81px;padding:10px 12px;min-height:40px;background:#101a1dcc;border:1px solid #59625d;border-radius:3px;color:#c6c8bc;font:11px Arial,sans-serif;cursor:pointer;}
+.sound-status {position:absolute;right:43px;bottom:122px;max-width:245px;font:12px/1.5 Arial,sans-serif;color:#d2c6aa;text-align:right;pointer-events:none;}
+.sound-status:empty {display:none;}
+#inspection-controls {position:absolute;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 32px);text-align:center;z-index:6;}
+#inspection-controls button,#inspection-controls a {display:inline-block;min-height:44px;padding:12px 15px;margin:4px;color:#ead7b1;background:#192322ed;border:1px solid #8c8064;border-radius:3px;font:13px Georgia,serif;cursor:pointer;text-decoration:none;}
+#inspection-controls [hidden],#inspection-controls[hidden] {display:none;}
+#inspection-controls [aria-disabled=true] {color:#b2ad9b;}
+#inspection-description {font:15px Georgia,serif;text-shadow:0 2px 8px #000;color:#e0d0ac;}
+body[data-inspection] .topline,body[data-inspection] .caption,body[data-inspection] .controls,body[data-inspection] .atmosphere {visibility:hidden;pointer-events:none;}
+body[data-inspection] .sound-toggle {top:18px;bottom:auto;right:20px;z-index:6;}
+body[data-inspection] .sound-status {top:60px;bottom:auto;right:20px;z-index:6;}
+body[data-inspection^="note:"] .vignette {opacity:.18;}
+body[data-inspection="telescope"] #telescope-mask {opacity:var(--inspection-blend,0);position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at center,transparent 27%,#0a1018aa 28%,#030609 31%);}
+body[data-inspection="telescope"] #telescope-mask:after {content:'';position:absolute;inset:47% 49%;border-left:1px solid #d9d2a040;border-bottom:1px solid #d9d2a040;}
+.object-hit {font-size:12px;padding:10px 14px;}
+@media(max-width:640px) {
+ .sound-toggle {right:23px;bottom:116px;min-height:32px;padding:8px;font-size:10px;}
+ .sound-status {right:23px;bottom:152px;font-size:11px;max-width:190px;}
+ #inspection-controls button,#inspection-controls a {font-size:12px;padding:10px;margin:3px;}
+ #inspection-controls {bottom:max(14px,env(safe-area-inset-bottom));}
+ #inspection-description {font-size:13px;}
 }

@@ -9,7 +9,8 @@ test('a single End key, scrollbar drag or large swipe stops at the first unresol
   assert.equal(walk.request(1), progressAt(forkStop('ridge')))
   assert.equal(walk.pending, 'ridge')
   assert.equal(walk.request(1), progressAt(forkStop('ridge')))
-  assert.equal(walk.request(0), progressAt(forkStop('ridge')))
+  assert.equal(walk.request(0), 0)
+  assert.equal(walk.pending, null)
 })
 
 test('either sign commits exactly six metres and discards momentum during departure', () => {
@@ -25,14 +26,14 @@ test('either sign commits exactly six metres and discards momentum during depart
     walk.arrive(to)
     assert.equal(walk.launching, null)
     assert.equal(walk.target, to)
-    assert.equal(walk.request(1), progressAt(forkStop('pond')))
-    assert.equal(walk.pending, 'pond')
+    assert.equal(walk.request(1), progressAt(forkStop('workshop')))
+    assert.equal(walk.pending, 'workshop')
   }
 })
 
-test('both forks gate travel, then free travel resumes to the last house', () => {
+test('every fork gates travel, then free travel resumes to the last house', () => {
   const walk = new Journey()
-  for (const id of ['ridge', 'pond']) {
+  for (const id of ['ridge', 'workshop', 'pond']) {
     walk.request(1)
     assert.equal(walk.pending, id)
     walk.arrive(walk.choose(true)!)
@@ -74,33 +75,33 @@ test('returning to the fork waypoint reopens its signs only after reaching it', 
   assert.equal(walk.choose(false), new RouteDistance(walk.choices).advance(gate, 6))
 })
 
-test('choosing does not move the camera sideways at either fork', () => {
-  for (const id of ['ridge', 'pond'] as const) {
-    const choices = { ridge: false, pond: false }
+test('choosing does not move the camera sideways at any fork', () => {
+  for (const id of ['ridge', 'workshop', 'pond'] as const) {
+    const choices = { ridge: false, workshop: false, pond: false }
     const before = routePosition(forkStop(id), choices)
     choices[id] = true
     assert.deepEqual(routePosition(forkStop(id), choices), before)
     const departure = routePosition(forkStop(id) - 6, choices)
-    const main = routePosition(forkStop(id) - 6, { ridge: false, pond: false })
-    assert.ok(departure.x < main.x - 1, 'the guided departure visibly enters the chosen branch')
+    const main = routePosition(forkStop(id) - 6, { ridge: false, workshop: false, pond: false })
+    assert.ok(departure.x < main.x - (id === 'workshop' ? .8 : 1), 'the guided departure visibly enters the chosen branch')
   }
 })
 
 
 test('scroll distance round trips on every combination and detours substantially extend the walk', () => {
-  const main = new RouteDistance({ ridge: false, pond: false })
-  const both = new RouteDistance({ ridge: true, pond: true })
-  assert.ok(both.length > main.length * 1.8)
-  for (const ridge of [true, false]) for (const pond of [true, false]) {
-    const route = new RouteDistance({ ridge, pond })
+  const main = new RouteDistance({ ridge: false, workshop: false, pond: false })
+  const both = new RouteDistance({ ridge: true, workshop: false, pond: true })
+  assert.ok(both.length - main.length > 220, 'the long detours add more than 220 metres')
+  for (const ridge of [true, false]) for (const workshop of [true, false]) for (const pond of [true, false]) {
+    const route = new RouteDistance({ ridge, workshop, pond })
     for (let i = 0; i <= 200; i++) assert.ok(Math.abs(route.progress(route.metres(i / 200)) - i / 200) < 1e-8)
   }
 })
 
 test('selecting a detour keeps every earlier scroll position stable', () => {
-  const main = new RouteDistance({ ridge: false, pond: false })
-  const ridge = new RouteDistance({ ridge: true, pond: false })
-  const both = new RouteDistance({ ridge: true, pond: true })
+  const main = new RouteDistance({ ridge: false, workshop: false, pond: false })
+  const ridge = new RouteDistance({ ridge: true, workshop: false, pond: false })
+  const both = new RouteDistance({ ridge: true, workshop: false, pond: true })
   assert.equal(main.metres(progressAt(forkStop('ridge'))), ridge.metres(progressAt(forkStop('ridge'))))
   assert.equal(ridge.metres(progressAt(forkStop('pond'))), both.metres(progressAt(forkStop('pond'))))
 })
@@ -113,4 +114,15 @@ test('returning to a fork survives browser scroll-pixel rounding on a long route
   const destination = route.progress(rounded, [gate])
   walk.request(destination); walk.arrive(destination)
   assert.equal(walk.pending, 'ridge')
+})
+
+test('all pending forks block forward travel but allow retreat without choosing', () => {
+  const walk = new Journey()
+  for (const id of ['ridge','workshop','pond'] as const) {
+    const gate=progressAt(forkStop(id)); walk.request(1)
+    assert.equal(walk.pending,id);assert.equal(walk.request(1),gate)
+    assert.equal(walk.request(gate-.01),gate-.01);assert.equal(walk.pending,null)
+    assert.equal(walk.request(1),gate);assert.equal(walk.pending,id)
+    walk.arrive(walk.choose(false)!)
+  }
 })

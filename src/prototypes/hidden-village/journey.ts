@@ -8,14 +8,18 @@ export const zAt = (progress: number) => startZ + (endZ - startZ) * progress
 
 /** Only fork decisions constrain travel. Never retain overshoot or queued wheel momentum. */
 export class Journey {
-  choices: Record<BranchId, boolean> = { ridge: false, pond: false }
+  choices: Record<BranchId, boolean> = { ridge: false, workshop: false, pond: false }
   private resolved = new Set<BranchId>()
   pending: BranchId | null = null
   launching: BranchId | null = null
   target = 0
 
   request(progress: number) {
-    if (this.pending || this.launching) return this.target
+    if (this.launching) return this.target
+    if (this.pending) {
+      if (progress >= this.target) return this.target
+      this.pending = null
+    }
     const desired = Math.max(0, Math.min(1, progress))
     const next = branchIds.find(id => !this.resolved.has(id) && desired >= progressAt(forkStop(id)))
     if (next) {

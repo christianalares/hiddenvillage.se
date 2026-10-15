@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { Inspectable } from './inspectables'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'meshoptimizer'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
@@ -14,6 +15,7 @@ export async function addEnvironment(scene: THREE.Scene) {
   const lights: THREE.PointLight[] = []
   const animals: AnimalAnchor[] = []
   const discoveries: { id: string; position: THREE.Vector3 }[] = []
+  const inspectables: Inspectable[] = []
   const moving: THREE.Object3D[] = []
   const lettering: THREE.Mesh[] = []
   const weatherTime = { value: 0 }
@@ -35,6 +37,7 @@ export async function addEnvironment(scene: THREE.Scene) {
   const materials = new Set<THREE.MeshStandardMaterial>()
   environment.updateMatrixWorld(true)
   environment.traverse(object => {
+    if (object.userData.inspect) inspectables.push({ id: String(object.userData.inspect), position: object.getWorldPosition(new THREE.Vector3()), eye: new THREE.Vector3().fromArray(object.userData.eye), target: new THREE.Vector3().fromArray(object.userData.target) })
     if (object.userData.discovery) discoveries.push({ id: String(object.userData.discovery), position: object.getWorldPosition(new THREE.Vector3()) })
     if (object.userData.motion) { object.userData.origin = object.position.clone(); moving.push(object) }
     if (object.userData.lamp) {
@@ -94,7 +97,7 @@ export async function addEnvironment(scene: THREE.Scene) {
       material.transparent = false
       material.depthWrite = true
       material.side = THREE.DoubleSide
-    } else material.side = THREE.FrontSide
+    } else material.side = /court (net|iron)|silhouette/i.test(material.name) ? THREE.DoubleSide : THREE.FrontSide
     for (const texture of [material.map, material.normalMap]) if (texture) texture.anisotropy = 4
     if (/blended trail/.test(material.name)) {
       material.map = forest
@@ -140,7 +143,7 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
           ${wind ? `
             float sway = sin(weatherTime * 0.68 + weatherWorld.x * 0.11 + weatherWorld.z * 0.075);
             float flutter = sin(weatherTime * 1.9 + weatherWorld.z * 0.53);
-            weatherWorld.x += ((sway * 0.38 + flutter * 0.075) * (0.75 + 0.35 * sin(weatherTime * 0.17))) * windWeight;
+            weatherWorld.x += ((sway * 0.48 + flutter * 0.09) * (0.75 + 0.35 * sin(weatherTime * 0.17))) * windWeight;
             weatherWorld.z += cos(weatherTime * 0.52 + weatherWorld.x * 0.09) * 0.18 * windWeight;
             mvPosition = viewMatrix * weatherWorld;
             gl_Position = projectionMatrix * mvPosition;
@@ -155,7 +158,7 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
       shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nvarying float mistHeight;')
         .replace('#include <fog_fragment>', `
           #ifdef USE_FOG
-            float valleyDensity = fogDensity + 0.005 * exp(-max(mistHeight, 0.0) * 0.12);
+            float valleyDensity = fogDensity + min(0.005, fogDensity * 0.6) * exp(-max(mistHeight, 0.0) * 0.12);
             float mist = 1.0 - exp(-valleyDensity * valleyDensity * vFogDepth * vFogDepth);
             gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, mist);
           #endif
@@ -177,7 +180,7 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
     object.userData.detailDistance = distance
     detail.push(object)
   })
-  return { lights, animals, discoveries, update: (camera: THREE.Camera, time: number) => {
+  return { lights, animals, discoveries, inspectables, update: (camera: THREE.Camera, time: number) => {
     weatherTime.value = time
     for (const object of moving) {
       if (object.userData.motion === 'vane') object.rotation.y = time * .7
@@ -242,6 +245,7 @@ export function batchScenery(root: THREE.Object3D) {
           }
           original.setAttribute(name, new THREE.Float32BufferAttribute(values, attribute.itemSize))
         }
+        if (!original.getAttribute('uv')) original.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(original.getAttribute('position').count * 2), 2))
         original.applyMatrix4(mesh.matrixWorld)
         for (const key of Object.keys(original.attributes)) if (!['position', 'normal', 'uv', 'color', 'windWeight'].includes(key)) original.deleteAttribute(key)
         const geometry = original.index ? original.toNonIndexed() : original

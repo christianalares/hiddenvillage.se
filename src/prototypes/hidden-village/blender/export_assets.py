@@ -7,7 +7,7 @@ BLENDER=os.environ.get('BLENDER_BIN') or shutil.which('blender') or '/Applicatio
 worker='''import bpy,sys
 bpy.ops.object.select_all(action='DESELECT')
 for o in bpy.context.scene.objects:
- if o.type=='MESH' or (o.type=='EMPTY' and (o.get('lamp') or o.get('animal') or o.get('discovery') or o.get('motion'))):o.select_set(True)
+ if o.type=='MESH' or (o.type=='EMPTY' and (o.get('lamp') or o.get('animal') or o.get('discovery') or o.get('motion') or o.get('inspect'))):o.select_set(True)
 bpy.ops.export_scene.gltf(filepath=sys.argv[-1],export_format='GLB',use_selection=True,export_apply=True,export_extras=True,export_yup=True,export_normals=True,export_texcoords=True,export_vertex_color='NAME',export_vertex_color_name='GroundBlend',export_all_vertex_colors=False,export_materials='EXPORT',export_cameras=False,export_lights=False)
 '''
 with tempfile.TemporaryDirectory(prefix='hidden-village-') as temp:
