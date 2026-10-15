@@ -62,3 +62,7 @@ Prepared from public high-quality previews. Changes: trimming, levels, encoding;
 
 Court geometry authored in Blender from the FIP 2026 Rules of Padel, glass variant. The abandoned setting is fictional and is not a certification of a playable venue.
 Reference: https://www.padelfip.com/wp-content/uploads/2025/12/FIP_Rules-of-Padel-1.pdf
+
+## Narration
+
+Six numbered MP3 recordings supplied by Christian for Hidden Village on 2026-10-15. Preserved unchanged and mapped in order to invitation, curiosity, making, rhythm, home and the final letter. These recordings are separate from the third-party asset licenses listed above.

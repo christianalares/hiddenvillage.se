@@ -54,7 +54,9 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
     const letter = letters.find(letter => letter.id === (active === 'letter' ? 'home' : active))!
     const page = pages[active]
     next.hidden = letter.paper.count < 2; next.textContent = `${sheet+1} / ${letter.paper.count} · Turn page ↻`
-    listen.textContent = page.audio ? '♫ Listen to this' : '♫ Listen · coming soon'
+    listen.textContent = page.audio ? sound.voiceState === 'playing' || sound.voiceState === 'loading' ? 'Ⅱ Pause reading' : sound.voiceState === 'paused' ? '♫ Resume reading' : '♫ Listen to this' : '♫ Listen · coming soon'
+    listen.setAttribute('aria-pressed', String(sound.voiceState === 'playing' || sound.voiceState === 'loading'))
+    letter.paper.setVoiceState(sound.voiceState)
     listen.setAttribute('aria-disabled', String(!page.audio))
     unfold.hidden = active !== 'home' || found.size !== 3
     letter.paper.setUnfold(!unfold.hidden)
@@ -62,6 +64,7 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
     document.getElementById('letter-contact')!.hidden = !['home','letter'].includes(active)
     transcript.textContent = `${page.place}. ${page.title} ${page.paragraphs.join(' ')} ${page.hint ?? ''}`
   }
+  sound.onVoiceChange(() => { if (active) { updatePaperControls(); wake() } })
   function read(id: string) {
     if (inspection.active) return
     const letter = letters.find(letter => letter.id === id)!
@@ -73,6 +76,7 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
     const eye=letterEye(point,innerWidth/innerHeight)
     controls.hidden=false; document.getElementById('letter-actions')!.hidden=false; document.getElementById('inspection-description')!.textContent=''
     inspection.open(`note:${id}`,point,eye);updatePaperControls();back.focus({preventScroll:true})
+    void sound.listen(pages[id].audio,true)
   }
   next.addEventListener('click',()=>{
     if (!active) return
@@ -85,8 +89,10 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
   })
   listen.addEventListener('click',()=>{ if (active) void sound.listen(pages[active].audio) })
   unfold.addEventListener('click',()=>{
+    sound.stopVoice()
     active='letter';sheet=0;const paper=letters.find(letter=>letter.id==='home')!.paper
     paper.prepare(pages.letter);document.body.dataset.letter='opened';updatePaperControls();paper.turn(0,matchMedia('(prefers-reduced-motion: reduce)').matches);sound.page();wake()
+    void sound.listen(pages.letter.audio,true)
   })
   function leave() { if (!inspection.active) return; sound.stopVoice(); controls.hidden=true;active=null;inspection.close(); controls.querySelectorAll<HTMLElement>('button,a').forEach(el=>el.removeAttribute('style')) }
   back.addEventListener('click',leave)

@@ -1,0 +1,206 @@
+[
+  {
+    "check": "invitation auto-start",
+    "result": {
+      "gain": 0.20000000298023224,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 26.82775,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-01-invitation.mp3",
+          "time": 13.264027
+        }
+      ],
+      "releasedRecordings": 0
+    }
+  },
+  {
+    "check": "mute pauses narration",
+    "result": {
+      "gain": 0.2918127477169037,
+      "sound": "off",
+      "state": "paused",
+      "activeRecordings": [
+        {
+          "duration": 26.82775,
+          "paused": true,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-01-invitation.mp3",
+          "time": 0.379196
+        }
+      ],
+      "releasedRecordings": 1
+    }
+  },
+  {
+    "check": "opening after deliberate mute stays quiet",
+    "result": {
+      "gain": 0.2918127477169037,
+      "sound": "off",
+      "state": "idle",
+      "activeRecordings": [],
+      "releasedRecordings": 2
+    }
+  },
+  {
+    "check": "curiosity auto-start",
+    "result": {
+      "gain": 0.6494594812393188,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 22.67425,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-02-curiosity.mp3",
+          "time": 0.02383
+        }
+      ],
+      "releasedRecordings": 3
+    }
+  },
+  {
+    "check": "making auto-start",
+    "result": {
+      "gain": 0.6494594812393188,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 26.122438,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-03-making.mp3",
+          "time": 0.023046
+        }
+      ],
+      "releasedRecordings": 4
+    }
+  },
+  {
+    "check": "rhythm auto-start",
+    "result": {
+      "gain": 0.6149037480354309,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 25.155875,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-04-rhythm.mp3",
+          "time": 0.02697
+        }
+      ],
+      "releasedRecordings": 5
+    }
+  },
+  {
+    "check": "home auto-start",
+    "result": {
+      "gain": 0.6494594812393188,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 26.122438,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-05-home.mp3",
+          "time": 0.023263
+        }
+      ],
+      "releasedRecordings": 6
+    }
+  },
+  {
+    "check": "unfold stops home and starts final letter",
+    "result": {
+      "gain": 0.383808970451355,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 18.599125,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-06-letter.mp3",
+          "time": 0.029858
+        }
+      ],
+      "releasedRecordings": 7
+    }
+  },
+  {
+    "check": "pause on paper",
+    "result": {
+      "gain": 0.44793394207954407,
+      "sound": "on",
+      "state": "paused",
+      "activeRecordings": [
+        {
+          "duration": 18.599125,
+          "paused": true,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-06-letter.mp3",
+          "time": 0.222239
+        }
+      ],
+      "releasedRecordings": 7
+    }
+  },
+  {
+    "check": "resume retains position",
+    "result": {
+      "gain": 0.6149037480354309,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 18.599125,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-06-letter.mp3",
+          "time": 0.248289
+        }
+      ],
+      "releasedRecordings": 7
+    }
+  },
+  {
+    "check": "close clears all recordings",
+    "result": {
+      "gain": 0.3964129686355591,
+      "sound": "on",
+      "state": "idle",
+      "activeRecordings": [],
+      "releasedRecordings": 8
+    }
+  },
+  {
+    "check": "phone home auto-start",
+    "result": {
+      "gain": 0.5972290635108948,
+      "sound": "on",
+      "state": "playing",
+      "activeRecordings": [
+        {
+          "duration": 26.122438,
+          "paused": false,
+          "ready": 4,
+          "src": "/prototype/hidden-village/assets/audio/voice-05-home.mp3",
+          "time": 0.028483
+        }
+      ],
+      "releasedRecordings": 8
+    }
+  },
+  {
+    "check": "console errors",
+    "result": []
+  }
+]

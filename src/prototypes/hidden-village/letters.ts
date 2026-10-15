@@ -1,32 +1,39 @@
 import * as THREE from 'three'
+import type { VoiceState } from './sound'
 export type Page = { title: string; place: string; paragraphs: string[]; mark?: string; hint?: string; audio?: string }
 export const pages: Record<string, Page> = {
   invitation: {
+    audio: '/prototype/hidden-village/assets/audio/voice-01-invitation.mp3',
     title: 'For the one who wandered in.', place: 'AT THE EDGE OF THE WOODS',
     paragraphs: ['Hi, I’m Christian. You found my little corner of the internet.', 'Some of me is scattered here. A thing that did not exist. A question without an answer. A rhythm that followed me home.', 'Three marks. Three places. Gather them if you like. The last light has a letter for you.'],
     hint: 'Begin where the wind has nothing left to lean against.',
   },
   making: {
+    audio: '/prototype/hidden-village/assets/audio/voice-03-making.mp3',
     title: 'It began with a missing thing.', place: 'FROM THE WORKSHOP', mark: '✳',
     paragraphs: ['A task with too many steps. An idea with nowhere to stay. Two things that ought to speak.', 'That is usually how I begin building software. I make the thing I wish I had, then keep returning to the parts that do not feel quite right.', 'The small details leave the longest shadows.'],
     hint: 'Keep this mark. Another waits above the trees.',
   },
   curiosity: {
+    audio: '/prototype/hidden-village/assets/audio/voice-02-curiosity.mp3',
     title: 'What passes between things?', place: 'A QUESTION FROM THE RIDGE', mark: '⌁',
     paragraphs: ['A lot of my curiosity goes into AI. I keep joining it to the tools around me, wondering what might happen between them.', 'Sometimes a useful answer. Sometimes a better question. Both are reasons to leave the notebook open.'],
     hint: 'Look through the brass eye. Then seek the room that remembers a rhythm.',
   },
   rhythm: {
+    audio: '/prototype/hidden-village/assets/audio/voice-04-rhythm.mp3',
     title: 'The room remembers.', place: 'BESIDE THE RECORDS', mark: '≋',
     paragraphs: ['Before these keys, there were others. I used to produce music. I still play drums. Some habits keep their own time.', 'Beyond this room, the blue court is slowly returning to the woods. I love a game of padel 🎾. Mine are usually on less overgrown courts.'],
     hint: 'Three marks belong together. Carry them to the last light.',
   },
   home: {
+    audio: '/prototype/hidden-village/assets/audio/voice-05-home.mp3',
     title: 'A light left on.', place: 'THE LAST HOUSE',
     paragraphs: ['Home is Stockholm, with my family. This is another sort of home. My little corner of the internet.', 'The paths bend. The work is rarely finished. There is usually something I meant to come back to.', 'If you found a little of me along the way, the place is doing its job. Make yourself at home.'],
     hint: 'Three marks open the folded letter beneath this one.',
   },
   letter: {
+    audio: '/prototype/hidden-village/assets/audio/voice-06-letter.mp3',
     title: 'You took the long way.', place: '✳   ⌁   ≋',
     paragraphs: ['A missing thing, a question, a rhythm. A few parts of the same person.', 'Thank you for spending a little time here. I hope you found something that made you curious.', 'You know where to find me. Leave a word if you like.\nChristian'],
   },
@@ -47,6 +54,7 @@ export function createLetter(page: Page) {
     shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb *= 1.0 - sin(vMapUv.x * 3.14159) * curlShade * .22;')
   }
   let fold = 1, pendingSheet = 0, switched = true, canUnfold = false
+  let voiceState: VoiceState = 'idle'
   const regions = { back: [770, 18, 225, 130], next: [610, 1125, 390, 125], listen: [45, 1125, 560, 125], unfold: [70, 1030, 590, 110], contact: [700, 1030, 290, 110] }
   let sheets: string[][] = []
   function wrap(text: string) {
@@ -108,12 +116,13 @@ export function createLetter(page: Page) {
     ctx.fillText(page.mark ? `${page.mark}  Keep this mark.` : canUnfold ? '✳ ⌁ ≋  Unfold the letter' : 'C.',88,1110)
     if (page === pages.home || page === pages.letter) { ctx.textAlign='right';ctx.fillText('Leave a word',935,1110);ctx.textAlign='left' }
     ctx.strokeStyle='#80634050';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(86,1140);ctx.lineTo(936,1140);ctx.stroke()
-    ctx.font='44px Kalam, cursive';ctx.fillStyle=page.audio?'#49331e':'#8b785d';ctx.fillText(page.audio?'♫ Listen':'♫ Listen · coming soon',88,1200)
+    ctx.font='44px Kalam, cursive';ctx.fillStyle=page.audio?'#49331e':'#8b785d';ctx.fillText(page.audio ? voiceState === 'playing' || voiceState === 'loading' ? 'Ⅱ Pause' : voiceState === 'paused' ? '♫ Resume' : '♫ Listen' : '♫ Listen · coming soon',88,1200)
     ctx.fillStyle='#49331e';ctx.textAlign='right';ctx.fillText(`${index+1} / ${sheets.length}${sheets.length>1?'   Turn ↻':''}`,935,1200);ctx.textAlign='left'
     ctx.restore(); map.needsUpdate=true
   }
   prepare(page); draw(0)
   return { mesh, draw, prepare, regions,
+    setVoiceState(value: VoiceState) { voiceState = value },
     setUnfold(value: boolean) { canUnfold = value },
     turn(index: number, immediate: boolean) {
       pendingSheet=index;fold=immediate?1:0;switched=immediate
