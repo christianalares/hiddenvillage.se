@@ -57,6 +57,8 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
     listen.textContent = page.audio ? '♫ Listen to this' : '♫ Listen · coming soon'
     listen.setAttribute('aria-disabled', String(!page.audio))
     unfold.hidden = active !== 'home' || found.size !== 3
+    letter.paper.setUnfold(!unfold.hidden)
+    letter.paper.draw(sheet)
     document.getElementById('letter-contact')!.hidden = !['home','letter'].includes(active)
     transcript.textContent = `${page.place}. ${page.title} ${page.paragraphs.join(' ')} ${page.hint ?? ''}`
   }
@@ -69,27 +71,31 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
     const point=letter.paper.mesh.position.clone()
     // Fit the actual sheet to the viewport, with room for its table and the controls.
     const eye=letterEye(point,innerWidth/innerHeight)
-    controls.hidden=false; document.getElementById('letter-actions')!.hidden=false; document.getElementById('play-drum')!.hidden=true; document.getElementById('inspection-description')!.textContent=''
+    controls.hidden=false; document.getElementById('letter-actions')!.hidden=false; document.getElementById('inspection-description')!.textContent=''
     inspection.open(`note:${id}`,point,eye);updatePaperControls();back.focus({preventScroll:true})
   }
   next.addEventListener('click',()=>{
     if (!active) return
     const paper=letters.find(letter=>letter.id===(active==='letter'?'home':active))!.paper
-    sheet=(sheet+1)%paper.count;paper.draw(sheet);updatePaperControls();wake()
+    if(paper.animating||inspection.moving)return
+    sheet=(sheet+1)%paper.count
+    // Update the accessible controls now; the ink changes at the midpoint of the fold.
+    next.textContent=`${sheet+1} / ${paper.count} · Turn page ↻`
+    paper.turn(sheet,matchMedia('(prefers-reduced-motion: reduce)').matches);sound.page();wake()
   })
   listen.addEventListener('click',()=>{ if (active) void sound.listen(pages[active].audio) })
   unfold.addEventListener('click',()=>{
     active='letter';sheet=0;const paper=letters.find(letter=>letter.id==='home')!.paper
-    paper.prepare(pages.letter);paper.draw(0);document.body.dataset.letter='opened';updatePaperControls();wake()
+    paper.prepare(pages.letter);document.body.dataset.letter='opened';updatePaperControls();paper.turn(0,matchMedia('(prefers-reduced-motion: reduce)').matches);sound.page();wake()
   })
-  function leave() { if (!inspection.active) return; sound.stopVoice(); controls.hidden=true;active=null;inspection.close() }
+  function leave() { if (!inspection.active) return; sound.stopVoice(); controls.hidden=true;active=null;inspection.close(); controls.querySelectorAll<HTMLElement>('button,a').forEach(el=>el.removeAttribute('style')) }
   back.addEventListener('click',leave)
   window.addEventListener('keydown',event=>{
     if (!inspection.active) return
     if (event.key==='Escape') { event.preventDefault();leave() }
     // Keep keyboard focus in the reading controls while the camera is at the table.
     if (event.key==='Tab') {
-      const focusable=[...Array.from(controls.querySelectorAll<HTMLElement>('button:not([hidden]),a:not([hidden])')), document.getElementById('sound')!].filter(el=>el.offsetParent!==null)
+      const focusable=[...Array.from(document.querySelectorAll<HTMLElement>('#drum-parts button:not([hidden])')), ...Array.from(controls.querySelectorAll<HTMLElement>('button:not([hidden]),a:not([hidden])')), document.getElementById('sound')!].filter(el=>el.offsetParent!==null)
       const first=focusable[0],last=focusable[focusable.length-1]
       if (event.shiftKey && document.activeElement===first) { event.preventDefault();last.focus() }
       else if (!event.shiftKey && document.activeElement===last) { event.preventDefault();first.focus() }
@@ -100,7 +106,7 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
     paragraph('A missing thing. A question. A rhythm. The marks meet at the last light.')
     for (const id of marked) paragraph(found.has(id) ? `${pages[id].mark}  ${pages[id].title}` : id==='making' ? '○  The workshop keeps its door open.' : id==='curiosity' ? '○  The ridge holds a question.' : '○  The hollow remembers a rhythm.',found.has(id)?'paper-stamp':'missing-page')
     paragraph(found.size===3?'All three marks. Bring them to the last light.':'The waypoints can bring you back to a path you missed.','paper-aside')
-    paragraph('Your marks stay in this browser. Nothing is sent anywhere.','paper-footnote');show()
+    paragraph('Your marks stay in this browser. Nothing is sent anywhere.','paper-footnote');const credits=document.createElement('a');credits.href='/prototype/hidden-village/assets/credits.txt';credits.textContent='World credits';credits.target='_blank';credits.rel='noopener';content.append(credits);show()
   })
   document.getElementById('about')!.addEventListener('click',()=>{heading('A LITTLE ABOUT ME','Hi, I’m Christian.');about.forEach(text=>paragraph(text));contact();show()})
   close.addEventListener('click',()=>dialog.close())
@@ -113,6 +119,7 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
   })
   return {
     get reading() { return dialog.open },
+    get animating() { return letters.some(letter=>letter.paper.animating) },
     focus(camera: THREE.Camera, look: THREE.Vector3, z: number, choices: {ridge:boolean;pond:boolean}) {
       const anchor=anchors.find(a=>(a.id==='curiosity'?choices.ridge:a.id==='rhythm'?choices.pond:true)&&Math.abs(z-a.position.z-2)<(a.id==='rhythm'||a.id==='curiosity'?6:7))
       if (!anchor || camera.position.distanceTo(anchor.position)>21) return
@@ -121,8 +128,20 @@ export async function addStories(scene: THREE.Scene, anchors: DiscoveryAnchor[],
       const normal=look.clone().sub(camera.position).normalize()
       normal.lerp(anchor.position.clone().add(new THREE.Vector3(0,.5,0)).sub(camera.position).normalize(),weight).normalize();look.copy(camera.position).addScaledVector(normal,7)
     },
-    update(camera: THREE.Camera, blocked: boolean) {
+    update(camera: THREE.Camera, blocked: boolean, delta: number, reducedMotion: boolean) {
       camera.updateMatrixWorld();let visibleId=''
+      for(const letter of letters)letter.paper.update(delta,reducedMotion)
+      if(active){
+        const letter=letters.find(letter=>letter.id===(active==='letter'?'home':active))!
+        letter.paper.mesh.updateMatrixWorld()
+        const targets={back,next,listen,unfold,contact:document.getElementById('letter-contact')!}
+        for(const [name,rect] of Object.entries(letter.paper.regions)){
+          const el=targets[name as keyof typeof targets], [x,y,w,h]=rect
+          const points=[[x,y],[x+w,y],[x+w,y+h],[x,y+h]].map(([px,py])=>new THREE.Vector3((px/1024-.5)*.66,(.5-py/1280)*.825,.002).applyMatrix4(letter.paper.mesh.matrixWorld).project(camera))
+          const xs=points.map(p=>(p.x+1)*innerWidth/2),ys=points.map(p=>(1-p.y)*innerHeight/2)
+          Object.assign(el.style,{left:`${Math.min(...xs)}px`,top:`${Math.min(...ys)}px`,width:`${Math.max(44,Math.max(...xs)-Math.min(...xs))}px`,height:`${Math.max(44,Math.max(...ys)-Math.min(...ys))}px`,visibility:'visible',pointerEvents:letter.paper.animating||inspection.moving?'none':'auto',opacity:letter.paper.animating||inspection.moving?'0':'1'})
+        }
+      }
       for (const anchor of buttons) {
         projected.copy(anchor.position).project(camera)
         const visible=!blocked&&!dialog.open&&!inspection.active&&camera.position.distanceTo(anchor.position)<19&&projected.z<1&&Math.abs(projected.x)<.86&&Math.abs(projected.y)<.72

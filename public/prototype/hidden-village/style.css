@@ -129,10 +129,8 @@ html { scrollbar-gutter: stable; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .choosing-path .caption { opacity: 0; pointer-events: none; }
 
-.atmosphere { position: absolute; right: 43px; bottom: 30px; padding: 11px 12px; border: 1px solid #59625d; border-radius: 3px; background: #101a1dcc; color: #c6c8bc; font: 11px Arial, sans-serif; cursor: pointer; min-height: 44px; }
 button:focus-visible { outline: 2px solid #e7b97c; outline-offset: 3px; }
 @media (max-width: 640px) {
-  .atmosphere { right: 23px; bottom: max(75px, calc(63px + env(safe-area-inset-bottom))); font-size: 10px; min-height: 32px; padding: 8px; }
   .caption { bottom: max(131px, calc(113px + env(safe-area-inset-bottom))); }
 }
 
@@ -168,15 +166,15 @@ html.reading { overflow:hidden; }
 @font-face {font-family:Kalam;src:url('/prototype/hidden-village/assets/fonts/Kalam-Regular.ttf') format('truetype');font-display:swap;}
 .canvas canvas {cursor:grab;touch-action:pan-y;}
 .canvas canvas.dragging {cursor:grabbing;}
-.sound-toggle {position:absolute;right:43px;bottom:81px;padding:10px 12px;min-height:40px;background:#101a1dcc;border:1px solid #59625d;border-radius:3px;color:#c6c8bc;font:11px Arial,sans-serif;cursor:pointer;}
-.sound-status {position:absolute;right:43px;bottom:122px;max-width:245px;font:12px/1.5 Arial,sans-serif;color:#d2c6aa;text-align:right;pointer-events:none;}
+.sound-toggle {position:absolute;right:43px;bottom:30px;padding:10px 12px;min-height:40px;background:#101a1dcc;border:1px solid #59625d;border-radius:3px;color:#c6c8bc;font:11px Arial,sans-serif;cursor:pointer;}
+.sound-status {position:absolute;right:43px;bottom:75px;max-width:245px;font:12px/1.5 Arial,sans-serif;color:#d2c6aa;text-align:right;pointer-events:none;}
 .sound-status:empty {display:none;}
 #inspection-controls {position:absolute;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 32px);text-align:center;z-index:6;}
 #inspection-controls button,#inspection-controls a {display:inline-block;min-height:44px;padding:12px 15px;margin:4px;color:#ead7b1;background:#192322ed;border:1px solid #8c8064;border-radius:3px;font:13px Georgia,serif;cursor:pointer;text-decoration:none;}
 #inspection-controls [hidden],#inspection-controls[hidden] {display:none;}
 #inspection-controls [aria-disabled=true] {color:#b2ad9b;}
 #inspection-description {font:15px Georgia,serif;text-shadow:0 2px 8px #000;color:#e0d0ac;}
-body[data-inspection] .topline,body[data-inspection] .caption,body[data-inspection] .controls,body[data-inspection] .atmosphere {visibility:hidden;pointer-events:none;}
+body[data-inspection] .topline,body[data-inspection] .caption,body[data-inspection] .controls {visibility:hidden;pointer-events:none;}
 body[data-inspection] .sound-toggle {top:18px;bottom:auto;right:20px;z-index:6;}
 body[data-inspection] .sound-status {top:60px;bottom:auto;right:20px;z-index:6;}
 body[data-inspection^="note:"] .vignette {opacity:.18;}
@@ -184,9 +182,20 @@ body[data-inspection="telescope"] #telescope-mask {opacity:var(--inspection-blen
 body[data-inspection="telescope"] #telescope-mask:after {content:'';position:absolute;inset:47% 49%;border-left:1px solid #d9d2a040;border-bottom:1px solid #d9d2a040;}
 .object-hit {font-size:12px;padding:10px 14px;}
 @media(max-width:640px) {
- .sound-toggle {right:23px;bottom:116px;min-height:32px;padding:8px;font-size:10px;}
- .sound-status {right:23px;bottom:152px;font-size:11px;max-width:190px;}
+ .sound-toggle {right:23px;bottom:75px;min-height:32px;padding:8px;font-size:10px;}
+ .sound-status {right:23px;bottom:112px;font-size:11px;max-width:190px;}
  #inspection-controls button,#inspection-controls a {font-size:12px;padding:10px;margin:3px;}
  #inspection-controls {bottom:max(14px,env(safe-area-inset-bottom));}
  #inspection-description {font-size:13px;}
 }
+
+/* Ink is part of the paper texture. These projected hit areas only add interaction and focus. */
+body[data-inspection^="note:"] #inspection-controls {inset:0;transform:none;width:100%;height:100%;pointer-events:none;}
+body[data-inspection^="note:"] #inspection-controls button,body[data-inspection^="note:"] #inspection-controls a {position:absolute;display:block;min-height:0;margin:0;padding:0;background:transparent;border:0;color:transparent;font-size:0;pointer-events:auto;}
+body[data-inspection^="note:"] #inspection-controls button:hover,body[data-inspection^="note:"] #inspection-controls a:hover {background:#72502c0c;}
+body[data-inspection^="note:"] #inspection-controls :focus-visible {outline:1px dashed #70522d;outline-offset:-5px;}
+body[data-inspection^="note:"] #inspection-controls [hidden] {display:none;}
+.drum-part-hit {position:absolute;transform:translate(-50%,-50%);width:72px;height:54px;background:transparent;border:0;color:transparent;pointer-events:none;z-index:4;}
+.drum-part-hit[hidden] {display:none;}
+.drum-part-hit:focus-visible {color:#efdfb8;background:#142122bb;outline:1px solid #d3bc85;font:12px Georgia,serif;pointer-events:auto;}
+body[data-inspection="drums"] #mount,body[data-inspection="court"] #mount {touch-action:none;}

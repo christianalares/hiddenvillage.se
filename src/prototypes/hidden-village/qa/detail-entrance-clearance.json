@@ -1,0 +1,19 @@
+{
+  "courtApproachSamples": 180,
+  "clearanceRangeMetres": [
+    1.4,
+    1.9
+  ],
+  "obstacleRadiusMetres": 0.25,
+  "exceptions": [],
+  "assets": {
+    "src/prototypes/hidden-village/blender/hidden-village.blend": {
+      "bytes": 37056216,
+      "sha256": "5e02f4c2ebc3d22856df34e7b7ec43d2670d03e57418c87d7b6fadd79af5b6d2"
+    },
+    "public/prototype/hidden-village/assets/woodland.glb": {
+      "bytes": 10329584,
+      "sha256": "e365f907534a86f6f216dacbb97fc043dac0078faa768f89c62787f292b39eaa"
+    }
+  }
+}

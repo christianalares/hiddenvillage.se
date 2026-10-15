@@ -8,6 +8,7 @@ import { addStories } from './stories'
 import { createInspection } from './inspection'
 import { createSound } from './sound'
 import { addInspectables } from './inspectables'
+import { addPlayableDrums } from './drums'
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
 async function start() {
@@ -34,12 +35,21 @@ const scene = new THREE.Scene()
 scene.background = new THREE.Color('#111b22')
 scene.fog = new THREE.FogExp2('#2d4047', 0.0095)
 const camera = new THREE.PerspectiveCamera(61, window.innerWidth / window.innerHeight, 0.15, 150)
-// A static sky gradient gives the silhouettes a luminous horizon without postprocessing.
+// A soft, slowly moving cloud layer gives the sky depth with one small texture lookup.
+const cloudCanvas=document.createElement('canvas');cloudCanvas.width=1024;cloudCanvas.height=256
+const clouds=cloudCanvas.getContext('2d')!
+let cloudSeed=912
+const cloudRandom=()=>{cloudSeed=(cloudSeed*16807)%2147483647;return cloudSeed/2147483647}
+for(let i=0;i<70;i++){
+  const x=cloudRandom()*1024,y=cloudRandom()*210+20,w=cloudRandom()*100+55,h=cloudRandom()*18+8
+  for(const shift of [-1024,0,1024]){clouds.save();clouds.translate(x+shift,y);clouds.scale(w,h);const wash=clouds.createRadialGradient(0,0,0,0,0,1);wash.addColorStop(0,'rgba(8,17,24,.17)');wash.addColorStop(1,'rgba(8,17,24,0)');clouds.fillStyle=wash;clouds.fillRect(-1,-1,2,2);clouds.restore()}
+}
+const cloudMap=new THREE.CanvasTexture(cloudCanvas);cloudMap.wrapS=THREE.RepeatWrapping
 const sky = new THREE.Mesh(new THREE.SphereGeometry(500, 32, 16), new THREE.ShaderMaterial({
   side: THREE.BackSide, depthWrite: false, fog: false,
-  uniforms: { horizon: { value: new THREE.Color('#344850') }, zenith: { value: new THREE.Color('#0b151e') } },
-  vertexShader: 'varying vec3 direction; void main(){ direction = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position.z = gl_Position.w; }',
-  fragmentShader: 'uniform vec3 horizon; uniform vec3 zenith; varying vec3 direction; void main(){ float h = smoothstep(-0.02, .55, direction.y); gl_FragColor = vec4(mix(horizon, zenith, h), 1.0);\n #include <tonemapping_fragment>\n #include <colorspace_fragment> }',
+  uniforms: { horizon: { value: new THREE.Color('#40565c') }, zenith: { value: new THREE.Color('#0b151e') }, cloudMap:{value:cloudMap},time:{value:0} },
+  vertexShader: 'varying vec3 direction; varying vec2 skyUv; void main(){ direction = normalize(position); skyUv=uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); gl_Position.z = gl_Position.w; }',
+  fragmentShader: 'uniform vec3 horizon; uniform vec3 zenith; uniform sampler2D cloudMap; uniform float time; varying vec3 direction; varying vec2 skyUv; void main(){ float h = smoothstep(-0.02, .55, direction.y); vec3 sky=mix(horizon, zenith, h); float cloud=texture2D(cloudMap,vec2(skyUv.x+time*.00035,skyUv.y*2.)).a*smoothstep(0.,.2,direction.y); gl_FragColor = vec4(mix(sky,vec3(.025,.045,.055),cloud*.55), 1.0);\n #include <tonemapping_fragment>\n #include <colorspace_fragment> }',
 }))
 sky.frustumCulled = false
 sky.renderOrder = -1
@@ -68,7 +78,7 @@ moon.position.copy(moonHalo.position)
 scene.add(moon)
 
 instruction.textContent = 'Preparing the woodland…'
-const { houseLights, motes, forkSigns, discoveries, inspectables, wildlifeNearby, update } = await buildWorld(scene).catch(error => {
+const { houseLights, motes, forkSigns, discoveries, inspectables, drumParts, wildlifeNearby, update } = await buildWorld(scene).catch(error => {
   instruction.textContent = 'The woodland could not load. Please reload to try again.'
   mount.dataset.state = 'error'
   throw error
@@ -87,7 +97,6 @@ const fork = document.getElementById('fork-signs')!
 const journeyStatus = document.getElementById('journey-status')!
 const branchButton = document.getElementById('branch-route') as HTMLButtonElement
 const mainButton = document.getElementById('main-route') as HTMLButtonElement
-const atmosphere = document.getElementById('atmosphere') as HTMLButtonElement
 let activeFork: BranchId | null = null
 let scrollLocked = false
 let keyboardTravel = false
@@ -130,7 +139,7 @@ const lookPoint = new THREE.Vector3()
 const tangent = new THREE.Vector3()
 const pondGaze = new THREE.Vector3()
 const projected = new THREE.Vector3()
-let lookYaw = 0, lookPitch = 0, returnLook = false, dragging = false
+let lookYaw = 0, lookPitch = 0, courtYaw = 0, courtPitch = 0, returnLook = false, dragging = false
 let pointerStart = { x: 0, y: 0 }, pointerLast = { x: 0, y: 0 }
 const lookRotation = new THREE.Quaternion(), lookEuler = new THREE.Euler(0, 0, 0, 'YXZ')
 function readingChanged(reading: boolean) {
@@ -143,6 +152,7 @@ const inspection = createInspection(camera, readingChanged, wake)
 const sound = createSound()
 const stories = await addStories(scene, discoveries, inspection, sound, readingChanged, wake)
 const updateInspectables = addInspectables(inspectables, inspection, sound)
+const drums = addPlayableDrums(drumParts, camera, renderer.domElement, inspection, sound, wake)
 for (const [button, side] of [[branchButton, true], [mainButton, false]] as const) {
   for (const name of ['pointerenter', 'focus']) button.addEventListener(name, () => { forkSigns.find(sign => sign.id === activeFork)?.highlight(side); wake() })
   for (const name of ['pointerleave', 'blur']) button.addEventListener(name, () => { forkSigns.forEach(sign => sign.highlight(null)); wake() })
@@ -217,18 +227,9 @@ function chooseRoute(side: boolean) {
 }
 branchButton.addEventListener('click', () => chooseRoute(true))
 mainButton.addEventListener('click', () => chooseRoute(false))
-function updateAtmosphereControl() {
-  atmosphere.textContent = motion ? 'Pause atmosphere' : 'Resume atmosphere'
-  atmosphere.setAttribute('aria-pressed', String(!motion))
-}
-atmosphere.addEventListener('click', () => { motion = !motion; updateAtmosphereControl(); wake() })
 motionPreference.addEventListener('change', event => {
-  reducedMotion = event.matches
-  motion = !reducedMotion
-  updateAtmosphereControl()
-  wake()
+  reducedMotion = event.matches; motion = !reducedMotion; wake()
 })
-updateAtmosphereControl()
 
 function wake() {
   clearTimeout(idleTimer)
@@ -243,7 +244,7 @@ function stopFrames() {
 function animate(time: number) {
   frameRequest = 0
   if (document.hidden || contextLost || stories.reading) return
-  const moving = Boolean(launch) || Math.abs(target - current) > 0.00001 || inspection.moving || dragging || returnLook
+  const moving = Boolean(launch) || Math.abs(target - current) > 0.00001 || inspection.moving || stories.animating || drums.animating || dragging || returnLook
   const lively = motion && wildlifeNearby(camera)
   const interval = moving || lively ? 1000 / 30 : 1000 / 20
   if (time - lastTime < interval - 1) {
@@ -313,6 +314,12 @@ function animate(time: number) {
       lookPoint.copy(camera.position).addScaledVector(tangent.lerp(pondGaze, weight).normalize(), 7)
     }
   }
+  if (!choices.pond && z < -6 && z > -21) {
+    const glance = .88 * Math.exp(-Math.pow((z + 13) / 5.5, 2))
+    tangent.subVectors(lookPoint, camera.position).normalize()
+    pondGaze.set(-5.28, 4.91, -20.44).sub(camera.position).normalize()
+    lookPoint.copy(camera.position).addScaledVector(tangent.lerp(pondGaze, glance).normalize(), 7)
+  }
   camera.lookAt(lookPoint)
   if (returnLook) {
     const decay = reducedMotion ? 0 : Math.exp(-delta * 6)
@@ -321,12 +328,20 @@ function animate(time: number) {
   }
   if (!inspection.active) camera.quaternion.multiply(lookRotation.setFromEuler(lookEuler.set(lookPitch, lookYaw, 0)))
   inspection.apply(delta, reducedMotion)
+  if (inspection.key === 'court' && !inspection.moving) {
+    lookEuler.setFromQuaternion(camera.quaternion, 'YXZ')
+    lookEuler.x += courtPitch; lookEuler.y += courtYaw; lookEuler.z = 0
+    camera.quaternion.setFromEuler(lookEuler)
+  }
+  if (!inspection.active) { courtYaw = 0; courtPitch = 0 }
   const scope = inspection.key === 'telescope'
   camera.near = scope ? 1.8 : .15; camera.far = scope ? 450 : 150; camera.updateProjectionMatrix()
   ;(scene.fog as THREE.FogExp2).density = scope ? .0017 : .0095
   sky.position.copy(camera.position)
-  stories.update(camera, Boolean(journey.pending || journey.launching))
+  stories.update(camera, Boolean(journey.pending || journey.launching), delta, reducedMotion)
   updateInspectables(camera, Boolean(journey.pending || journey.launching || stories.reading))
+  drums.update(delta, reducedMotion)
+  sound.update(camera.position.x, z)
   const closest = lightSources.slice().sort((a, b) => a.position.distanceToSquared(camera.position) - b.position.distanceToSquared(camera.position))
   nearbyLights.forEach((light, i) => {
     const source = closest[i]
@@ -335,8 +350,9 @@ function animate(time: number) {
     light.color.copy(source.color)
     light.intensity = source.intensity * clamp((10 - source.position.distanceTo(camera.position)) / 6, 0, 1)
   })
-  const restingNote = Boolean(inspection.key?.startsWith('note:') && !inspection.moving)
+  const restingNote = Boolean(inspection.key?.startsWith('note:') && !inspection.moving && !stories.animating)
   if (motion && !restingNote) weatherTime += delta
+  sky.material.uniforms.time.value=weatherTime
   motes.rotation.y = Math.sin(weatherTime * 0.12) * 0.006
   update(camera, weatherTime, delta, motion && !restingNote)
   const renderStart = performance.now()
@@ -344,14 +360,14 @@ function animate(time: number) {
   Object.assign(renderer.domElement.dataset, {
     renderMs: (performance.now() - renderStart).toFixed(2), frames: String(++frameCount),
     drawCalls: String(renderer.info.render.calls), triangles: String(renderer.info.render.triangles),
-    cameraZ: z.toFixed(2), cameraX: camera.position.x.toFixed(2), cameraY: camera.position.y.toFixed(2),
+    cameraZ: camera.position.z.toFixed(2), cameraX: camera.position.x.toFixed(2), cameraY: camera.position.y.toFixed(2),
     progress: current.toFixed(4), atmosphere: motion ? 'running' : 'paused',
     ridge: String(choices.ridge), workshop: String(choices.workshop), pond: String(choices.pond),
     lookYaw: lookYaw.toFixed(3), lookPitch: lookPitch.toFixed(3), inspection: inspection.key ?? '',
     journey: journey.pending ? `choice:${journey.pending}` : journey.launching ? `following:${journey.launching}` : 'walking',
   })
   updateProgress()
-  if (launch || current !== target || inspection.moving || dragging || returnLook) frameRequest = requestAnimationFrame(animate)
+  if (launch || current !== target || inspection.moving || stories.animating || drums.animating || dragging || returnLook) frameRequest = requestAnimationFrame(animate)
   else if (motion && !restingNote) idleTimer = window.setTimeout(wake, lively ? 1000 / 30 : 1000 / 20)
 }
 THREE.DefaultLoadingManager.onLoad = wake
@@ -431,7 +447,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-stop]').forEach(button => {
 })
 
 renderer.domElement.addEventListener('pointerdown', event => {
-  if (event.button !== 0 || inspection.active || journey.launching) return
+  if (event.button !== 0 || (inspection.active && (inspection.key !== 'court' || inspection.moving)) || journey.launching) return
   pointerStart = pointerLast = { x: event.clientX, y: event.clientY }
   dragging = true; returnLook = false
   renderer.domElement.setPointerCapture(event.pointerId)
@@ -441,8 +457,13 @@ renderer.domElement.addEventListener('pointermove', event => {
   if (!dragging) return
   const distance = Math.hypot(event.clientX - pointerStart.x, event.clientY - pointerStart.y)
   if (distance > 4) {
-    lookYaw = clamp(lookYaw + (event.clientX - pointerLast.x) * .004, -2.6, 2.6)
-    lookPitch = clamp(lookPitch + (event.clientY - pointerLast.y) * .003, -.85, .85)
+    if (inspection.key === 'court') {
+      courtYaw = clamp(courtYaw + (event.clientX - pointerLast.x) * .004, -2.6, 2.6)
+      courtPitch = clamp(courtPitch + (event.clientY - pointerLast.y) * .003, -.85, .85)
+    } else {
+      lookYaw = clamp(lookYaw + (event.clientX - pointerLast.x) * .004, -2.6, 2.6)
+      lookPitch = clamp(lookPitch + (event.clientY - pointerLast.y) * .003, -.85, .85)
+    }
     pointerLast = { x: event.clientX, y: event.clientY }; wake()
   }
 })

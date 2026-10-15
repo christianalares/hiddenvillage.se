@@ -37,8 +37,17 @@ export function createLetter(page: Page) {
   const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 1280
   const ctx = canvas.getContext('2d')!
   const map = new THREE.CanvasTexture(canvas); map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4
-  const material = new THREE.MeshBasicMaterial({ map, transparent: false, alphaTest: .5, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2 })
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.66, .825), material); mesh.rotation.x = -Math.PI / 2
+  const material = new THREE.MeshBasicMaterial({ map, transparent: false, alphaTest: .5, toneMapped: false, polygonOffset: true, polygonOffsetFactor: -2, side: THREE.DoubleSide })
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.66, .825, 32, 20), material); mesh.rotation.x = -Math.PI / 2
+  const rest = mesh.geometry.attributes.position.array.slice() as Float32Array
+  const curlShade={value:0}
+  material.onBeforeCompile=shader=>{
+    shader.uniforms.curlShade=curlShade
+    shader.fragmentShader='uniform float curlShade;\n'+shader.fragmentShader
+    shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\ndiffuseColor.rgb *= 1.0 - sin(vMapUv.x * 3.14159) * curlShade * .22;')
+  }
+  let fold = 1, pendingSheet = 0, switched = true, canUnfold = false
+  const regions = { back: [770, 18, 225, 130], next: [610, 1125, 390, 125], listen: [45, 1125, 560, 125], unfold: [70, 1030, 590, 110], contact: [700, 1030, 290, 110] }
   let sheets: string[][] = []
   function wrap(text: string) {
     ctx.font = '54px Kalam, cursive'
@@ -56,7 +65,10 @@ export function createLetter(page: Page) {
   function prepare(next: Page) {
     page = next; sheets = [[]]
     for (const paragraph of [...page.paragraphs, ...(page.hint ? [page.hint] : [])]) {
-      for (const line of [...wrap(paragraph), '']) {
+      const lines = wrap(paragraph)
+      // Keep a paragraph together whenever it fits on a sheet.
+      if (lines.length <= 11 && sheets[sheets.length - 1].length + lines.length > 11) sheets.push([])
+      for (const line of [...lines, '']) {
         if (sheets[sheets.length - 1].length >= 11) sheets.push([])
         sheets[sheets.length - 1].push(line)
       }
@@ -79,7 +91,8 @@ export function createLetter(page: Page) {
     for (let i=0;i<22000;i++) { ctx.fillStyle = `rgba(${rand()>.5?'255,249,224':'100,70,36'},${rand()*.08})`;ctx.fillRect(rand()*1024,rand()*1280,rand()*3+1,rand()*2+1) }
     ctx.strokeStyle = '#7a502912';ctx.lineWidth = 5;ctx.beginPath();ctx.ellipse(988,1025,115,138,.2,0,Math.PI*2);ctx.stroke()
     ctx.strokeStyle='#7e5c2420';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(20,650);ctx.bezierCurveTo(300,633,730,671,1005,647);ctx.stroke()
-    ctx.fillStyle='#49331e';ctx.font='34px Kalam, cursive';ctx.fillText(page.place,88,95,845)
+    ctx.fillStyle='#49331e';ctx.font='30px Kalam, cursive';ctx.fillText(page.place,88,92,650)
+    ctx.font='44px Kalam, cursive';ctx.textAlign='right';ctx.fillText('Close ×',938,85);ctx.textAlign='left'
     ctx.font='64px Kalam, cursive'
     // A short second line preserves the handwriting rather than squeezing long titles.
     const words = page.title.split(' '); let title = '', titleY = 190
@@ -91,10 +104,36 @@ export function createLetter(page: Page) {
     ctx.font='54px Kalam, cursive';ctx.fillStyle='#3e2b1e'
     const y = Math.max(320,titleY+94)
     sheets[index].forEach((line,i)=>{ ctx.save();ctx.translate(88,y+i*70);ctx.rotate((rand()-.5)*.003);ctx.fillText(line,0,0);ctx.restore() })
-    ctx.font='40px Kalam, cursive';ctx.fillStyle='#806340';ctx.fillText(page.mark ? `${page.mark}  Keep this mark.` : 'C.',88,1185)
-    ctx.textAlign='right';ctx.fillText(`${index+1} / ${sheets.length}`,935,1185);ctx.textAlign='left'
+    ctx.font='32px Kalam, cursive';ctx.fillStyle='#806340'
+    ctx.fillText(page.mark ? `${page.mark}  Keep this mark.` : canUnfold ? '✳ ⌁ ≋  Unfold the letter' : 'C.',88,1110)
+    if (page === pages.home || page === pages.letter) { ctx.textAlign='right';ctx.fillText('Leave a word',935,1110);ctx.textAlign='left' }
+    ctx.strokeStyle='#80634050';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(86,1140);ctx.lineTo(936,1140);ctx.stroke()
+    ctx.font='44px Kalam, cursive';ctx.fillStyle=page.audio?'#49331e':'#8b785d';ctx.fillText(page.audio?'♫ Listen':'♫ Listen · coming soon',88,1200)
+    ctx.fillStyle='#49331e';ctx.textAlign='right';ctx.fillText(`${index+1} / ${sheets.length}${sheets.length>1?'   Turn ↻':''}`,935,1200);ctx.textAlign='left'
     ctx.restore(); map.needsUpdate=true
   }
   prepare(page); draw(0)
-  return { mesh, draw, prepare, get count() { return sheets.length } }
+  return { mesh, draw, prepare, regions,
+    setUnfold(value: boolean) { canUnfold = value },
+    turn(index: number, immediate: boolean) {
+      pendingSheet=index;fold=immediate?1:0;switched=immediate
+      if(immediate){mesh.geometry.attributes.position.array.set(rest);mesh.geometry.attributes.position.needsUpdate=true;curlShade.value=0;draw(index)}
+    },
+    get animating() { return fold<1 },
+    update(delta: number, reducedMotion: boolean) {
+      if(fold>=1)return
+      fold=reducedMotion?1:Math.min(1,fold+delta/.85)
+      if(fold>=.5&&!switched){draw(pendingSheet);switched=true}
+      // Lift and roll the real sheet around its left edge, then let the next page settle.
+      const bend=Math.sin(fold*Math.PI), positions=mesh.geometry.attributes.position
+      curlShade.value=bend
+      for(let i=0;i<positions.count;i++){
+        const x=rest[i*3],y=rest[i*3+1],u=(x+.33)/.66
+        const angle=bend*u*1.7
+        positions.setXYZ(i,angle ? -.33+Math.sin(angle)/angle*(x+.33) : x,y,Math.sin(angle)*.19+bend*u*.025)
+      }
+      positions.needsUpdate=true;mesh.geometry.computeVertexNormals()
+    },
+    get count() { return sheets.length },
+  }
 }

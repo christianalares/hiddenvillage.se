@@ -17,6 +17,7 @@ export async function addEnvironment(scene: THREE.Scene) {
   const discoveries: { id: string; position: THREE.Vector3 }[] = []
   const inspectables: Inspectable[] = []
   const moving: THREE.Object3D[] = []
+  const drumParts: THREE.Object3D[] = []
   const lettering: THREE.Mesh[] = []
   const weatherTime = { value: 0 }
   const textures = new THREE.TextureLoader()
@@ -37,9 +38,10 @@ export async function addEnvironment(scene: THREE.Scene) {
   const materials = new Set<THREE.MeshStandardMaterial>()
   environment.updateMatrixWorld(true)
   environment.traverse(object => {
-    if (object.userData.inspect) inspectables.push({ id: String(object.userData.inspect), position: object.getWorldPosition(new THREE.Vector3()), eye: new THREE.Vector3().fromArray(object.userData.eye), target: new THREE.Vector3().fromArray(object.userData.target) })
+    if (object.userData.inspect) inspectables.push({ id: String(object.userData.inspect), position: object.getWorldPosition(new THREE.Vector3()), eye: new THREE.Vector3().fromArray(object.userData.eye), target: new THREE.Vector3().fromArray(object.userData.target), via: object.userData.via ? Array.from({length:object.userData.via.length/3},(_,i)=>new THREE.Vector3().fromArray(object.userData.via,i*3)) : undefined })
     if (object.userData.discovery) discoveries.push({ id: String(object.userData.discovery), position: object.getWorldPosition(new THREE.Vector3()) })
     if (object.userData.motion) { object.userData.origin = object.position.clone(); moving.push(object) }
+    if (object.userData.motion === 'drum') drumParts.push(object)
     if (object.userData.lamp) {
       const light = new THREE.PointLight('#ffc485', Number(object.userData.intensity), 10, 1.7)
       object.getWorldPosition(light.position)
@@ -88,8 +90,7 @@ export async function addEnvironment(scene: THREE.Scene) {
       : /Limewashed/.test(material.name) ? '#aeb1a2' : null
     if (tint) material.color.set(tint)
     if (rockColor && /rock_moss/.test(material.name)) material.map = rockColor
-    material.roughness = 0.95
-    material.metalness = 0
+    if(!material.name.startsWith('Drum artist ')){material.roughness = 0.95;material.metalness = 0}
     if (/Still pond/.test(material.name)) { material.roughness = 0.27; material.metalness = 0.15 }
     if (/Amber glass/.test(material.name)) { material.emissive.set('#ffc27c'); material.emissiveIntensity = 1.05; material.toneMapped = false }
     if (windMaterial.test(material.name)) {
@@ -97,7 +98,9 @@ export async function addEnvironment(scene: THREE.Scene) {
       material.transparent = false
       material.depthWrite = true
       material.side = THREE.DoubleSide
-    } else material.side = /court (net|iron)|silhouette/i.test(material.name) ? THREE.DoubleSide : THREE.FrontSide
+    } else material.side = /court (net|iron|wire|tempered|aged white)|silhouette/i.test(material.name) ? THREE.DoubleSide : THREE.FrontSide
+    if(/Court tempered/.test(material.name)){material.roughness=.19;material.metalness=.3;material.depthWrite=false;material.opacity=.16}
+    if(/Court structural/.test(material.name)){material.roughness=.6;material.metalness=.55}
     for (const texture of [material.map, material.normalMap]) if (texture) texture.anisotropy = 4
     if (/blended trail/.test(material.name)) {
       material.map = forest
@@ -180,7 +183,7 @@ ${water ? 'varying vec2 waterPosition;' : ''}`)
     object.userData.detailDistance = distance
     detail.push(object)
   })
-  return { lights, animals, discoveries, inspectables, update: (camera: THREE.Camera, time: number) => {
+  return { lights, animals, discoveries, inspectables, drumParts, update: (camera: THREE.Camera, time: number) => {
     weatherTime.value = time
     for (const object of moving) {
       if (object.userData.motion === 'vane') object.rotation.y = time * .7

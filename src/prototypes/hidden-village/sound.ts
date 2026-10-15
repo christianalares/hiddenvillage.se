@@ -1,77 +1,84 @@
-/** Sound is opt-in, local and quiet. No audio context or media is created before a click. */
+export type DrumPart = 'kick' | 'snare' | 'hihat' | 'crash' | 'ride' | 'rack-tom' | 'floor-tom'
+const root = '/prototype/hidden-village/assets/audio/'
+/** Real field recordings and acoustic hits, created/resumed only after an explicit sound gesture. */
 export function createSound() {
   const button = document.getElementById('sound') as HTMLButtonElement
   const status = document.getElementById('sound-status')!
-  let context: AudioContext | null = null, master: GainNode, wind: GainNode
-  let enabled = false, birdTimer = 0, voice: HTMLAudioElement | null = null
-  let announcementTimer = 0
-  function announce(message: string) {
-    clearTimeout(announcementTimer); status.textContent = message
-    announcementTimer = window.setTimeout(() => { status.textContent = '' }, 6500)
+  let context: AudioContext | null = null, master: GainNode, ambience: GainNode
+  let enabled = false, eventTimer = 0, voice: HTMLAudioElement | null = null, announcementTimer = 0
+  let forestStarted = false, walkingZ = 210, walkingX = 0, ambientLevel = 0
+  const raw = new Map<string, Promise<ArrayBuffer>>(), decoded = new Map<string, Promise<AudioBuffer>>()
+  const alternates = new Map<string, number>()
+  function announce(message: string) { clearTimeout(announcementTimer);status.textContent=message;announcementTimer=window.setTimeout(()=>{status.textContent=''},6500) }
+  function paint() { button.textContent=enabled?'Sound on ♫':'Sound off';button.setAttribute('aria-pressed',String(enabled));document.body.dataset.sound=enabled?'on':'off' }
+  function fetchSound(name: string) {
+    if(!raw.has(name))raw.set(name,fetch(`${root}${name}.mp3`).then(response=>{if(!response.ok)throw Error('Sound unavailable');return response.arrayBuffer()}).catch(error=>{raw.delete(name);throw error}))
+    return raw.get(name)!
   }
-  function paint() { button.textContent = enabled ? 'Sound on ♫' : 'Sound off'; button.setAttribute('aria-pressed', String(enabled)); document.body.dataset.sound = enabled ? 'on' : 'off' }
-  function birds() {
-    if (!context || !enabled || document.hidden) return
-    const t = context.currentTime, oscillator = context.createOscillator(), gain = context.createGain()
-    oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(680, t)
-    oscillator.frequency.exponentialRampToValueAtTime(480, t + .22)
-    oscillator.frequency.exponentialRampToValueAtTime(640, t + .45)
-    gain.gain.setValueAtTime(0, t); gain.gain.linearRampToValueAtTime(.025, t + .08); gain.gain.exponentialRampToValueAtTime(.0001, t + .65)
-    oscillator.connect(gain).connect(master); oscillator.start(t); oscillator.stop(t + .7)
-    oscillator.onended = () => { oscillator.disconnect(); gain.disconnect() }
-    birdTimer = window.setTimeout(birds, 14000 + Math.random() * 18000)
+  async function buffer(name: string) {
+    if(!decoded.has(name))decoded.set(name,fetchSound(name).then(data=>context!.decodeAudioData(data.slice(0))).catch(error=>{decoded.delete(name);throw error}))
+    return decoded.get(name)!
+  }
+  async function play(name: string, volume: number, pan=0, ambient=false) {
+    if(!enabled||!context)return
+    try {
+      const clip=await buffer(name)
+      if(!enabled||document.hidden)return
+      const source=context.createBufferSource(),gain=context.createGain(),stereo=context.createStereoPanner()
+      source.buffer=clip;gain.gain.value=volume;stereo.pan.value=pan
+      source.connect(gain).connect(stereo).connect(ambient?ambience:master);source.start()
+      source.onended=()=>{source.disconnect();gain.disconnect();stereo.disconnect()}
+    }catch{announce('A sound could not load. You can try again.')}
+  }
+  function distantEvents() {
+    if(!enabled||!context||document.hidden)return
+    const nearTimber=walkingZ<46||walkingX<-75
+    void play(nearTimber&&Math.random()>.55?'wood-creak':'owl',nearTimber?.22:.15,Math.random()>.5?.65:-.65,true)
+    eventTimer=window.setTimeout(distantEvents,28000+Math.random()*26000)
   }
   async function enable() {
     try {
-      if (!context) {
-        context = new AudioContext()
-        master = context.createGain(); master.gain.value = .65; master.connect(context.destination)
-        const buffer = context.createBuffer(1, context.sampleRate * 8, context.sampleRate), channel = buffer.getChannelData(0)
-        let previous = 0
-        for (let i = 0; i < channel.length; i++) { previous = (previous + (Math.random() * 2 - 1) * .02) / 1.02; channel[i] = previous * 3.5 }
-        const noise = context.createBufferSource(); noise.buffer = buffer; noise.loop = true
-        const filter = context.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 900
-        wind = context.createGain(); wind.gain.value = .13
-        noise.connect(filter).connect(wind).connect(master); noise.start()
-        const gust = context.createOscillator(), depth = context.createGain(); gust.frequency.value = .075; depth.gain.value = .045
-        gust.connect(depth).connect(wind.gain); gust.start()
+      if(!context){
+        context=new AudioContext({latencyHint:'interactive'});master=context.createGain();master.gain.value=.7;master.connect(context.destination)
+        ambience=context.createGain();ambience.gain.value=.23;ambience.connect(master)
       }
-      await context.resume(); enabled = context.state === 'running'; paint()
-      if (enabled) { clearTimeout(birdTimer); birdTimer = window.setTimeout(birds, 6000); announce('Wind and distant birds enabled.') }
-    } catch { announce('Sound could not start. Try the sound button again.') }
+      await context.resume();enabled=context.state==='running';paint()
+      if(enabled){
+        if(!forestStarted){
+          forestStarted=true
+          void buffer('woodland').then(clip=>{const source=context!.createBufferSource();source.buffer=clip;source.loop=true;source.connect(ambience);source.start()}).catch(()=>{forestStarted=false;announce('The woodland recording could not load.')})
+        }
+        clearTimeout(eventTimer);eventTimer=window.setTimeout(distantEvents,8500)
+      }
+    }catch{announce('Sound could not start. Try the sound button again.')}
   }
-  async function mute() { announce('Sound off.'); enabled = false; clearTimeout(birdTimer); voice?.pause(); await context?.suspend(); paint() }
-  button.addEventListener('click', () => { void (enabled ? mute() : enable()) })
-  document.addEventListener('visibilitychange', () => {
-    clearTimeout(birdTimer)
-    if (document.hidden) { voice?.pause(); void context?.suspend() }
-    else if (enabled) void context?.resume().then(() => { birdTimer = window.setTimeout(birds, 9000) }).catch(() => { enabled = false; paint() })
+  async function mute() { enabled=false;clearTimeout(eventTimer);voice?.pause();await context?.suspend();paint();announce('Sound off.') }
+  button.addEventListener('click',()=>{if(enabled)void mute();else void enable().then(()=>{if(enabled)announce('The woodland is listening.')})})
+  document.addEventListener('visibilitychange',()=>{
+    clearTimeout(eventTimer)
+    if(document.hidden){voice?.pause();void context?.suspend()}
+    else if(enabled)void context?.resume().then(()=>{eventTimer=window.setTimeout(distantEvents,10000)}).catch(()=>{enabled=false;paint()})
   })
   paint()
   return {
     enable,
-    get enabled() { return enabled },
-    stopVoice() { voice?.pause(); voice = null; if (master && context) master.gain.setTargetAtTime(.65, context.currentTime, .2) },
-    async listen(source?: string) {
-      if (!source) { announce('Christian’s recording is not here yet. You can enable the woodland sounds separately.'); return }
-      await enable()
-      if (!enabled) return
-      voice?.pause(); voice = new Audio(source)
-      try {
-        await voice.play(); master.gain.setTargetAtTime(.18, context!.currentTime, .2)
-        voice.onended = () => master.gain.setTargetAtTime(.65, context!.currentTime, .2)
-      } catch { announce('The recording could not play. Please try again.') }
+    get enabled(){return enabled},
+    update(x:number,z:number){walkingX=x;walkingZ=z;const level=z>70&&z<90?.31:x<-60?.24:.18;if(context&&ambience&&level!==ambientLevel){ambientLevel=level;ambience.gain.setTargetAtTime(level,context.currentTime,2)}},
+    prepareDrums(){for(const part of ['kick','snare','hihat','crash','ride','rack-tom','floor-tom'])for(const hit of [1,2])void fetchSound(`${part}-${hit}`).catch(()=>{})},
+    stopVoice(){voice?.pause();voice=null;if(master&&context)master.gain.setTargetAtTime(.7,context.currentTime,.2)},
+    async listen(source?:string){
+      if(!source){announce('Christian’s recording is not here yet. Woodland sounds are available separately.');return}
+      await enable();if(!enabled)return
+      voice?.pause();voice=new Audio(source)
+      try{await voice.play();master.gain.setTargetAtTime(.20,context!.currentTime,.2);voice.onended=()=>master.gain.setTargetAtTime(.7,context!.currentTime,.2)}catch{announce('The recording could not play. Please try again.')}
     },
-    drum() {
-      void enable().then(() => {
-        if (!context || !enabled) return
-        const t = context.currentTime, tone = context.createOscillator(), gain = context.createGain()
-        tone.frequency.setValueAtTime(150,t);tone.frequency.exponentialRampToValueAtTime(45,t+.2)
-        gain.gain.setValueAtTime(.35,t);gain.gain.exponentialRampToValueAtTime(.001,t+.6)
-        tone.connect(gain).connect(master);tone.start();tone.stop(t+.65)
-        tone.onended = () => { tone.disconnect(); gain.disconnect() }
-      })
+    page(){if(enabled)void play('page-turn',.32)},
+    async drum(part:DrumPart='kick'){
+      if(!enabled)await enable()
+      const hit=((alternates.get(part)??0)+1)%2;alternates.set(part,hit)
+      const pan=part==='hihat'?-.3:part==='floor-tom'||part==='ride'?.3:0
+      await play(`${part}-${hit+1}`,part==='crash'?.6:.9,pan)
     },
   }
 }
-export type WoodlandSound = ReturnType<typeof createSound>
+export type WoodlandSound=ReturnType<typeof createSound>

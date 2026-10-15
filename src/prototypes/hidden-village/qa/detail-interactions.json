@@ -1,0 +1,73 @@
+{
+  "desktopDrumHits": [
+    {
+      "expected": "crash",
+      "actual": "crash"
+    },
+    {
+      "expected": "floor-tom",
+      "actual": "floor-tom"
+    },
+    {
+      "expected": "hihat",
+      "actual": "hihat"
+    },
+    {
+      "expected": "kick",
+      "actual": "kick"
+    },
+    {
+      "expected": "rack-tom",
+      "actual": "rack-tom"
+    },
+    {
+      "expected": "ride",
+      "actual": "ride"
+    },
+    {
+      "expected": "snare",
+      "actual": "snare"
+    }
+  ],
+  "phoneDrumHits": [
+    {
+      "expected": "crash",
+      "actual": "crash"
+    },
+    {
+      "expected": "floor-tom",
+      "actual": "floor-tom"
+    },
+    {
+      "expected": "hihat",
+      "actual": "hihat"
+    },
+    {
+      "expected": "kick",
+      "actual": "kick"
+    },
+    {
+      "expected": "rack-tom",
+      "actual": "rack-tom"
+    },
+    {
+      "expected": "ride",
+      "actual": "ride"
+    },
+    {
+      "expected": "snare",
+      "actual": "snare"
+    }
+  ],
+  "phoneViewport": {
+    "width": 390,
+    "height": 844
+  },
+  "desktopViewport": {
+    "width": 1800,
+    "height": 1012
+  },
+  "letterControls": "Printed ink with projected hit areas; page fold visually inspected on phone; tap targets at least 44px.",
+  "court": "Entrance animation, reverse exit and drag-look verified; sampled route clearance is in detail-entrance-clearance.json.",
+  "consoleErrors": []
+}

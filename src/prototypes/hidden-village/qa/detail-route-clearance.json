@@ -1,0 +1,47 @@
+{
+  "routes": {
+    "false-false-false": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "false-false-true": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "false-true-false": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "false-true-true": {
+      "samples": 545,
+      "minClearance": 1.700091125259,
+      "maxClearance": 1.7873132324218748
+    },
+    "true-false-false": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    },
+    "true-false-true": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    },
+    "true-true-false": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    },
+    "true-true-true": {
+      "samples": 545,
+      "minClearance": 1.6543529484754238,
+      "maxClearance": 1.783005408887517
+    }
+  },
+  "outliers": [],
+  "unpackedImages": [],
+  "obstacleContacts": []
+}

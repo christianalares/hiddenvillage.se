@@ -13,6 +13,7 @@ type World = {
   forkSigns: ForkSign[]
   discoveries: DiscoveryAnchor[]
   inspectables: Inspectable[]
+  drumParts: THREE.Object3D[]
   wildlifeNearby: (camera: THREE.Camera) => boolean
   update: (camera: THREE.Camera, time: number, delta: number, motion: boolean) => void
 }
@@ -71,7 +72,7 @@ export async function buildWorld(scene: THREE.Scene): Promise<World> {
   const forkSigns = await addForkSigns(scene)
   const motes = addAtmosphere(scene)
   const mist = addMist(scene)
-  return { houseLights: authored.lights, motes, forkSigns, discoveries: authored.discoveries, inspectables: authored.inspectables, wildlifeNearby: wildlife.nearby, update: (camera, time, delta, motion) => {
+  return { houseLights: authored.lights, motes, forkSigns, discoveries: authored.discoveries, inspectables: authored.inspectables, drumParts: authored.drumParts, wildlifeNearby: wildlife.nearby, update: (camera, time, delta, motion) => {
     authored.update(camera, time)
     mist(time)
     wildlife.update(camera, delta, motion)

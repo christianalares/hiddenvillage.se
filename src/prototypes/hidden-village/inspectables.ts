@@ -1,20 +1,21 @@
 import * as THREE from 'three'
 import { Inspection } from './inspection'
 import { WoodlandSound } from './sound'
-export type Inspectable = { id: string; position: THREE.Vector3; eye: THREE.Vector3; target: THREE.Vector3 }
+export type Inspectable = { id: string; position: THREE.Vector3; eye: THREE.Vector3; target: THREE.Vector3; via?: THREE.Vector3[] }
 export function addInspectables(anchors: Inspectable[], inspection: Inspection, sound: WoodlandSound) {
   const labels: Record<string,string>={telescope:'Look through the telescope',drums:'Step into the music room',court:'Explore the blue court',well:'Look into the well'}
   const controls=document.getElementById('inspection-controls')!
-  const drum=document.getElementById('play-drum') as HTMLButtonElement
-  drum.addEventListener('click',()=>sound.drum())
   const projected=new THREE.Vector3()
   const targets=anchors.map(anchor=>{
     const button=document.createElement('button');button.className='discovery-hit object-hit';button.textContent=labels[anchor.id];button.hidden=true
     button.addEventListener('click',()=>{
       if(inspection.active)return
-      document.getElementById('letter-actions')!.hidden=true;controls.hidden=false;drum.hidden=anchor.id!=='drums'
-      document.getElementById('inspection-description')!.textContent=anchor.id==='telescope'?'Three lights in the old tower. Someone left them burning.':anchor.id==='court'?'The blue is still there, beneath the years.':''
-      inspection.open(anchor.id,anchor.target,anchor.eye,anchor.id==='telescope'?13:61)
+      document.getElementById('letter-actions')!.hidden=true;controls.hidden=false
+      if(anchor.id==='drums')sound.prepareDrums()
+      document.getElementById('inspection-description')!.textContent=anchor.id==='telescope'?'Three lights in the old tower. Someone left them burning.':anchor.id==='court'?'The blue is still there, beneath the years. Drag to look around.':anchor.id==='drums'?'A room that remembers. Touch a drum or cymbal.':''
+      const eye=anchor.eye.clone()
+      if(anchor.id==='drums'&&innerWidth<640)eye.sub(anchor.target).multiplyScalar(1.4).add(anchor.target)
+      inspection.open(anchor.id,anchor.target,eye,anchor.id==='telescope'?13:61,anchor.via)
       document.getElementById('leave-inspection')!.focus({preventScroll:true})
     });document.getElementById('discoveries')!.append(button);return {...anchor,button}
   })
